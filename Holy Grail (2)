@@ -47,8 +47,8 @@ namespace cAlgo.Robots
         [Parameter("Limit Range", DefaultValue = 3)]
         public int LimitRange { get; set; }
 
-        [Parameter("Nuke Allowance", DefaultValue = 5)]
-        public double NukeAllowance { get; set; }
+        [Parameter("Nuke TP", DefaultValue = 5)]
+        public double NukeTP { get; set; }
 
         [Parameter("Stop Out Percent", DefaultValue = 50)]
         public int StopOutPercent { get; set; }
@@ -199,23 +199,23 @@ namespace cAlgo.Robots
                         if ((position.Pips <= Math.Round(ATRh12.Result.LastValue / Symbol.PipSize) * -1) && (Symbol.Ask >= upmin && Symbol.Ask <= upmax) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Buy) && (rsim15.Result.LastValue < RSILowerLimitm15))
                         {
                             ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
-                            ModifyPosition(position, position.EntryPrice - ATRd1.Result.LastValue * 10, position.EntryPrice + NukeAllowance * Symbol.PipSize);
+                            ModifyPosition(position, position.EntryPrice - ATRd1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize);
                         }
                         if ((position.Pips <= Math.Round(ATRh12.Result.LastValue / Symbol.PipSize) * -1) && (Symbol.Bid >= upmin && Symbol.Bid <= upmax) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Sell) && (rsim15.Result.LastValue > RSIUpperLimitm15))
                         {
                             ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
-                            ModifyPosition(position, position.EntryPrice + ATRd1.Result.LastValue * 10, position.EntryPrice - NukeAllowance * Symbol.PipSize);
+                            ModifyPosition(position, position.EntryPrice + ATRd1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize);
                         }
                         if ((position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Buy) && (rsim15.Result.LastValue < RSILowerLimitm15))
                         {
                             ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
-                            ModifyPosition(position, position.EntryPrice - ATRd1.Result.LastValue * 10, position.EntryPrice + NukeAllowance * Symbol.PipSize);
+                            ModifyPosition(position, position.EntryPrice - ATRd1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize);
                             Print("BackupClose and RSI equals " + rsim15.Result.LastValue);
                         }
                         if ((position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Sell) && (rsim15.Result.LastValue > RSIUpperLimitm15))
                         {
                             ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
-                            ModifyPosition(position, position.EntryPrice + ATRd1.Result.LastValue * 10, position.EntryPrice - NukeAllowance * Symbol.PipSize);
+                            ModifyPosition(position, position.EntryPrice + ATRd1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize);
                             Print("BackupClose and RSI equals " + rsim15.Result.LastValue);
                         }
                     }

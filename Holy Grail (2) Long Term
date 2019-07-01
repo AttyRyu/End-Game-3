@@ -31,7 +31,7 @@ namespace cAlgo.Robots
         [Parameter("Max Lines In Zone", DefaultValue = 1)]
         public int MaxLinesInZone { get; set; }
 
-        [Parameter("File_Path", DefaultValue = "//Mac/Dropbox/Forex and Stocks Trading Strategies/BlueMeth/")]
+        [Parameter("File_Path", DefaultValue = "C:/Users/asus/Desktop/EndGame/")]
         public string File_Path { get; set; }
 
         [Parameter("ATR Periods", DefaultValue = 60)]
@@ -229,13 +229,13 @@ namespace cAlgo.Robots
                 {
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
                     ModifyPosition(position, position.EntryPrice - ATRd1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize);
-                    Print("Nuke "position.Pips);
+                    Print("Nuke " + position.Pips);
                 }
                 if ((position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Sell) && (rsih1.Result.LastValue > RSIUpperLimit))
                 {
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
                     ModifyPosition(position, position.EntryPrice + ATRd1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize);
-                    Print("Nuke " at position.Pips);
+                    Print("Nuke " + position.Pips);
                 }
             }
             //counter++;

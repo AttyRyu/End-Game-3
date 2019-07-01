@@ -41,7 +41,7 @@ namespace cAlgo.Robots
         //end of key zone indicator parameters
 
         [Parameter("Volume", DefaultValue = 1000)]
-        //3K volume every 1K equity one pair only
+        //5K volume every 1K equity one pair only
         public int Volume { get; set; }
 
         [Parameter("Limit Range", DefaultValue = 3)]
@@ -54,7 +54,7 @@ namespace cAlgo.Robots
         public int StopOutPercent { get; set; }
 
         //ATR Parameters
-        [Parameter("ATR M15 Periods", DefaultValue = 240)]
+        [Parameter("ATR M15 Periods", DefaultValue = 120)]
         public int ATRM15Periods { get; set; }
 
         [Parameter("ATR H1 Periods", DefaultValue = 120)]
@@ -86,21 +86,22 @@ namespace cAlgo.Robots
         private AverageTrueRange ATRw1;
         //end of ATR parameters
 
-        //RSI parameters for m15
+        //RSI parameters
         [Parameter("Source")]
         public DataSeries Source { get; set; }
 
-        [Parameter("RSI Periods m15", DefaultValue = 14)]
-        public int RSIPeriodsm15 { get; set; }
+        [Parameter("RSI Periods", DefaultValue = 14)]
+        public int RSIPeriods { get; set; }
 
-        [Parameter("RSI Upper Limit m15", DefaultValue = 70)]
-        public double RSIUpperLimitm15 { get; set; }
+        [Parameter("RSI Upper Limit", DefaultValue = 70)]
+        public double RSIUpperLimit { get; set; }
 
-        [Parameter("RSI Lower Limit m15", DefaultValue = 30)]
-        public double RSILowerLimitm15 { get; set; }
+        [Parameter("RSI Lower Limit", DefaultValue = 30)]
+        public double RSILowerLimit { get; set; }
 
         private RelativeStrengthIndex rsim15;
-        //end of RSI parameters for m15
+        private RelativeStrengthIndex rsih1;
+        //end of RSI parameter
 
         protected override void OnStart()
         {
@@ -132,14 +133,15 @@ namespace cAlgo.Robots
             Print("ATRw1 " + Math.Round(ATRw1.Result.LastValue / Symbol.PipSize));
             //end of ATR Printing
 
-            //RSI m15
-            rsim15 = Indicators.RelativeStrengthIndex(m15.Close, RSIPeriodsm15);
+            //
+            rsim15 = Indicators.RelativeStrengthIndex(m15.Close, RSIPeriods);
+            rsih1 = Indicators.RelativeStrengthIndex(h1.Close, RSIPeriods);
             //end of RSI m15            
         }
 
         protected override void OnBar()
         {
-//ATR Printing
+            //ATR Printing
             Print("ATRm15 " + Math.Round(ATRm15.Result.LastValue / Symbol.PipSize));
             Print("ATRh1 " + Math.Round(ATRh1.Result.LastValue / Symbol.PipSize));
             Print("ATRh4 " + Math.Round(ATRh4.Result.LastValue / Symbol.PipSize));
@@ -152,7 +154,7 @@ namespace cAlgo.Robots
         protected override void OnTick()
         {
             //holy grail
-            if ((Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange) && ((rsim15.Result.LastValue >= 45) && (rsim15.Result.LastValue <= 55)))
+            if ((Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange) && ((rsih1.Result.LastValue >= 40) && (rsih1.Result.LastValue <= 60)))
             {
                 CancelPendingOrders();
                 ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh4.Result.LastValue / Symbol.PipSize), LimitRange);
@@ -223,17 +225,17 @@ namespace cAlgo.Robots
                 //     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
                 //     ModifyPosition(position, position.EntryPrice + ATRd1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize);
                 // }
-                if ((position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Buy) && (rsim15.Result.LastValue < RSILowerLimitm15))
+                if ((position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Buy) && (rsih1.Result.LastValue < RSILowerLimit))
                 {
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
                     ModifyPosition(position, position.EntryPrice - ATRd1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize);
-                    Print("BackupClose and RSI equals " + rsim15.Result.LastValue);
+                    Print("Nuke "position.Pips);
                 }
-                if ((position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Sell) && (rsim15.Result.LastValue > RSIUpperLimitm15))
+                if ((position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Sell) && (rsih1.Result.LastValue > RSIUpperLimit))
                 {
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
                     ModifyPosition(position, position.EntryPrice + ATRd1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize);
-                    Print("BackupClose and RSI equals " + rsim15.Result.LastValue);
+                    Print("Nuke " at position.Pips);
                 }
             }
             //counter++;

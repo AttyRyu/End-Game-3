@@ -1,0 +1,303 @@
+using System;
+using System.Linq;
+using cAlgo.API;
+using cAlgo.API.Indicators;
+using cAlgo.API.Internals;
+using cAlgo.Indicators;
+using System.Collections;
+using System.IO;
+
+namespace cAlgo.Robots
+{
+    [Robot(TimeZone = TimeZones.SingaporeStandardTime, AccessRights = AccessRights.FullAccess)]
+    public class EndGame3HolyGrail : Robot
+    {
+        //key zone indicator parameters
+        [Parameter("Periods", DefaultValue = 1000)]
+        public int Periods { get; set; }
+
+        [Parameter("Show Extreme H/L", DefaultValue = true)]
+        public bool ShowExtremeHL { get; set; }
+
+        [Parameter("Show Day H/L", DefaultValue = true)]
+        public bool ShowDayHL { get; set; }
+
+        [Parameter("Required Hits", DefaultValue = 1)]
+        public int RequiredHits { get; set; }
+
+        [Parameter("Zone Size", DefaultValue = 33)]
+        public int ZoneSize { get; set; }
+
+        [Parameter("Max Lines In Zone", DefaultValue = 1)]
+        public int MaxLinesInZone { get; set; }
+
+        [Parameter("File_Path", DefaultValue = "//Mac/Dropbox/Forex and Stocks Trading Strategies/BlueMeth/")]
+        public string File_Path { get; set; }
+
+        [Parameter("ATR Periods", DefaultValue = 60)]
+        public int ATRPeriods { get; set; }
+
+        private SRAtPrice SRAt;
+        //end of key zone indicator parameters
+
+        [Parameter("Volume", DefaultValue = 1000)]
+        //3K volume every 1K equity one pair only
+        public int Volume { get; set; }
+
+        [Parameter("Limit Range", DefaultValue = 3)]
+        public int LimitRange { get; set; }
+
+        [Parameter("Nuke TP", DefaultValue = 5)]
+        public double NukeTP { get; set; }
+
+        [Parameter("Stop Out Percent", DefaultValue = 50)]
+        public int StopOutPercent { get; set; }
+
+        //ATR Parameters
+        [Parameter("ATR M15 Periods", DefaultValue = 240)]
+        public int ATRM15Periods { get; set; }
+
+        [Parameter("ATR H1 Periods", DefaultValue = 120)]
+        public int ATRH1Periods { get; set; }
+
+        [Parameter("ATR H4 Periods", DefaultValue = 60)]
+        public int ATRH4Periods { get; set; }
+
+        [Parameter("ATR H12 Periods", DefaultValue = 60)]
+        public int ATRH12Periods { get; set; }
+
+        [Parameter("ATR D1 Periods", DefaultValue = 30)]
+        public int ATRD1Periods { get; set; }
+
+        [Parameter("ATR W1 Periods", DefaultValue = 30)]
+        public int ATRW1Periods { get; set; }
+
+        private MarketSeries m15;
+        private AverageTrueRange ATRm15;
+        private MarketSeries h1;
+        private AverageTrueRange ATRh1;
+        private MarketSeries h4;
+        private AverageTrueRange ATRh4;
+        private MarketSeries h12;
+        private AverageTrueRange ATRh12;
+        private MarketSeries d1;
+        private AverageTrueRange ATRd1;
+        private MarketSeries w1;
+        private AverageTrueRange ATRw1;
+        //end of ATR parameters
+
+        //RSI parameters for m15
+        [Parameter("Source")]
+        public DataSeries Source { get; set; }
+
+        [Parameter("RSI Periods m15", DefaultValue = 14)]
+        public int RSIPeriodsm15 { get; set; }
+
+        [Parameter("RSI Upper Limit m15", DefaultValue = 70)]
+        public double RSIUpperLimitm15 { get; set; }
+
+        [Parameter("RSI Lower Limit m15", DefaultValue = 30)]
+        public double RSILowerLimitm15 { get; set; }
+
+        private RelativeStrengthIndex rsim15;
+        //end of RSI parameters for m15
+
+        protected override void OnStart()
+        {
+            //key zone initialization
+            SRAt = Indicators.GetIndicator<SRAtPrice>(Periods, ShowExtremeHL, ShowDayHL, RequiredHits, ZoneSize, MaxLinesInZone, File_Path, ATRPeriods);
+            //end of key zone initialization
+
+            //ATR m15, h1, h4, h12, d1, w1
+            m15 = MarketData.GetSeries(TimeFrame.Minute15);
+            ATRm15 = Indicators.AverageTrueRange(m15, ATRM15Periods, MovingAverageType.Simple);
+            h1 = MarketData.GetSeries(TimeFrame.Hour);
+            ATRh1 = Indicators.AverageTrueRange(h1, ATRH1Periods, MovingAverageType.Simple);
+            h4 = MarketData.GetSeries(TimeFrame.Hour4);
+            ATRh4 = Indicators.AverageTrueRange(h4, ATRH4Periods, MovingAverageType.Simple);
+            h12 = MarketData.GetSeries(TimeFrame.Hour12);
+            ATRh12 = Indicators.AverageTrueRange(h12, ATRH12Periods, MovingAverageType.Simple);
+            d1 = MarketData.GetSeries(TimeFrame.Daily);
+            ATRd1 = Indicators.AverageTrueRange(d1, ATRD1Periods, MovingAverageType.Simple);
+            w1 = MarketData.GetSeries(TimeFrame.Weekly);
+            ATRw1 = Indicators.AverageTrueRange(w1, ATRW1Periods, MovingAverageType.Simple);
+            //ATR m15, h1, h4, h12, d1, w1
+
+            //ATR Printing
+            Print("ATRm15 " + Math.Round(ATRm15.Result.LastValue / Symbol.PipSize));
+            Print("ATRh1 " + Math.Round(ATRh1.Result.LastValue / Symbol.PipSize));
+            Print("ATRh4 " + Math.Round(ATRh4.Result.LastValue / Symbol.PipSize));
+            Print("ATRh12 " + Math.Round(ATRh12.Result.LastValue / Symbol.PipSize));
+            Print("ATRd1 " + Math.Round(ATRd1.Result.LastValue / Symbol.PipSize));
+            Print("ATRw1 " + Math.Round(ATRw1.Result.LastValue / Symbol.PipSize));
+            //end of ATR Printing
+
+            //RSI m15
+            rsim15 = Indicators.RelativeStrengthIndex(m15.Close, RSIPeriodsm15);
+            //end of RSI m15            
+        }
+
+        protected override void OnBar()
+        {
+//ATR Printing
+            Print("ATRm15 " + Math.Round(ATRm15.Result.LastValue / Symbol.PipSize));
+            Print("ATRh1 " + Math.Round(ATRh1.Result.LastValue / Symbol.PipSize));
+            Print("ATRh4 " + Math.Round(ATRh4.Result.LastValue / Symbol.PipSize));
+            Print("ATRh12 " + Math.Round(ATRh12.Result.LastValue / Symbol.PipSize));
+            Print("ATRd1 " + Math.Round(ATRd1.Result.LastValue / Symbol.PipSize));
+            Print("ATRw1 " + Math.Round(ATRw1.Result.LastValue / Symbol.PipSize));
+            //end of ATR Printing
+        }
+
+        protected override void OnTick()
+        {
+            //holy grail
+            if ((Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange) && ((rsim15.Result.LastValue >= 45) && (rsim15.Result.LastValue <= 55)))
+            {
+                CancelPendingOrders();
+                ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh4.Result.LastValue / Symbol.PipSize), LimitRange);
+                ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh4.Result.LastValue / Symbol.PipSize), LimitRange);
+                CreateWaves(TradeType.Buy);
+                CreateWaves(TradeType.Sell);
+            }
+            //end of holy grail
+
+            //holy grail refresh buy side
+            if ((Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null))
+            {
+                foreach (var position in Positions)
+                {
+                    if ((position.Pips >= LimitRange * -1.5) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Sell))
+                    {
+                        CancelPendingBuyOrders();
+                        ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh4.Result.LastValue / Symbol.PipSize), LimitRange);
+                        CreateWaves(TradeType.Buy);
+                    }
+                }
+            }
+            //end of holy grail refresh buy side
+
+            //holy grail refresh sell side
+            if ((Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null))
+            {
+                foreach (var position in Positions)
+                {
+                    if ((position.Pips >= LimitRange * -1.5) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Buy))
+                    {
+                        CancelPendingSellOrders();
+                        ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh4.Result.LastValue / Symbol.PipSize), LimitRange);
+                        CreateWaves(TradeType.Sell);
+                    }
+                }
+            }
+            //end of holy grail refresh sell side
+
+            //nuking at key zone, buy first
+            // double upmin;
+            // double upmax;
+            // double up;
+            // int counter = 0;
+            // string line;
+
+            // using (StreamReader sr = new StreamReader(File_Path + Symbol.Name + ".txt"))
+            // {
+            //     while ((line = sr.ReadLine()) != null)
+            //     {
+            //         upmin = 0;
+            //         upmax = 0;
+            //         up = 0;
+            //         up = Convert.ToDouble(line);
+            //         upmin = up - (LimitRange * Symbol.PipSize);
+            //         upmax = up + (LimitRange * Symbol.PipSize);
+            foreach (var position in Positions)
+            {
+                //if ((position.Pips <= Math.Round(ATRh12.Result.LastValue / Symbol.PipSize) * -1) && (Symbol.Ask >= upmin && Symbol.Ask <= upmax) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Buy) && (rsim15.Result.LastValue < RSILowerLimitm15))
+                // if ((position.Pips <= Math.Round(ATRh12.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Buy) && (rsim15.Result.LastValue < RSILowerLimitm15))
+                // {
+                //     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
+                //     ModifyPosition(position, position.EntryPrice - ATRd1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize);
+                // }
+                // //if ((position.Pips <= Math.Round(ATRh12.Result.LastValue / Symbol.bPipSize) * -1) && (Symbol.Bid >= upmin && Symbol.Bid <= upmax) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Sell) && (rsim15.Result.LastValue > RSIUpperLimitm15))
+                // if ((position.Pips <= Math.Round(ATRh12.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Sell) && (rsim15.Result.LastValue > RSIUpperLimitm15))
+                // {
+                //     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
+                //     ModifyPosition(position, position.EntryPrice + ATRd1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize);
+                // }
+                if ((position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Buy) && (rsim15.Result.LastValue < RSILowerLimitm15))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
+                    ModifyPosition(position, position.EntryPrice - ATRd1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize);
+                    Print("BackupClose and RSI equals " + rsim15.Result.LastValue);
+                }
+                if ((position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Sell) && (rsim15.Result.LastValue > RSIUpperLimitm15))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
+                    ModifyPosition(position, position.EntryPrice + ATRd1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize);
+                    Print("BackupClose and RSI equals " + rsim15.Result.LastValue);
+                }
+            }
+            //counter++;
+            //  }
+            //end of nuking at key zone
+
+            //Margin Level Stop-Out
+            while (Account.MarginLevel <= StopOutPercent)
+            {
+                ClosePosition(Positions.OrderByDescending(x => x.GrossProfit).Last());
+                CancelPendingOrders();
+                Print("Closed due to Lack of Margin");
+            }
+            //end of Margin Level Stop-Out
+            //}
+        }
+        //waves
+        private void CreateWaves(TradeType type)
+        {
+            double TargetPrice = type == TradeType.Buy ? Symbol.Ask : Symbol.Bid;
+
+            //ATR-based             
+            for (int i = 0; i < (Math.Round(Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) / ((Math.Round(ATRh4.Result.LastValue / Symbol.PipSize) + LimitRange)))); i++)
+            {
+                TargetPrice = type == TradeType.Buy ? TargetPrice + ((Math.Round(ATRh4.Result.LastValue / Symbol.PipSize) * Symbol.PipSize) + (LimitRange * Symbol.PipSize)) : TargetPrice - ((Math.Round(ATRh4.Result.LastValue / Symbol.PipSize) * Symbol.PipSize) + (LimitRange * Symbol.PipSize));
+                //holy grail but ATR-based with no wave allowance
+                PlaceStopLimitOrderAsync(type, Symbol, Volume, TargetPrice, LimitRange, "", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), null);
+                //end of holy grail but ATR-based with no wave allowance
+            }
+            //End of ATR-based
+        }
+        //end of waves
+
+        private void CancelPendingOrders()
+        {
+            foreach (var order in PendingOrders)
+            {
+                if (order.SymbolCode == Symbol.Name)
+                {
+                    CancelPendingOrderAsync(order);
+                }
+            }
+        }
+
+        private void CancelPendingBuyOrders()
+        {
+            foreach (var order in PendingOrders)
+            {
+                if ((order.SymbolCode == Symbol.Name) && (order.TradeType == TradeType.Buy))
+                {
+                    CancelPendingOrderAsync(order);
+                }
+            }
+        }
+
+        private void CancelPendingSellOrders()
+        {
+            foreach (var order in PendingOrders)
+            {
+                if ((order.SymbolCode == Symbol.Name) && (order.TradeType == TradeType.Sell))
+                {
+                    CancelPendingOrderAsync(order);
+                }
+            }
+        }
+    }
+}

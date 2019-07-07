@@ -276,7 +276,7 @@ namespace cAlgo.Robots
             {
                 TargetPrice = type == TradeType.Buy ? TargetPrice + ((Math.Round(ATRh4.Result.LastValue / Symbol.PipSize) * Symbol.PipSize) + (LimitRange * Symbol.PipSize)) : TargetPrice - ((Math.Round(ATRh4.Result.LastValue / Symbol.PipSize) * Symbol.PipSize) + (LimitRange * Symbol.PipSize));
                 //holy grail but ATR-based with no wave allowance
-                PlaceStopLimitOrderAsync(type, Symbol, Volume, TargetPrice, LimitRange, "", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), null);
+                PlaceStopLimitOrderAsync(type, Symbol, Volume, TargetPrice, LimitRange, "", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh4.Result.LastValue / Symbol.PipSize), null);
                 //end of holy grail but ATR-based with no wave allowance
             }
             //End of ATR-based

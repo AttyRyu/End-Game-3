@@ -31,7 +31,7 @@ namespace cAlgo.Robots
         [Parameter("Max Lines In Zone", DefaultValue = 1)]
         public int MaxLinesInZone { get; set; }
 
-        [Parameter("File_Path", DefaultValue = "C:/Users/trader/Desktop/DaveCBot Log/")]
+        [Parameter("File_Path", DefaultValue = "C:/Users/asus/Desktop/EndGame/")]
         public string File_Path { get; set; }
 
         [Parameter("ATR Periods", DefaultValue = 60)]

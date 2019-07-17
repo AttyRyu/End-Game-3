@@ -165,7 +165,7 @@ namespace cAlgo.Robots
             {
                 foreach (var position in Positions)
                 {
-                    if ((position.Pips >= LimitRange * -2) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (position.TradeType == TradeType.Sell))
+                    if ((position.Pips >= LimitRange * -2) && (position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Sell))
                     {
                         Print("Negative Pips " + position.Pips);
                         Print("Limit Range " + LimitRange * -2);

@@ -139,7 +139,7 @@ namespace cAlgo.Robots
             rsim15 = Indicators.RelativeStrengthIndex(m15.Close, RSIPeriods);
             rsih1 = Indicators.RelativeStrengthIndex(h1.Close, RSIPeriods);
             //end of RSI 
-            Notifications.SendEmail("ryujglaw@gmail.com", "trigger@applet.ifttt.com", SymbolName, "Test" + " ATRm15 = " + Math.Round(ATRm15.Result.LastValue / Symbol.PipSize)  + " ATRh1 = " + Math.Round(ATRh1.Result.LastValue / Symbol.PipSize)  + " ATRh4 = " + Math.Round(ATRh4.Result.LastValue / Symbol.PipSize)  + " ATRh12 = " + Math.Round(ATRh12.Result.LastValue / Symbol.PipSize)  + " ATRd1 = " + Math.Round(ATRd1.Result.LastValue / Symbol.PipSize)  + " ATRw1 = " + Math.Round(ATRw1.Result.LastValue / Symbol.PipSize);
+            Notifications.SendEmail("ryujglaw@gmail.com", "trigger@applet.ifttt.com", SymbolName, "Test" + " ATRm15 = " + Math.Round(ATRm15.Result.LastValue / Symbol.PipSize)  + " ATRh1 = " + Math.Round(ATRh1.Result.LastValue / Symbol.PipSize)  + " ATRh4 = " + Math.Round(ATRh4.Result.LastValue / Symbol.PipSize)  + " ATRh12 = " + Math.Round(ATRh12.Result.LastValue / Symbol.PipSize)  + " ATRd1 = " + Math.Round(ATRd1.Result.LastValue / Symbol.PipSize)  + " ATRw1 = " + Math.Round(ATRw1.Result.LastValue / Symbol.PipSize));
         }
 
         protected override void OnBar()

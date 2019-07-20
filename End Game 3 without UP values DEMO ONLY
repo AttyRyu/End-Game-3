@@ -1,0 +1,286 @@
+using System;
+using System.Linq;
+using cAlgo.API;
+using cAlgo.API.Indicators;
+using cAlgo.API.Internals;
+using cAlgo.Indicators;
+using System.Collections;
+using System.IO;
+
+namespace cAlgo.Robots
+{
+    [Robot(TimeZone = TimeZones.SingaporeStandardTime, AccessRights = AccessRights.FullAccess)]
+    public class EndGame3HolyGrail : Robot
+    {
+        [Parameter("Volume", DefaultValue = 1000)]
+        //10K volume every 2K equity one pair only
+        public int Volume { get; set; }
+
+        [Parameter("Limit Range", DefaultValue = 3)]
+        public double LimitRange { get; set; }
+
+        [Parameter("Nuke TP", DefaultValue = 3)]
+        public double NukeTP { get; set; }
+
+        [Parameter("Stop Out Percent", DefaultValue = 50)]
+        public int StopOutPercent { get; set; }
+
+        //E-mail Notification
+        [Parameter("Email Subject", DefaultValue = "Refresh")]
+        public string EmailSubject { get; set; }
+
+        [Parameter("Email Message", DefaultValue = "Refresh")]
+        public string EmailMessage { get; set; }
+
+        [Parameter("Email Subject 0", DefaultValue = "Refresh One Side")]
+        public string EmailSubject0 { get; set; }
+
+        [Parameter("Email Message 0", DefaultValue = "Refresh One Side")]
+        public string EmailMessage0 { get; set; }
+
+        [Parameter("Email Subject 1", DefaultValue = "Nuke Alert")]
+        public string EmailSubject1 { get; set; }
+
+        [Parameter("Email Message 1", DefaultValue = "Nuke Alert")]
+        public string EmailMessage1 { get; set; }
+
+        [Parameter("Sender Email Address", DefaultValue = "ryujglaw@gmail.com")]
+        public string SenderEmailAddress { get; set; }
+        
+        [Parameter("Recipient Email Address", DefaultValue = "trigger@applet.ifttt.com")]
+        public string RecipientEmailAddress { get; set; }
+        //End of E-mail Notification
+
+        //ATR Parameters
+        [Parameter("ATR M15 Periods", DefaultValue = 120)]
+        public int ATRM15Periods { get; set; }
+
+        [Parameter("ATR H1 Periods", DefaultValue = 120)]
+        public int ATRH1Periods { get; set; }
+
+        [Parameter("ATR H4 Periods", DefaultValue = 30)]
+        public int ATRH4Periods { get; set; }
+
+        [Parameter("ATR H12 Periods", DefaultValue = 60)]
+        public int ATRH12Periods { get; set; }
+
+        [Parameter("ATR D1 Periods", DefaultValue = 30)]
+        public int ATRD1Periods { get; set; }
+
+        [Parameter("ATR W1 Periods", DefaultValue = 12)]
+        public int ATRW1Periods { get; set; }
+
+        [Parameter("ATR M1 Periods", DefaultValue = 3)]
+        public int ATRM1Periods { get; set; }
+
+        private MarketSeries m15;
+        private AverageTrueRange ATRm15;
+        private MarketSeries h1;
+        private AverageTrueRange ATRh1;
+        private MarketSeries h4;
+        private AverageTrueRange ATRh4;
+        private MarketSeries h12;
+        private AverageTrueRange ATRh12;
+        private MarketSeries d1;
+        private AverageTrueRange ATRd1;
+        private MarketSeries w1;
+        private AverageTrueRange ATRw1;
+        private MarketSeries m1;
+        private AverageTrueRange ATRm1;
+        //end of ATR parameters
+
+        //RSI parameters
+        [Parameter("Source")]
+        public DataSeries Source { get; set; }
+
+        [Parameter("RSI Periods", DefaultValue = 14)]
+        public int RSIPeriods { get; set; }
+
+        [Parameter("RSI Upper Limit", DefaultValue = 75)]
+        public double RSIUpperLimit { get; set; }
+
+        [Parameter("RSI Lower Limit", DefaultValue = 25)]
+        public double RSILowerLimit { get; set; }
+
+        private RelativeStrengthIndex rsim15;
+        private RelativeStrengthIndex rsih1;
+        //end of RSI parameter
+
+        protected override void OnStart()
+        {
+            {
+            if (Account.IsLive)
+            {
+              Stop();
+            }
+            else
+            {
+              Print("This is a demo account and the cBot is running");  
+            }
+            
+            //ATR m15, h1, h4, h12, d1, w1
+            m15 = MarketData.GetSeries(TimeFrame.Minute15);
+            ATRm15 = Indicators.AverageTrueRange(m15, ATRM15Periods, MovingAverageType.Simple);
+            h1 = MarketData.GetSeries(TimeFrame.Hour);
+            ATRh1 = Indicators.AverageTrueRange(h1, ATRH1Periods, MovingAverageType.Simple);
+            h4 = MarketData.GetSeries(TimeFrame.Hour4);
+            ATRh4 = Indicators.AverageTrueRange(h4, ATRH4Periods, MovingAverageType.Simple);
+            h12 = MarketData.GetSeries(TimeFrame.Hour12);
+            ATRh12 = Indicators.AverageTrueRange(h12, ATRH12Periods, MovingAverageType.Simple);
+            d1 = MarketData.GetSeries(TimeFrame.Daily);
+            ATRd1 = Indicators.AverageTrueRange(d1, ATRD1Periods, MovingAverageType.Simple);
+            w1 = MarketData.GetSeries(TimeFrame.Weekly);
+            ATRw1 = Indicators.AverageTrueRange(w1, ATRW1Periods, MovingAverageType.Simple);
+            m1 = MarketData.GetSeries(TimeFrame.Monthly);
+            ATRm1 = Indicators.AverageTrueRange(m1, ATRM1Periods, MovingAverageType.Simple);
+            //ATR m15, h1, h4, h12, d1, w1
+
+            //ATR Printing
+            Print("ATRm15 " + Math.Round(ATRm15.Result.LastValue / Symbol.PipSize));
+            Print("ATRh1 " + Math.Round(ATRh1.Result.LastValue / Symbol.PipSize));
+            Print("ATRh4 " + Math.Round(ATRh4.Result.LastValue / Symbol.PipSize));
+            Print("ATRh12 " + Math.Round(ATRh12.Result.LastValue / Symbol.PipSize));
+            Print("ATRd1 " + Math.Round(ATRd1.Result.LastValue / Symbol.PipSize));
+            Print("ATRw1 " + Math.Round(ATRw1.Result.LastValue / Symbol.PipSize));
+            Print("ATRm1 " + Math.Round(ATRm1.Result.LastValue / Symbol.PipSize));
+            //end of ATR Printing
+
+            //
+            rsim15 = Indicators.RelativeStrengthIndex(m15.Close, RSIPeriods);
+            rsih1 = Indicators.RelativeStrengthIndex(h1.Close, RSIPeriods);
+            //end of RSI 
+            Notifications.SendEmail("ryujglaw@gmail.com", "trigger@applet.ifttt.com", SymbolName, "Test" + " ATRm15 = " + Math.Round(ATRm15.Result.LastValue / Symbol.PipSize)  + " ATRh1 = " + Math.Round(ATRh1.Result.LastValue / Symbol.PipSize)  + " ATRh4 = " + Math.Round(ATRh4.Result.LastValue / Symbol.PipSize)  + " ATRh12 = " + Math.Round(ATRh12.Result.LastValue / Symbol.PipSize)  + " ATRd1 = " + Math.Round(ATRd1.Result.LastValue / Symbol.PipSize)  + " ATRw1 = " + Math.Round(ATRw1.Result.LastValue / Symbol.PipSize));
+        }
+
+        protected override void OnBar()
+        {
+        }
+
+        protected override void OnTick()
+        {
+            //holy grail
+            if ((Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && ((rsim15.Result.LastValue >= 45) && (rsim15.Result.LastValue <= 55)))
+            {
+                CancelPendingOrders();
+                ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), LimitRange);
+                ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), LimitRange);
+                CreateWaves(TradeType.Buy);
+                CreateWaves(TradeType.Sell);
+                Notifications.SendEmail("ryujglaw@gmail.com", "trigger@applet.ifttt.com", SymbolName, EmailMessage + " ATRm15 = " + Math.Round(ATRm15.Result.LastValue / Symbol.PipSize)  + " ATRh1 = " + Math.Round(ATRh1.Result.LastValue / Symbol.PipSize)  + " ATRh4 = " + Math.Round(ATRh4.Result.LastValue / Symbol.PipSize)  + " ATRh12 = " + Math.Round(ATRh12.Result.LastValue / Symbol.PipSize)  + " ATRd1 = " + Math.Round(ATRd1.Result.LastValue / Symbol.PipSize)  + " ATRw1 = " + Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) + " RSI m15 = " + rsim15.Result.LastValue);
+            }
+            //end of holy grail
+
+            //holy grail refresh buy side
+            if ((Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange))
+            {
+                foreach (var position in Positions)
+                {
+                    if ((position.Pips * -1 <= LimitRange * 2) && (position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Sell))
+                    {
+                        Print("Negative Pips " + position.Pips * -1);
+                        Print("Limit Range " + LimitRange * 2);
+                        Notifications.SendEmail("ryujglaw@gmail.com", "trigger@applet.ifttt.com", SymbolName, "Buy Side " + EmailMessage0 + " Negative Pips Converted to Positive = " + position.Pips * -1 + " Limit Range * 2 = " + LimitRange * 2);
+                        CancelPendingBuyOrders();
+                        ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), LimitRange);
+                        CreateWaves(TradeType.Buy);
+                    }
+                }
+            }
+            //end of holy grail refresh buy side
+
+            //holy grail refresh sell side
+            if ((Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange))
+            {
+                foreach (var position in Positions)
+                {
+                    if ((position.Pips * -1 <= LimitRange * 2) && (position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Buy))
+                    {
+                        Print("Negative Pips " + position.Pips * -1);
+                        Print("Limit Range " + LimitRange * 2);
+                        Notifications.SendEmail("ryujglaw@gmail.com", "trigger@applet.ifttt.com", SymbolName, "Sell Side " + EmailMessage0 + " Negative Pips Converted to Positive = " + position.Pips * -1 + " Limit Range * 2 = " + LimitRange * 2);
+                        CancelPendingSellOrders();
+                        ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), LimitRange);
+                        CreateWaves(TradeType.Sell);
+                    }
+                }
+            }
+            //end of holy grail refresh sell side
+            
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                if ((position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue < RSILowerLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6))
+                {
+                    Notifications.SendEmail("ryujglaw@gmail.com", "trigger@applet.ifttt.com", SymbolName, "Buy " + EmailMessage1 + " Negative Pips = " + position.Pips + " ATRh12 = " + Math.Round(ATRh12.Result.LastValue / Symbol.PipSize)  + " ATRd1 = " + Math.Round(ATRd1.Result.LastValue / Symbol.PipSize)  + " ATRw1 = " + Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) + " RSI m15 = " + rsim15.Result.LastValue);
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
+                    ModifyPosition(position, position.EntryPrice - ATRd1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize);
+                    Notifications.SendEmail("ryujglaw@gmail.com", "trigger@applet.ifttt.com", SymbolName, "Buy " + EmailMessage1 + " New Volume = " + position.VolumeInUnits + " Margin Level = " + Account.MarginLevel);
+                }
+                if ((position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSIUpperLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6))
+                {
+                    Notifications.SendEmail("ryujglaw@gmail.com", "trigger@applet.ifttt.com", SymbolName, "Sell " + EmailMessage1 + " Negative Pips = " + position.Pips + " ATRh12 = " + Math.Round(ATRh12.Result.LastValue / Symbol.PipSize)  + " ATRd1 = " + Math.Round(ATRd1.Result.LastValue / Symbol.PipSize)  + " ATRw1 = " + Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) + " RSI m15 = " + rsim15.Result.LastValue);
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
+                    ModifyPosition(position, position.EntryPrice + ATRd1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize);
+                    Notifications.SendEmail("ryujglaw@gmail.com", "trigger@applet.ifttt.com", SymbolName, "Sell " + EmailMessage1 + " New Volume = " + position.VolumeInUnits + " Margin Level = " + Account.MarginLevel);
+                }
+            }
+            //end of nuking logic
+            
+            //Margin Level Stop-Out
+            while (Account.MarginLevel <= StopOutPercent)
+            {
+                ClosePosition(Positions.OrderByDescending(x => x.GrossProfit).Last());
+                CancelPendingOrders();
+                Print("Closed due to Lack of Margin");
+            }
+            //end of Margin Level Stop-Out
+        }
+        
+        //waves
+        private void CreateWaves(TradeType type)
+        {
+            double TargetPrice = type == TradeType.Buy ? Symbol.Ask : Symbol.Bid;
+            for (int i = 0; i < Math.Round((Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) / ((Math.Round(ATRh1.Result.LastValue / Symbol.PipSize) + LimitRange)))); i++)
+            {
+                TargetPrice = type == TradeType.Buy ? TargetPrice + ((Math.Round(ATRh1.Result.LastValue / Symbol.PipSize) * Symbol.PipSize) + (LimitRange * Symbol.PipSize)) : TargetPrice - ((Math.Round(ATRh1.Result.LastValue / Symbol.PipSize) * Symbol.PipSize) + (LimitRange * Symbol.PipSize));
+                PlaceStopLimitOrderAsync(type, Symbol, Volume, TargetPrice, LimitRange, "", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), null);
+            }
+        }
+        //end of waves
+        
+        //Cancel Orders terms
+        private void CancelPendingOrders()
+        {
+            foreach (var order in PendingOrders)
+            {
+                if (order.SymbolCode == Symbol.Name)
+                {
+                    CancelPendingOrderAsync(order);
+                }
+            }
+        }
+
+        private void CancelPendingBuyOrders()
+        {
+            foreach (var order in PendingOrders)
+            {
+                if ((order.SymbolCode == Symbol.Name) && (order.TradeType == TradeType.Buy))
+                {
+                    CancelPendingOrderAsync(order);
+                }
+            }
+        }
+
+        private void CancelPendingSellOrders()
+        {
+            foreach (var order in PendingOrders)
+            {
+                if ((order.SymbolCode == Symbol.Name) && (order.TradeType == TradeType.Sell))
+                {
+                    CancelPendingOrderAsync(order);
+                }
+            }
+        }
+        //end of Cancel Orders terms
+    }
+}

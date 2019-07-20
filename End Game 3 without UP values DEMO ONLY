@@ -57,7 +57,7 @@ namespace cAlgo.Robots
                 if (Account.IsLive)
                 {
                     Print("This is a live account, AI Maru cannot run here. For the live version, please contact ryanoia@gmail.com");
-                    Stop();
+                    //Stop();
                 }
                 else
                 {
@@ -89,7 +89,7 @@ namespace cAlgo.Robots
         }
         protected override void OnBar()
         {
-            Print("Spread " + Symbol.Spread / Symbol.PipSize);
+            //Print("Spread " + Symbol.Spread / Symbol.PipSize);
         }
 
         protected override void OnTick()
@@ -111,18 +111,46 @@ namespace cAlgo.Robots
                     CreateWaves(TradeType.Sell);
                 }
                 //end of holy grail
+                //holy grail refresh buy side
+                if ((Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange))
+                {
+                    foreach (var position in Positions)
+                    {
+                        if ((position.TradeType == TradeType.Sell) && (position.Pips * -1 != 0) && (position.Pips * -1 <= LimitRange * 2) && (position.SymbolName == Symbol.Name))
+                        {
+                            CancelPendingBuyOrders();
+                            ExecuteMarketOrder(TradeType.Buy, Symbol, 1000, "Wave 0", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), LimitRange);
+                            CreateWaves(TradeType.Buy);
+                        }
+                    }
+                }
+                //end of holy grail refresh buy side
 
+                //holy grail refresh sell side
+                if ((Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange))
+                {
+                    foreach (var position in Positions)
+                    {
+                        if ((position.TradeType == TradeType.Buy) && (position.Pips * -1 != 0) && (position.Pips * -1 <= LimitRange * 2) && (position.SymbolName == Symbol.Name))
+                        {
+                            CancelPendingSellOrders();
+                            ExecuteMarketOrder(TradeType.Sell, Symbol, 1000, "Wave 0", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), LimitRange);
+                            CreateWaves(TradeType.Sell);
+                        }
+                    }
+                }
+                //end of holy grail refresh sell side
                 //nuking logic
                 foreach (var position in Positions)
                 {
                     if ((position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue < RSILowerLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6))
                     {
-                        ModifyPosition(position, 1000 * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
+                        ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
                         ModifyPosition(position, position.EntryPrice - ATRd1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize);
                     }
                     if ((position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSIUpperLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6))
                     {
-                        ModifyPosition(position, 1000 * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
+                        ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
                         ModifyPosition(position, position.EntryPrice + ATRd1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize);
                     }
                 }

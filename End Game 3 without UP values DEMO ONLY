@@ -49,19 +49,19 @@ namespace cAlgo.Robots
 
         bool timeprotected = true;
         // if true ;Expiry YEAR MM DD
-        DateTime expirytime = new DateTime(2018, 7, 19);
+        DateTime expirytime = new DateTime(2019, 8, 22);
 
         protected override void OnStart()
         {
             {
                 if (Account.IsLive)
                 {
-                    Print("This is a live account, cbot cannot run here. For the live version, please contact ryanoia@gmail.com");
+                    Print("This is a live account, AI Maru cannot run here. For the live version, please contact ryanoia@gmail.com");
                     Stop();
                 }
                 else
                 {
-                    Print("This is a demo account and the cBot is running. For the live version, please contact ryanoia@gmail.com");
+                    Print("This is a demo account and AI Maru is running. For the live version, please contact ryanoia@gmail.com");
                 }
 
                 //ATR m15, h1, h4, h12, d1, w1, m1
@@ -96,7 +96,7 @@ namespace cAlgo.Robots
         {
             if (timeprotected == true && DateTime.Compare(Server.Time.Date, expirytime) >= 1)
             {
-                Print("AI Expired!! Please contact ryanoia@gmail.com");
+                Print("AI Maru Expired!! Please contact ryanoia@gmail.com");
                 Stop();
             }
             else

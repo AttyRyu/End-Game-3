@@ -10,7 +10,7 @@ using System.IO;
 namespace cAlgo.Robots
 {
     [Robot(TimeZone = TimeZones.SingaporeStandardTime, AccessRights = AccessRights.FullAccess)]
-    public class EndGame3HolyGrailDEMO : Robot
+    public class BlueMethDemo : Robot
     {
         [Parameter("Nuke TP", DefaultValue = 3)]
         public double NukeTP { get; set; }
@@ -49,7 +49,7 @@ namespace cAlgo.Robots
 
         bool timeprotected = true;
         // if true ;Expiry YEAR MM DD
-        DateTime expirytime = new DateTime(2019, 8, 22);
+        DateTime expirytime = new DateTime(2019, 7, 22);
 
         protected override void OnStart()
         {
@@ -119,7 +119,7 @@ namespace cAlgo.Robots
                         if ((position.TradeType == TradeType.Sell) && (position.Pips * -1 != 0) && (position.Pips * -1 <= LimitRange * 2) && (position.SymbolName == Symbol.Name))
                         {
                             CancelPendingBuyOrders();
-                            ExecuteMarketOrder(TradeType.Buy, Symbol, 1000, "Wave 0", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), LimitRange);
+                            ExecuteMarketOrder(TradeType.Buy, Symbol, 1000, "Wave 0", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh4.Result.LastValue / Symbol.PipSize), LimitRange);
                             CreateWaves(TradeType.Buy);
                         }
                     }
@@ -134,7 +134,7 @@ namespace cAlgo.Robots
                         if ((position.TradeType == TradeType.Buy) && (position.Pips * -1 != 0) && (position.Pips * -1 <= LimitRange * 2) && (position.SymbolName == Symbol.Name))
                         {
                             CancelPendingSellOrders();
-                            ExecuteMarketOrder(TradeType.Sell, Symbol, 1000, "Wave 0", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), LimitRange);
+                            ExecuteMarketOrder(TradeType.Sell, Symbol, 1000, "Wave 0", Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh4.Result.LastValue / Symbol.PipSize), LimitRange);
                             CreateWaves(TradeType.Sell);
                         }
                     }

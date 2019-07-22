@@ -164,48 +164,14 @@ namespace cAlgo.Robots
                 if (Account.MarginLevel <= 50000)
                 {
                     TradeLogger.Info(Server.Time + " Margin Level = " + Account.MarginLevel + SymbolName);
+                    Print(" Margin Level = " + Account.MarginLevel + SymbolName);
                 }
                 //end of Margin Level Stop-Out
                 //Below 200USD alert
                 if (Account.UnrealizedNetProfit <= -200)
                 {
                     TradeLogger.Info(Server.Time + SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if (Account.UnrealizedNetProfit <= -400)
-                {
-                    TradeLogger.Info(Server.Time + SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if (Account.UnrealizedNetProfit <= -600)
-                {
-                    TradeLogger.Info(Server.Time + SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if (Account.UnrealizedNetProfit <= -800)
-                {
-                    TradeLogger.Info(Server.Time + SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if (Account.UnrealizedNetProfit <= -1000)
-                {
-                    TradeLogger.Info(Server.Time + SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if (Account.UnrealizedNetProfit <= -1200)
-                {
-                    TradeLogger.Info(Server.Time + SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if (Account.UnrealizedNetProfit <= -1400)
-                {
-                    TradeLogger.Info(Server.Time + SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if (Account.UnrealizedNetProfit <= -1600)
-                {
-                    TradeLogger.Info(Server.Time + SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if (Account.UnrealizedNetProfit <= -1800)
-                {
-                    TradeLogger.Info(Server.Time + SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if (Account.UnrealizedNetProfit <= -2000)
-                {
-                    TradeLogger.Info(Server.Time + SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
                 }
                 //end of below 200USD alert
                 //big volume alert
@@ -214,22 +180,27 @@ namespace cAlgo.Robots
                     if (position.VolumeInUnits >= 100000)
                     {
                         TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:100 ");
+                        Print(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:100 ");
                     }
                     if (position.VolumeInUnits >= 200000)
                     {
-                        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:100 ");
+                        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:200 ");
+                        Print(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:200 ");                    
                     }
                     if (position.VolumeInUnits >= 300000)
                     {
-                        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:100 ");
+                        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:300 ");
+                        Print(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:300 ");                    
                     }
                     if (position.VolumeInUnits >= 400000)
                     {
-                        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:100 ");
+                        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:400 ");
+                        Print(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:400 ");                    
                     }
                     if (position.VolumeInUnits >= 500000)
                     {
-                        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:100 ");
+                        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:500 ");
+                        Print(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:500 ");                    
                     }
                 }
                 //end of big volume alert

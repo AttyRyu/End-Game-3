@@ -11,7 +11,7 @@ using ClickAlgo.Data.Logger;
 namespace cAlgo.Robots
 {
     [Robot(TimeZone = TimeZones.SingaporeStandardTime, AccessRights = AccessRights.FullAccess)]
-    public class BlueMeth : Robot
+    public class BlueMethDemoExpiration : Robot
     {
         [Parameter("Nuke TP", DefaultValue = 3)]
         public double NukeTP { get; set; }

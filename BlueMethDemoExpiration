@@ -100,6 +100,11 @@ namespace cAlgo.Robots
             //expiration code
             if (timeprotected == true && DateTime.Compare(Server.Time.Date, expirytime) >= 1)
             {
+                Print(" AI Maru expired! Please contact ryanoia@gmail.com");
+                Stop();
+            }
+            else
+            {
                 //holy grail
                 if ((Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && ((rsim15.Result.LastValue >= 40) && (rsim15.Result.LastValue <= 60)))
                 {

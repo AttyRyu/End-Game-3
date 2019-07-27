@@ -30,8 +30,8 @@ namespace cAlgo.Robots
         [Parameter("Final Nuke TP", DefaultValue = -4)]
         public double FinalNukeTP { get; set; }
 
-        [Parameter("Net Loss Close", DefaultValue = 800)]
-        //800 for 4 pairs
+        [Parameter("Net Loss Close", DefaultValue = -800)]
+        //-800 for 4 pairs
         public int NetLossClose { get; set; }
 
         //RSI parameters

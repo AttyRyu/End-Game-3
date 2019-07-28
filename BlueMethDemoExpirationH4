@@ -93,19 +93,19 @@ namespace cAlgo.Robots
 
             //ATR m15, h1, h4, h12, d1, w1, m1
             m15 = MarketData.GetSeries(TimeFrame.Minute15);
-            ATRm15 = Indicators.AverageTrueRange(m15, 120, MovingAverageType.Simple);
+            ATRm15 = Indicators.AverageTrueRange(m15, 120, MovingAverageType.Exponential);
             h1 = MarketData.GetSeries(TimeFrame.Hour);
-            ATRh1 = Indicators.AverageTrueRange(h1, 120, MovingAverageType.Simple);
+            ATRh1 = Indicators.AverageTrueRange(h1, 120, MovingAverageType.Exponential);
             h4 = MarketData.GetSeries(TimeFrame.Hour4);
-            ATRh4 = Indicators.AverageTrueRange(h4, 60, MovingAverageType.Simple);
+            ATRh4 = Indicators.AverageTrueRange(h4, 60, MovingAverageType.Exponential);
             h12 = MarketData.GetSeries(TimeFrame.Hour12);
-            ATRh12 = Indicators.AverageTrueRange(h12, 60, MovingAverageType.Simple);
+            ATRh12 = Indicators.AverageTrueRange(h12, 60, MovingAverageType.Exponential);
             d1 = MarketData.GetSeries(TimeFrame.Daily);
-            ATRd1 = Indicators.AverageTrueRange(d1, 30, MovingAverageType.Simple);
+            ATRd1 = Indicators.AverageTrueRange(d1, 30, MovingAverageType.Exponential);
             w1 = MarketData.GetSeries(TimeFrame.Weekly);
-            ATRw1 = Indicators.AverageTrueRange(w1, 12, MovingAverageType.Simple);
+            ATRw1 = Indicators.AverageTrueRange(w1, 12, MovingAverageType.Exponential);
             m1 = MarketData.GetSeries(TimeFrame.Monthly);
-            ATRm1 = Indicators.AverageTrueRange(m1, 3, MovingAverageType.Simple);
+            ATRm1 = Indicators.AverageTrueRange(m1, 3, MovingAverageType.Exponential);
             //ATR m15, h1, h4, h12, d1, w1, m1
 
             //RSI

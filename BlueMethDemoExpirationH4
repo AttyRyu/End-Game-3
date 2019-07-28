@@ -37,10 +37,10 @@ namespace cAlgo.Robots
         [Parameter("Source")]
         public DataSeries Source { get; set; }
 
-        [Parameter("RSI Upper Limit", DefaultValue = 80)]
+        [Parameter("RSI Upper Limit", DefaultValue = 75)]
         public double RSIUpperLimit { get; set; }
 
-        [Parameter("RSI Lower Limit", DefaultValue = 20)]
+        [Parameter("RSI Lower Limit", DefaultValue = 25)]
         public double RSILowerLimit { get; set; }
 
         private RelativeStrengthIndex rsim15;

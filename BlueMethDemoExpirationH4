@@ -82,12 +82,12 @@ namespace cAlgo.Robots
             //demo only code
             if (Account.IsLive)
             {
-                Print(Server.Time + " This is a live account, AI Maru cannot run here. For the live version, please contact ryanoia@gmail.com");
+                Print(Server.Time + " This is a live account, AI Maru Intraday cannot run here. For the live version, please contact ryanoia@gmail.com");
                 Stop();
             }
             else
             {
-                Print(Server.Time + " This is a demo account and AI Maru is running. For the live version, please contact ryanoia@gmail.com");
+                Print(Server.Time + " This is a demo account and AI Maru Intraday is running. For the live version, please contact ryanoia@gmail.com");
             }
             //end of demo only code
 

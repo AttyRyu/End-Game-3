@@ -82,12 +82,12 @@ namespace cAlgo.Robots
             //demo only code
             if (Account.IsLive)
             {
-                Print(Server.Time + " This is a live account, AI Maru cannot run here. For the live version, please contact ryanoia@gmail.com");
+                Print(Server.Time + " This is a live account, AI Maru Long Term cannot run here. For the live version, please contact ryanoia@gmail.com");
                 Stop();
             }
             else
             {
-                Print(Server.Time + " This is a demo account and AI Maru is running. For the live version, please contact ryanoia@gmail.com");
+                Print(Server.Time + " This is a demo account and AI Maru Long Term is running. For the live version, please contact ryanoia@gmail.com");
             }
             //end of demo only code
 
@@ -205,14 +205,14 @@ namespace cAlgo.Robots
                 {
                     if ((position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSILowerLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
                     {
-                        ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRd1.Result.LastValue / Symbol.PipSize) + 0.5));
+                        ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
                         //ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize);
                         ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh4.Result.LastValue * NukeTPMultiplier);
                         Print("Nuclear Protocol Initiated " + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
                     if ((position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue < RSIUpperLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
                     {
-                        ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRd1.Result.LastValue / Symbol.PipSize) + 0.5));
+                        ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh12.Result.LastValue / Symbol.PipSize) + 0.5));
                         //ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize);
                         ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh4.Result.LastValue * NukeTPMultiplier);
                         Print("Nuclear Protocol Initiated " + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);

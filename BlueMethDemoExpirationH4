@@ -16,8 +16,8 @@ namespace cAlgo.Robots
         //1K volume every 200 equity one pair only
         public int Volume { get; set; }
 
-        [Parameter("Max Volume Multiplier", DefaultValue = 25000)]
-        //25K volume every 1K equity one pair only
+        [Parameter("Max Volume Multiplier", DefaultValue = 33000)]
+        //33K volume every 200 equity one pair only, 66K if two pairs
         public int MaxVolumeMultiplier { get; set; }
 
         [Parameter("Nuke TP", DefaultValue = 3)]
@@ -26,21 +26,21 @@ namespace cAlgo.Robots
         [Parameter("Limit Range", DefaultValue = 3)]
         public double LimitRange { get; set; }
 
-        [Parameter("Final Nuke TP", DefaultValue = -4)]
+        [Parameter("Final Nuke TP", DefaultValue = 0)]
         public double FinalNukeTP { get; set; }
 
-        [Parameter("Net Loss Close", DefaultValue = -800)]
-        //800 for 4 pairs
+        [Parameter("Net Loss Close", DefaultValue = -400)]
+        //-800 for 4 pairs, -400 for 2 pairs
         public int NetLossClose { get; set; }
 
         //RSI parameters
         [Parameter("Source")]
         public DataSeries Source { get; set; }
 
-        [Parameter("RSI Upper Limit", DefaultValue = 75)]
+        [Parameter("RSI Upper Limit", DefaultValue = 80)]
         public double RSIUpperLimit { get; set; }
 
-        [Parameter("RSI Lower Limit", DefaultValue = 25)]
+        [Parameter("RSI Lower Limit", DefaultValue = 20)]
         public double RSILowerLimit { get; set; }
 
         private RelativeStrengthIndex rsim15;
@@ -203,13 +203,15 @@ namespace cAlgo.Robots
                     if ((position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSILowerLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
-                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize);
+                        //ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize);
+                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue);
                         Print("Nuclear Protocol Initiated " + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
                     if ((position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * -1) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue < RSIUpperLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
-                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize);
+                        //ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize);
+                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue);
                         Print("Nuclear Protocol Initiated " + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
                     if ((position.VolumeInUnits >= MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy))

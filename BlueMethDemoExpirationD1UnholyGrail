@@ -209,7 +209,7 @@ namespace cAlgo.Robots
                 {
                     foreach (var position in Positions)
                     {
-                        if ((position.TradeType == TradeType.Sell) && (position.Pips * -1 >= Math.Round(ATRh4.Result.LastValue / Symbol.PipSize)) && (position.Pips * -1 <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize)) && (position.SymbolName == Symbol.Name) && (position.HasTrailingStop == false))
+                        if ((position.TradeType == TradeType.Sell) && (position.Pips * -1 >= Math.Round(ATRh4.Result.LastValue / Symbol.PipSize)) && (position.Pips * -1 <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize)) && (position.SymbolName == Symbol.Name) && (position.HasTrailingStop == true))
                         {
                             ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh4.Result.LastValue, false);
                             Print("Position " + position.TradeType + " Trailing Stop Modification? " + position.HasTrailingStop);
@@ -223,7 +223,7 @@ namespace cAlgo.Robots
                 {
                     foreach (var position in Positions)
                     {
-                        if ((position.TradeType == TradeType.Buy) && (position.Pips * -1 >= Math.Round(ATRh4.Result.LastValue / Symbol.PipSize)) && (position.Pips * -1 <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize)) && (position.SymbolName == Symbol.Name) && (position.HasTrailingStop == false))
+                        if ((position.TradeType == TradeType.Buy) && (position.Pips * -1 >= Math.Round(ATRh4.Result.LastValue / Symbol.PipSize)) && (position.Pips * -1 <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize)) && (position.SymbolName == Symbol.Name) && (position.HasTrailingStop == true))
                         {
                             ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh4.Result.LastValue, false);
                             Print("Position " + position.TradeType + " Trailing Stop Modification? " + position.HasTrailingStop);
@@ -236,40 +236,40 @@ namespace cAlgo.Robots
                 foreach (var position in Positions)
                 {
                     //buy nuke 
-                    if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Buy) && (position.Pips * -1 <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize)) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name) && (rsim15.Result.LastValue < RSILowerLimit))
+                    if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (rsim15.Result.LastValue < RSILowerLimit))
                     {
                         ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh4.Result.LastValue, true);
                         Print("Spike RSI = " + rsim15.Result.LastValue + "Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
-                    if ((position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.Pips * -1 <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize)) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name) && (rsim15.Result.LastValue < RSILowerLimit))
+                    if ((position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (rsim15.Result.LastValue < RSILowerLimit))
                     {
                         ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize + ATRh4.Result.LastValue * NukeTPMultiplier, true);
                         Print("Spike RSI = " + rsim15.Result.LastValue + "Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
-                    if ((position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.Pips * -1 <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize)) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSILowerLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
+                    if ((position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSILowerLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
                         //ModifyPosition(position, position.VolumeInUnits * 2);
-                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize + ATRh1.Result.LastValue * NukeTPMultiplier, true);
+                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize + ATRh1.Result.LastValue * NukeTPMultiplier, false);
                         Print("Nuke RSI = " + rsim15.Result.LastValue + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
                     //end of buy nuke
                     //sell nuke
-                    if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Sell) && (position.Pips * -1 <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize)) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSIUpperLimit))
+                    if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSIUpperLimit))
                     {
                         ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh4.Result.LastValue, true);
                         Print("Spike RSI = " + rsim15.Result.LastValue + "Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
-                    if ((position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.Pips * -1 <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize)) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSIUpperLimit))
+                    if ((position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSIUpperLimit))
                     {
                         ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize - ATRh4.Result.LastValue * NukeTPMultiplier, true);
                         Print("Spike RSI = " + rsim15.Result.LastValue + "Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
-                    if ((position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.Pips * -1 <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize)) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue < RSIUpperLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
+                    if ((position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue < RSIUpperLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
                         //ModifyPosition(position, position.VolumeInUnits * 2);
-                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize - ATRh1.Result.LastValue * NukeTPMultiplier, true);
+                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize - ATRh1.Result.LastValue * NukeTPMultiplier, false);
                         Print("Nuke RSI = " + rsim15.Result.LastValue + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
                     //end of sell nuke

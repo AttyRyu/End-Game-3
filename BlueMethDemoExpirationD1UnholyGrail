@@ -1,0 +1,522 @@
+using System;
+using System.Linq;
+using cAlgo.API;
+using cAlgo.API.Indicators;
+using cAlgo.API.Internals;
+using cAlgo.Indicators;
+using System.Collections;
+using System.IO;
+
+namespace cAlgo.Robots
+{
+    [Robot(TimeZone = TimeZones.SingaporeStandardTime, AccessRights = AccessRights.FullAccess)]
+    public class BlueMethDemoExpiration : Robot
+    {
+        [Parameter("Volume", DefaultValue = 1000)]
+        //1K volume every 200 equity one pair only
+        public int Volume { get; set; }
+
+        [Parameter("Max Volume Multiplier", DefaultValue = 33000)]
+        //33K volume every 200 equity one pair only, 66K if two pairs
+        public int MaxVolumeMultiplier { get; set; }
+
+        [Parameter("Nuke TP", DefaultValue = 3)]
+        public double NukeTP { get; set; }
+
+        [Parameter("Limit Range", DefaultValue = 3)]
+        public double LimitRange { get; set; }
+
+        [Parameter("Final Nuke TP", DefaultValue = 0)]
+        public double FinalNukeTP { get; set; }
+
+        [Parameter("Nuke TP Multiplier", DefaultValue = 1)]
+        public double NukeTPMultiplier { get; set; }
+
+        [Parameter("Net Loss Close", DefaultValue = -400)]
+        //-800 for 4 pairs, -400 for 2 pairs
+        public int NetLossClose { get; set; }
+
+        [Parameter("SL Trigger Pips", DefaultValue = 100)]
+        public int WaveInterval { get; set; }
+
+        [Parameter("Protective SL Add Pips", DefaultValue = 100)]
+        public int PSLAddPips { get; set; }
+
+        //RSI parameters
+        [Parameter("Source")]
+        public DataSeries Source { get; set; }
+
+        [Parameter("RSI Upper Limit", DefaultValue = 75)]
+        public double RSIUpperLimit { get; set; }
+
+        [Parameter("RSI Lower Limit", DefaultValue = 25)]
+        public double RSILowerLimit { get; set; }
+
+        private RelativeStrengthIndex rsim15;
+        private RelativeStrengthIndex rsih1;
+        //end of RSI parameter
+
+        //ADX
+        private DirectionalMovementSystem dmsm15;
+        //end of ADX
+
+        //ATR RSI Market series declarations
+        private MarketSeries m15;
+        private AverageTrueRange ATRm15;
+        private MarketSeries h1;
+        private AverageTrueRange ATRh1;
+        private MarketSeries h4;
+        private AverageTrueRange ATRh4;
+        private MarketSeries h12;
+        private AverageTrueRange ATRh12;
+        private MarketSeries d1;
+        private AverageTrueRange ATRd1;
+        private MarketSeries w1;
+        private AverageTrueRange ATRw1;
+        private MarketSeries m1;
+        private AverageTrueRange ATRm1;
+        //end of ATR RSI Market series declarations
+
+        //expiration code
+        bool timeprotected = true;
+        // if true ;Expiry YEAR MM DD
+        DateTime expirytime = new DateTime(2019, 7, 31);
+        //end of expiration codez
+
+        protected override void OnStart()
+        {
+            //demo only code
+            if (Account.IsLive)
+            {
+                Print(Server.Time + " This is a live account, AI Maru Intraday cannot run here. For the live version, please contact ryanoia@gmail.com");
+                Stop();
+            }
+            else
+            {
+                Print(Server.Time + " This is a demo account and AI Maru Intraday is running. For the live version, please contact ryanoia@gmail.com");
+            }
+            //end of demo only code
+
+            //ATR m15, h1, h4, h12, d1, w1, m1
+            m15 = MarketData.GetSeries(TimeFrame.Minute15);
+            ATRm15 = Indicators.AverageTrueRange(m15, 120, MovingAverageType.Exponential);
+            h1 = MarketData.GetSeries(TimeFrame.Hour);
+            ATRh1 = Indicators.AverageTrueRange(h1, 120, MovingAverageType.Exponential);
+            h4 = MarketData.GetSeries(TimeFrame.Hour4);
+            ATRh4 = Indicators.AverageTrueRange(h4, 60, MovingAverageType.Exponential);
+            h12 = MarketData.GetSeries(TimeFrame.Hour12);
+            ATRh12 = Indicators.AverageTrueRange(h12, 60, MovingAverageType.Exponential);
+            d1 = MarketData.GetSeries(TimeFrame.Daily);
+            ATRd1 = Indicators.AverageTrueRange(d1, 30, MovingAverageType.Exponential);
+            w1 = MarketData.GetSeries(TimeFrame.Weekly);
+            ATRw1 = Indicators.AverageTrueRange(w1, 12, MovingAverageType.Exponential);
+            m1 = MarketData.GetSeries(TimeFrame.Monthly);
+            ATRm1 = Indicators.AverageTrueRange(m1, 3, MovingAverageType.Exponential);
+            //ATR m15, h1, h4, h12, d1, w1, m1
+
+            //RSI
+            rsim15 = Indicators.RelativeStrengthIndex(m15.Close, 14);
+            rsih1 = Indicators.RelativeStrengthIndex(h1.Close, 14);
+            //end of RSI 
+
+            //ADX
+            dmsm15 = Indicators.DirectionalMovementSystem(m15, 14);
+            //end of ADX
+        }
+        protected override void OnBar()
+        {
+        }
+        protected override void OnTick()
+        {
+            //expiration code
+            if (timeprotected == true && DateTime.Compare(Server.Time.Date, expirytime) >= 1)
+            {
+                Print(" AI Maru expired! Please contact ryanoia@gmail.com");
+                Stop();
+            }
+            else
+            {
+                //holy grail
+                if ((Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (dmsm15.ADX.LastValue < 25) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
+                {
+                    CancelPendingOrders();
+                    ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize), Math.Round(ATRw1.Result.LastValue / Symbol.PipSize), LimitRange);
+                    ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize), Math.Round(ATRw1.Result.LastValue / Symbol.PipSize), LimitRange);
+                    CreateWaves(TradeType.Buy);
+                    CreateWaves(TradeType.Sell);
+                    Print("Refresh Everything");
+                }
+                //hedge
+                if (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null)
+                {
+                    foreach (var position in Positions)
+                    {
+                        if ((position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Sell) && (position.Label == "Wave 0"))
+                        {
+                            ClosePosition(position);
+                            Print("Close remaining hedge");
+                        }
+                    }
+                }
+                if (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null)
+                {
+                    {
+                        foreach (var position in Positions)
+                        {
+                            if ((position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Buy) && (position.Label == "Wave 0"))
+                            {
+                                ClosePosition(position);
+                                Print("Close remaining hedge");
+                            }
+                        }
+                    }
+                }
+                //end of hedge
+                //holy grail refresh buy side
+                if ((Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange))
+                {
+                    foreach (var position in Positions)
+                    {
+                        if ((position.Pips != 0) && (position.Pips >= LimitRange * -1.5) && (position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Sell) && (position.HasTrailingStop == false))
+                        {
+                            CancelPendingBuyOrders();
+                            ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh4.Result.LastValue / Symbol.PipSize), LimitRange);
+                            CreateWaves(TradeType.Buy);
+                            Print("Refresh Buy Side");
+                        }
+                    }
+                }
+                //end of holy grail refresh buy side
+                //holy grail refresh sell side
+                if ((Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange))
+                {
+                    foreach (var position in Positions)
+                    {
+                        if ((position.Pips != 0) && (position.Pips >= LimitRange * -1.5) && (position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Buy) && (position.HasTrailingStop == false))
+                        {
+                            CancelPendingSellOrders();
+                            ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh4.Result.LastValue / Symbol.PipSize), LimitRange);
+                            CreateWaves(TradeType.Sell);
+                            Print("Refresh Sell Side");
+                        }
+                    }
+                }
+                //end of holy grail refresh sell side
+                //end of holy grail
+
+                //Modify Sell Side for Trailing Stop
+                if ((Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange))
+                {
+                    foreach (var position in Positions)
+                    {
+                        if ((position.TradeType == TradeType.Sell) && (position.Pips * -1 >= Math.Round(ATRh4.Result.LastValue / Symbol.PipSize)) && (position.Pips * -1 <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize)) && (position.SymbolName == Symbol.Name) && (position.HasTrailingStop == false))
+                        {
+                            ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh4.Result.LastValue, false);
+                            Print("Position " + position.TradeType + " Trailing Stop Modification? " + position.HasTrailingStop);
+                        }
+                    }
+                }
+                //end of Modify Sell Side for Trailing Stop
+
+                //Modify Buy Side for Trailing Stop
+                if ((Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Symbol.Spread / Symbol.PipSize < LimitRange))
+                {
+                    foreach (var position in Positions)
+                    {
+                        if ((position.TradeType == TradeType.Buy) && (position.Pips * -1 >= Math.Round(ATRh4.Result.LastValue / Symbol.PipSize)) && (position.Pips * -1 <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize)) && (position.SymbolName == Symbol.Name) && (position.HasTrailingStop == false))
+                        {
+                            ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh4.Result.LastValue, false);
+                            Print("Position " + position.TradeType + " Trailing Stop Modification? " + position.HasTrailingStop);
+                        }
+                    }
+                }
+                //end of Modify Buy Side for Trailing Stop
+
+                //nuking logic
+                foreach (var position in Positions)
+                {
+                    //buy nuke 
+                    if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize)) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name) && (rsim15.Result.LastValue < RSILowerLimit))
+                    {
+                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh4.Result.LastValue, true);
+                        Print("Spike RSI = " + rsim15.Result.LastValue + "Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                    }
+                    if ((position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize)) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name) && (rsim15.Result.LastValue < RSILowerLimit))
+                    {
+                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize + ATRh4.Result.LastValue * NukeTPMultiplier, true);
+                        Print("Spike RSI = " + rsim15.Result.LastValue + "Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                    }
+                    if ((position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize)) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSILowerLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
+                    {
+                        ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
+                        //ModifyPosition(position, position.VolumeInUnits * 2);
+                        //ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize + ATRh1.Result.LastValue * NukeTPMultiplier, true);
+                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, null, false);
+                        Print("Nuke RSI = " + rsim15.Result.LastValue + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                    }
+                    //end of buy nuke
+                    //sell nuke
+                    if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize)) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSIUpperLimit))
+                    {
+                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh4.Result.LastValue, true);
+                        Print("Spike RSI = " + rsim15.Result.LastValue + "Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                    }
+                    if ((position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize)) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSIUpperLimit))
+                    {
+                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize - ATRh4.Result.LastValue * NukeTPMultiplier, true);
+                        Print("Spike RSI = " + rsim15.Result.LastValue + "Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                    }
+                    if ((position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRw1.Result.LastValue / Symbol.PipSize)) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue < RSIUpperLimit) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
+                    {
+                        ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
+                        //ModifyPosition(position, position.VolumeInUnits * 2);
+                        //ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize - ATRh1.Result.LastValue * NukeTPMultiplier, true);
+                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, null, false);
+                        Print("Nuke RSI = " + rsim15.Result.LastValue + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                    }
+                    //end of sell nuke
+                    //final nuke logic for buy and sell
+                    if ((position.VolumeInUnits >= MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.SymbolName == Symbol.Name))
+                    {
+                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + FinalNukeTP * Symbol.PipSize + ATRh1.Result.LastValue * NukeTPMultiplier);
+                        Print("The Last Stand " + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                    }
+                    if ((position.VolumeInUnits >= MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.SymbolName == Symbol.Name))
+                    {
+                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - FinalNukeTP * Symbol.PipSize - ATRh1.Result.LastValue * NukeTPMultiplier);
+                        Print("The Last Stand " + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                    }
+                    //end of final nuke logic for buy and sell
+                }
+                //end of nuking logic
+
+                //Margin Level Stop-Out alert
+                //50000 is for 1:500 leverage
+                //62500 is for 1:400 leverage
+                //83333.34 is for 1:300 leverage
+                //12500 is for 1:200 leverage                
+                //250000 is for 1:100 leverage
+                //if (Account.MarginLevel <= 50000)
+                //{
+                //    Print(" Margin Level = " + Account.MarginLevel + SymbolName);
+                //    {
+                //        foreach (var position in Positions)
+                //        {
+                //            if (position.SymbolName == Symbol.Name)
+                //            {
+                //                ClosePositionAsync(position);
+                //                  ClosePositionAsync(position);
+                //            }
+                //        }
+                //    }
+                //
+                //}
+                //end of Margin Level Stop-Out
+
+                //Net Loss Close
+                if (Account.UnrealizedNetProfit <= NetLossClose)
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                    foreach (var position in Positions)
+                    {
+                        if (position.SymbolName == Symbol.Name)
+                        {
+                            CancelPendingOrders();
+                            ClosePositionAsync(position);
+                        }
+                    }
+                }
+                //end of Net Loss Close
+
+                //Below 100USD alert
+                if ((Account.UnrealizedNetProfit <= -100) && (Account.UnrealizedNetProfit >= -105))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -200) && (Account.UnrealizedNetProfit >= -205))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -300) && (Account.UnrealizedNetProfit >= -305))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -400) && (Account.UnrealizedNetProfit >= -405))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -500) && (Account.UnrealizedNetProfit >= -505))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -600) && (Account.UnrealizedNetProfit >= -605))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -700) && (Account.UnrealizedNetProfit >= -705))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -800) && (Account.UnrealizedNetProfit >= -805))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -900) && (Account.UnrealizedNetProfit >= -905))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -1000) && (Account.UnrealizedNetProfit >= -1005))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -1100) && (Account.UnrealizedNetProfit >= -1105))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -1200) && (Account.UnrealizedNetProfit >= -1205))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -1300) && (Account.UnrealizedNetProfit >= -1305))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -1400) && (Account.UnrealizedNetProfit >= -1405))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if ((Account.UnrealizedNetProfit <= -1500) && (Account.UnrealizedNetProfit >= -1505))
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                if (Account.UnrealizedNetProfit <= -1600)
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                }
+                //end of below 100USD alert
+
+                //big volume alert
+                //foreach (var position in Positions)
+                //{
+                //    if ((position.VolumeInUnits >= 100000) && (position.VolumeInUnits < 200000))
+                //    {
+                //        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:100 ");
+                //        Print(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:100 ");
+                //    }
+                //    if ((position.VolumeInUnits >= 200000) && (position.VolumeInUnits < 300000))
+                //    {
+                //        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:200 ");
+                //        Print(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:200 ");
+                //    }
+                //    if ((position.VolumeInUnits >= 300000) && (position.VolumeInUnits < 400000))
+                //    {
+                //        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:300 ");
+                //        Print(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:300 ");
+                //    }
+                //    if ((position.VolumeInUnits >= 400000) && (position.VolumeInUnits < 500000))
+                //    {
+                //        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:400 ");
+                //        Print(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:400 ");
+                //    }
+                //    if (position.VolumeInUnits >= 500000)
+                //    {
+                //        TradeLogger.Info(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:500 ");
+                //        Print(Server.Time + SymbolName + " Volume = " + position.VolumeInUnits + " Exceeds Max Leverage 1:500 ");
+                //    }
+                //}
+                //end of big volume alert
+            }
+            //end of expiration code
+        }
+
+        //waves
+        private void CreateWaves(TradeType type)
+        {
+            double TargetPrice = type == TradeType.Buy ? Symbol.Ask : Symbol.Bid;
+            for (int i = 0; i < Math.Round((Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) / ((Math.Round(ATRh1.Result.LastValue / Symbol.PipSize) + LimitRange)))); i++)
+            {
+                TargetPrice = type == TradeType.Buy ? TargetPrice + ((Math.Round(ATRh4.Result.LastValue / Symbol.PipSize) * Symbol.PipSize) + (LimitRange * Symbol.PipSize)) : TargetPrice - ((Math.Round(ATRh4.Result.LastValue / Symbol.PipSize) * Symbol.PipSize) + (LimitRange * Symbol.PipSize));
+                PlaceStopLimitOrderAsync(type, Symbol, Volume, TargetPrice, LimitRange, "", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh4.Result.LastValue / Symbol.PipSize), null, null,
+                true);
+            }
+        }
+        //end of waves
+
+        //Cancel Orders terms
+        private void CancelPendingOrders()
+        {
+            foreach (var order in PendingOrders)
+            {
+                if (order.SymbolCode == Symbol.Name)
+                {
+                    CancelPendingOrderAsync(order);
+                }
+            }
+        }
+        private void CancelPendingBuyOrders()
+        {
+            foreach (var order in PendingOrders)
+            {
+                if ((order.SymbolCode == Symbol.Name) && (order.TradeType == TradeType.Buy))
+                {
+                    CancelPendingOrderAsync(order);
+                }
+            }
+        }
+        private void CancelPendingSellOrders()
+        {
+            foreach (var order in PendingOrders)
+            {
+                if ((order.SymbolCode == Symbol.Name) && (order.TradeType == TradeType.Sell))
+                {
+                    CancelPendingOrderAsync(order);
+                }
+            }
+        }
+        //end of Cancel Orders terms
+
+        //Jumping Stop Loss
+        private double GetProtectiveStopPrice(Position OpenPosition)
+        {
+            double PipGain = OpenPosition.TradeType == TradeType.Buy ? (Symbol.Ask - OpenPosition.EntryPrice) / Symbol.PipSize : (OpenPosition.EntryPrice - Symbol.Bid) / Symbol.PipSize;
+            int Milestone = (int)(PipGain % Math.Round(ATRh1.Result.LastValue / Symbol.PipSize));
+
+
+            for (int i = 0; i < 2 && Milestone > 0; i++)
+            {
+                if (PipGain >= Math.Round(ATRh1.Result.LastValue / Symbol.PipSize) * Milestone)
+                {
+                    Print("JSL activated");
+                    double ProtectiveStopSize = (((Milestone - 1) * Math.Round(ATRh1.Result.LastValue / Symbol.PipSize)) + PSLAddPips) * Symbol.PipSize;
+
+
+                    if (OpenPosition.TradeType == TradeType.Buy)
+                    {
+                        double ProtectiveStopPrice = OpenPosition.EntryPrice + ProtectiveStopSize;
+
+
+                        if (OpenPosition.StopLoss == null || OpenPosition.StopLoss < ProtectiveStopPrice)
+                        {
+                            return ProtectiveStopPrice;
+                        }
+                    }
+
+
+                    else if (OpenPosition.TradeType == TradeType.Sell)
+                    {
+                        double ProtectiveStopPrice = OpenPosition.EntryPrice - ProtectiveStopSize;
+
+
+                        if (OpenPosition.StopLoss == null || OpenPosition.StopLoss > ProtectiveStopPrice)
+                        {
+                            return ProtectiveStopPrice;
+                        }
+                    }
+                }
+                Milestone--;
+            }
+            return 0;
+        }
+        //End of Jumping Stop Loss
+    }
+}

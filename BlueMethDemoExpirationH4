@@ -334,70 +334,70 @@ namespace cAlgo.Robots
                 //end of Net Loss Close
 
                 //Below 100USD alert
-                if ((Account.UnrealizedNetProfit <= -100) && (Account.UnrealizedNetProfit >= -105))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -200) && (Account.UnrealizedNetProfit >= -205))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -300) && (Account.UnrealizedNetProfit >= -305))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -400) && (Account.UnrealizedNetProfit >= -405))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -500) && (Account.UnrealizedNetProfit >= -505))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -600) && (Account.UnrealizedNetProfit >= -605))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -700) && (Account.UnrealizedNetProfit >= -705))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -800) && (Account.UnrealizedNetProfit >= -805))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -900) && (Account.UnrealizedNetProfit >= -905))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -1000) && (Account.UnrealizedNetProfit >= -1005))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -1100) && (Account.UnrealizedNetProfit >= -1105))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -1200) && (Account.UnrealizedNetProfit >= -1205))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -1300) && (Account.UnrealizedNetProfit >= -1305))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -1400) && (Account.UnrealizedNetProfit >= -1405))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if ((Account.UnrealizedNetProfit <= -1500) && (Account.UnrealizedNetProfit >= -1505))
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
-                if (Account.UnrealizedNetProfit <= -1600)
-                {
-                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
-                }
+               //if ((Account.UnrealizedNetProfit <= -100) && (Account.UnrealizedNetProfit >= -105))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -200) && (Account.UnrealizedNetProfit >= -205))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -300) && (Account.UnrealizedNetProfit >= -305))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -400) && (Account.UnrealizedNetProfit >= -405))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -500) && (Account.UnrealizedNetProfit >= -505))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -600) && (Account.UnrealizedNetProfit >= -605))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -700) && (Account.UnrealizedNetProfit >= -705))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -800) && (Account.UnrealizedNetProfit >= -805))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -900) && (Account.UnrealizedNetProfit >= -905))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -1000) && (Account.UnrealizedNetProfit >= -1005))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -1100) && (Account.UnrealizedNetProfit >= -1105))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -1200) && (Account.UnrealizedNetProfit >= -1205))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -1300) && (Account.UnrealizedNetProfit >= -1305))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -1400) && (Account.UnrealizedNetProfit >= -1405))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if ((Account.UnrealizedNetProfit <= -1500) && (Account.UnrealizedNetProfit >= -1505))
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
+               //if (Account.UnrealizedNetProfit <= -1600)
+               //{
+               //    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+               //}
                 //end of below 100USD alert
 
                 //big volume alert

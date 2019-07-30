@@ -221,7 +221,7 @@ namespace cAlgo.Robots
                         ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPMultiplier);
                         Print("Jumping Stop Loss Activated, new Buy Take Profit = " + position.TakeProfit);
                     }
-                    if ((position.VolumeInUnits > Volume) && (position.TradeType == TradeType.Buy) && (position.TakeProfit != position.EntryPrice + JumpingNukeTP * Symbol.PipSize) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
+                    if ((position.VolumeInUnits > Volume) && (position.TradeType == TradeType.Buy) && (position.TakeProfit != position.EntryPrice + ATRh1.Result.LastValue * JTPNukeMultiplier + JumpingNukeTP * Symbol.PipSize) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
                     {
                         ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue * JTPNukeMultiplier + JumpingNukeTP * Symbol.PipSize);
                         Print("Jumping Stop Loss Activated, new Buy Take Profit = " + position.TakeProfit);
@@ -233,7 +233,7 @@ namespace cAlgo.Robots
                         ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue * JTPMultiplier);
                         Print("Jumping Stop Loss Activated, new Sell Take Profit = " + position.TakeProfit);
                     }
-                    if ((position.VolumeInUnits > Volume) && (position.TradeType == TradeType.Sell) && (position.TakeProfit != position.EntryPrice - JumpingNukeTP * Symbol.PipSize) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
+                    if ((position.VolumeInUnits > Volume) && (position.TradeType == TradeType.Sell) && (position.TakeProfit != position.EntryPrice - ATRh1.Result.LastValue * JTPNukeMultiplier - JumpingNukeTP * Symbol.PipSize) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
                     {
                         ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPNukeMultiplier - JumpingNukeTP * Symbol.PipSize);
                         Print("Jumping Stop Loss Activated, new Sell Take Profit = " + position.TakeProfit);

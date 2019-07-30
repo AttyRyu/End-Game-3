@@ -20,14 +20,14 @@ namespace cAlgo.Robots
         //33K volume every 200 equity one pair only, 66K if two pairs
         public int MaxVolumeMultiplier { get; set; }
 
-        [Parameter("Nuke TP", DefaultValue = 3)]
-        public double NukeTP { get; set; }
+        [Parameter("Final Nuke TP", DefaultValue = 0)]
+        public double FinalNukeTP { get; set; }
 
         [Parameter("Limit Range", DefaultValue = 3)]
         public double LimitRange { get; set; }
 
-        [Parameter("Final Nuke TP", DefaultValue = 0)]
-        public double FinalNukeTP { get; set; }
+        [Parameter("Nuke TP", DefaultValue = 3)]
+        public double NukeTP { get; set; }
 
         [Parameter("Nuke TP Multiplier", DefaultValue = 1)]
         public double NukeTPMultiplier { get; set; }
@@ -41,6 +41,9 @@ namespace cAlgo.Robots
         [Parameter("Jumping Nuke TP", DefaultValue = 3)]
         public double JumpingNukeTP { get; set; }
 
+        [Parameter("Jumping Nuke TP Multiplier", DefaultValue = 1)]
+        public double JTPNukeMultiplier { get; set; }
+        
         [Parameter("Net Loss Close", DefaultValue = -400)]
         //-800 for 4 pairs, -400 for 2 pairs
         public int NetLossClose { get; set; }
@@ -220,7 +223,7 @@ namespace cAlgo.Robots
                     }
                     if ((position.VolumeInUnits > Volume) && (position.TradeType == TradeType.Buy) && (position.TakeProfit != position.EntryPrice + JumpingNukeTP * Symbol.PipSize) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
                     {
-                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + JumpingNukeTP * Symbol.PipSize);
+                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue * JTPNukeMultiplier + JumpingNukeTP * Symbol.PipSize);
                         Print("Jumping Stop Loss Activated, new Buy Take Profit = " + position.TakeProfit);
                     }
                     //end of buy
@@ -232,7 +235,7 @@ namespace cAlgo.Robots
                     }
                     if ((position.VolumeInUnits > Volume) && (position.TradeType == TradeType.Sell) && (position.TakeProfit != position.EntryPrice - JumpingNukeTP * Symbol.PipSize) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
                     {
-                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - JumpingNukeTP * Symbol.PipSize);
+                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPNukeMultiplier - JumpingNukeTP * Symbol.PipSize);
                         Print("Jumping Stop Loss Activated, new Sell Take Profit = " + position.TakeProfit);
                     }
                     //end of sell

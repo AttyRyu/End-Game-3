@@ -32,6 +32,9 @@ namespace cAlgo.Robots
         [Parameter("Nuke TP Multiplier", DefaultValue = 1)]
         public double NukeTPMultiplier { get; set; }
 
+        [Parameter("Jumping TP Multiplier", DefaultValue = 1)]
+        public double JTPMultiplier { get; set; }
+
         [Parameter("Net Loss Close", DefaultValue = -400)]
         //-800 for 4 pairs, -400 for 2 pairs
         public int NetLossClose { get; set; }
@@ -207,14 +210,14 @@ namespace cAlgo.Robots
                         //buy
                         if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRh12.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
                         {
-                            ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh4.Result.LastValue);
+                            ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPMultiplier);
                             Print("Jumping Stop Loss Activated, new Take Profit = " + position.TakeProfit);
                         }
                         //end of buy
                         //sell
                         if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRh12.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
                         {
-                            ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh4.Result.LastValue);
+                            ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue * JTPMultiplier);
                             Print("Jumping Stop Loss Activated, new Take Profit = " + position.TakeProfit);
                         }
                         //end of sell

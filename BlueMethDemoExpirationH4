@@ -106,6 +106,11 @@ namespace cAlgo.Robots
         // if true ;Expiry YEAR MM DD
         DateTime expirytime = new DateTime(2019, 7, 31);
         //end of expiration codez
+        
+        //bias declaration
+        bool _TPAdjustedForBias;
+        bool _conditionMet;
+        //end of bias declaration
 
         protected override void OnStart()
         {
@@ -356,9 +361,6 @@ namespace cAlgo.Robots
                     var previousFastMa = fastMad1.Result.Last(1);
 
                     //buy bias
-                    bool _TPAdjustedForBias;
-                    bool _conditionMet;
-        
                     if ((position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid > currentSlowMa) && (Symbol.Bid > currentFastMa))
                     {
                         ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize + ATRh4.Result.LastValue * NukeTPMultiplier, true);

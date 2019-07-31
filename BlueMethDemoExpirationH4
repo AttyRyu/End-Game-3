@@ -24,7 +24,7 @@ namespace cAlgo.Robots
         [Parameter("Limit Range and Allowance", DefaultValue = 3)]
         public double LimitRange { get; set; }
         
-        [Parameter("Retracement - Refresh Pips Multiplier v. LimitRange", DefaultValue = 1.5)]
+        [Parameter("Retracement - Refresh Pips Multiplier v. LimitRange", DefaultValue = -1.5)]
         public double RefreshPipsMultiplier { get; set; }        
 
         [Parameter("Jumping TP Pips Trigger Divisor", DefaultValue = 1.5)]

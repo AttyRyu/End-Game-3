@@ -18,7 +18,7 @@ namespace cAlgo.Robots
         [Parameter("Net Loss Close", DefaultValue = -1000)]
         public int NetLossClose { get; set; }
 
-        [Parameter("Net Profit Close", DefaultValue = -1000)]
+        [Parameter("Net Profit Close", DefaultValue = 1000)]
         public int NetProfitClose { get; set; }
 
         [Parameter("Limit Range and Allowance", DefaultValue = 3)]
@@ -64,7 +64,7 @@ namespace cAlgo.Robots
         public int PSLAddPips { get; set; }
         //End of Jumping Stop Loss
 
-        //RSI and ADX parameters
+        //ATR, Trend, RSI and ADX parameter
         [Parameter("ADX Refresh Limiter", DefaultValue = 20)]
         public double ADXRefreshLimiter { get; set; }
 
@@ -80,29 +80,25 @@ namespace cAlgo.Robots
         private RelativeStrengthIndex rsim15;
         private RelativeStrengthIndex rsih1;
         private DirectionalMovementSystem dmsm15;
-        //end of RSI and ADX parameter
-
-        //Trend
         private MovingAverage slowMad1;
         private MovingAverage fastMad1;
-        private const string label = "Sample Trend cBot";
-        //End of Trend
+        private AverageTrueRange ATRm15;
+        private AverageTrueRange ATRh1;
+        private AverageTrueRange ATRh4;
+        private AverageTrueRange ATRh12;
+        private AverageTrueRange ATRd1;
+        private AverageTrueRange ATRw1;
+        private AverageTrueRange ATRm1;
+        //end of ATR, Trend, RSI and ADX parameter
 
         //ATR RSI Market series declarations
         private MarketSeries m15;
-        private AverageTrueRange ATRm15;
         private MarketSeries h1;
-        private AverageTrueRange ATRh1;
         private MarketSeries h4;
-        private AverageTrueRange ATRh4;
         private MarketSeries h12;
-        private AverageTrueRange ATRh12;
         private MarketSeries d1;
-        private AverageTrueRange ATRd1;
         private MarketSeries w1;
-        private AverageTrueRange ATRw1;
         private MarketSeries m1;
-        private AverageTrueRange ATRm1;
         //end of ATR RSI Market series declarations
 
         //expiration code
@@ -125,27 +121,25 @@ namespace cAlgo.Robots
             }
             //end of demo only code
 
-            //Trend
-            fastMad1 = Indicators.MovingAverage(d1.Close, 50, MovingAverageType.Simple);
-            slowMad1 = Indicators.MovingAverage(d1.Close, 200, MovingAverageType.Simple);
-            ///End of Trend
-
-            //ATR m15, h1, h4, h12, d1, w1, m1
+            //Timeframes
             m15 = MarketData.GetSeries(TimeFrame.Minute15);
-            ATRm15 = Indicators.AverageTrueRange(m15, 120, MovingAverageType.Exponential);
             h1 = MarketData.GetSeries(TimeFrame.Hour);
-            ATRh1 = Indicators.AverageTrueRange(h1, 120, MovingAverageType.Exponential);
             h4 = MarketData.GetSeries(TimeFrame.Hour4);
-            ATRh4 = Indicators.AverageTrueRange(h4, 60, MovingAverageType.Exponential);
             h12 = MarketData.GetSeries(TimeFrame.Hour12);
-            ATRh12 = Indicators.AverageTrueRange(h12, 60, MovingAverageType.Exponential);
             d1 = MarketData.GetSeries(TimeFrame.Daily);
-            ATRd1 = Indicators.AverageTrueRange(d1, 30, MovingAverageType.Exponential);
             w1 = MarketData.GetSeries(TimeFrame.Weekly);
-            ATRw1 = Indicators.AverageTrueRange(w1, 12, MovingAverageType.Exponential);
             m1 = MarketData.GetSeries(TimeFrame.Monthly);
+            //end of Timeframes
+
+            //ATR
+            ATRm15 = Indicators.AverageTrueRange(m15, 120, MovingAverageType.Exponential);
+            ATRh1 = Indicators.AverageTrueRange(h1, 120, MovingAverageType.Exponential);
+            ATRh4 = Indicators.AverageTrueRange(h4, 60, MovingAverageType.Exponential);
+            ATRh12 = Indicators.AverageTrueRange(h12, 60, MovingAverageType.Exponential);
+            ATRd1 = Indicators.AverageTrueRange(d1, 30, MovingAverageType.Exponential);
+            ATRw1 = Indicators.AverageTrueRange(w1, 12, MovingAverageType.Exponential);
             ATRm1 = Indicators.AverageTrueRange(m1, 3, MovingAverageType.Exponential);
-            //ATR m15, h1, h4, h12, d1, w1, m1
+            //end of ATR
 
             //RSI
             rsim15 = Indicators.RelativeStrengthIndex(m15.Close, 14);
@@ -155,6 +149,11 @@ namespace cAlgo.Robots
             //ADX
             dmsm15 = Indicators.DirectionalMovementSystem(m15, 14);
             //end of ADX
+
+            //Trend
+            fastMad1 = Indicators.SimpleMovingAverage(d1.Close, 50);
+            slowMad1 = Indicators.SimpleMovingAverage(d1.Close, 200);
+            ///End of Trend
         }
         protected override void OnBar()
         {

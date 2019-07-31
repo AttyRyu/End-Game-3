@@ -271,11 +271,6 @@ namespace cAlgo.Robots
                 //nuking logic
                 foreach (var position in Positions)
                 {
-                    var currentSlowMa = slowMad1.Result.Last(0);
-                    var currentFastMa = fastMad1.Result.Last(0);
-                    var previousSlowMa = slowMad1.Result.Last(1);
-                    var previousFastMa = fastMad1.Result.Last(1);
-
                     //buy nuke 
                     //spike modification
                     if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name) && (rsim15.Result.LastValue < RSILowerLimit))
@@ -290,22 +285,15 @@ namespace cAlgo.Robots
                     }
                     //end of spike modification
 
-                    //crossover bias nuke
-                    if ((previousSlowMa > previousFastMa) && (currentSlowMa <= currentFastMa) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSILowerLimit) && (dmsm15.ADX.LastValue < ADXNukeLimiter) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
+                    //volume modification
+                    if ((position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSILowerLimit) && (dmsm15.ADX.LastValue < ADXNukeLimiter) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
                         //ModifyPosition(position, position.VolumeInUnits * 2);
                         ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize + ATRh4.Result.LastValue * NukeTPMultiplier, true);
-                        Print("Golden Cross, Nuke RSI = " + rsim15.Result.LastValue + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                        Print("Nuke RSI = " + rsim15.Result.LastValue + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
-                    else if ((previousSlowMa < previousFastMa) && (currentSlowMa >= currentFastMa) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue > RSILowerLimit) && (dmsm15.ADX.LastValue < ADXNukeLimiter) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
-                    {
-                        ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
-                        //ModifyPosition(position, position.VolumeInUnits * 2);
-                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPNukeMultiplier - JumpingNukeTP * Symbol.PipSize);
-                        Print("Death Cross, Nuke RSI = " + rsim15.Result.LastValue + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
-                    }
-                    //end of crossover bias nuke
+                    //end of volume modification
                     //end of buy nuke
 
                     //sell nuke
@@ -322,23 +310,15 @@ namespace cAlgo.Robots
                     }
                     //end of spike modification
 
-                    //crossover bias nuke
-                    if ((previousSlowMa < previousFastMa) && (currentSlowMa >= currentFastMa) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue < RSIUpperLimit) && (dmsm15.ADX.LastValue < ADXNukeLimiter) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
+                    //volume modification
+                    if ((position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue < RSIUpperLimit) && (dmsm15.ADX.LastValue < ADXNukeLimiter) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
                         //ModifyPosition(position, position.VolumeInUnits * 2);
                         ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize - ATRh4.Result.LastValue * NukeTPMultiplier, true);
-                        Print("Death Cross, Nuke RSI = " + rsim15.Result.LastValue + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                        Print("Nuke RSI = " + rsim15.Result.LastValue + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
-                    else if ((previousSlowMa > previousFastMa) && (currentSlowMa <= currentFastMa) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (Symbol.Spread / Symbol.PipSize < LimitRange) && (rsim15.Result.LastValue < RSIUpperLimit) && (dmsm15.ADX.LastValue < ADXNukeLimiter) && (Server.Time.Hour != 4) && (Server.Time.Hour != 5) && (Server.Time.Hour != 6) && (Server.Time.Hour != 7))
-                    {
-                        ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / (ATRh4.Result.LastValue / Symbol.PipSize) + 0.5));
-                        //ModifyPosition(position, position.VolumeInUnits * 2);
-                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPNukeMultiplier - JumpingNukeTP * Symbol.PipSize);
-                        Print("Golden Cross, Nuke RSI = " + rsim15.Result.LastValue + "New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
-                    }
-                    //end of crossover bias nuke
-
+                    //end of volume modification
                     //end of sell nuke
 
                     //backup nuke logic
@@ -370,18 +350,37 @@ namespace cAlgo.Robots
                     //end of final nuke logic for buy and sell
 
                     //nuking bias golden/death cross
+                    var currentSlowMa = slowMad1.Result.Last(0);
+                    var currentFastMa = fastMad1.Result.Last(0);
+                    var previousSlowMa = slowMad1.Result.Last(1);
+                    var previousFastMa = fastMad1.Result.Last(1);
 
-
-                    if ((position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (previousSlowMa > previousFastMa) && (currentSlowMa <= currentFastMa))
+                    //buy bias
+                    if ((position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid > currentSlowMa) && (Symbol.Bid > currentFastMa))
                     {
-                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize - ATRh4.Result.LastValue * NukeTPMultiplier, true);
+                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize + ATRh4.Result.LastValue * NukeTPMultiplier, true);
                         Print("Golden Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
                     }
-                    else if ((position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (previousSlowMa < previousFastMa) && (currentSlowMa >= currentFastMa))
+                    else if ((position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid < currentSlowMa) && (Symbol.Bid < currentFastMa))
                     {
-                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize - ATRh4.Result.LastValue * NukeTPMultiplier, true);
+                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue * JTPMultiplier);
+                        Print("Death Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
+                    }
+                    //end of buy bias
+
+                    //sell bias
+                    if ((position.TradeType == TradeType.Sell) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid < currentSlowMa) && (Symbol.Bid < currentFastMa))
+                    {
+                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize - ATRh4.Result.LastValue * NukeTPMultiplier, true);
+                        Print("Death Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
+                    }
+                    else if ((position.TradeType == TradeType.Sell) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid > currentSlowMa) && (Symbol.Bid > currentFastMa))
+                    {
+                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPMultiplier);
                         Print("Golden Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
                     }
+                    //end of sell bias
+
                     //end of nuking bias golden/death cross
                 }
                 //end of nuking logic

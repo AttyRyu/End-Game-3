@@ -14,13 +14,13 @@ namespace cAlgo.Robots
     {
         [Parameter("Volume", DefaultValue = 1000)]
         public int Volume { get; set; }
-        
+
         [Parameter("Net Loss Close", DefaultValue = -1000)]
         public int NetLossClose { get; set; }
-        
+
         [Parameter("Net Profit Close", DefaultValue = -1000)]
         public int NetProfitClose { get; set; }
-        
+
         [Parameter("Limit Range and Allowance", DefaultValue = 3)]
         public double LimitRange { get; set; }
 
@@ -44,7 +44,7 @@ namespace cAlgo.Robots
 
         [Parameter("Jumping Nuke TP Volume Multiplier", DefaultValue = 1)]
         public double JTPNukeMultiplier { get; set; }
-        
+
         //Final Nuke Parameters
         [Parameter("Max Volume Multiplier", DefaultValue = 30000)]
         public int MaxVolumeMultiplier { get; set; }
@@ -52,7 +52,7 @@ namespace cAlgo.Robots
         [Parameter("Final Nuke TP Add Pips", DefaultValue = 3)]
         public double FinalNukeTP { get; set; }
         //end of Final Nuke Parameters
-            
+
         //Jumping Stop Loss
         [Parameter("SL Trigger Pips", DefaultValue = 22)]
         public int WaveInterval { get; set; }
@@ -67,10 +67,10 @@ namespace cAlgo.Robots
 
         [Parameter("ADX Refresh Limiter", DefaultValue = 20)]
         public double ADXRefreshLimiter { get; set; }
-        
+
         [Parameter("ADX Nuke Limiter", DefaultValue = 20)]
         public double ADXNukeLimiter { get; set; }
-        
+
         [Parameter("RSI Upper Limit", DefaultValue = 80)]
         public double RSIUpperLimit { get; set; }
 
@@ -355,7 +355,7 @@ namespace cAlgo.Robots
                 //end of Margin Level Stop-Out
 
                 //Net Loss Close
-                if (Account.UnrealizedNetProfit >= NeProfitClose)
+                if (Account.UnrealizedNetProfit >= NetProfitClose)
                 {
                     Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
                     foreach (var position in Positions)
@@ -486,7 +486,7 @@ namespace cAlgo.Robots
         private void CreateWaves(TradeType type)
         {
             double TargetPrice = type == TradeType.Buy ? Symbol.Ask : Symbol.Bid;
-            for (int i = 0; i < (Math.Round((Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) / ((Math.Round(ATRh1.Result.LastValue / Symbol.PipSize) + LimitRange)))))/2; i++)
+            for (int i = 0; i < (Math.Round((Math.Round(ATRd1.Result.LastValue / Symbol.PipSize) / ((Math.Round(ATRh1.Result.LastValue / Symbol.PipSize) + LimitRange))))) / 2; i++)
             {
                 TargetPrice = type == TradeType.Buy ? TargetPrice + ((Math.Round(ATRh1.Result.LastValue / Symbol.PipSize) * Symbol.PipSize) + (LimitRange * Symbol.PipSize)) : TargetPrice - ((Math.Round(ATRh1.Result.LastValue / Symbol.PipSize) * Symbol.PipSize) + (LimitRange * Symbol.PipSize));
                 PlaceStopLimitOrderAsync(type, Symbol, Volume, TargetPrice, LimitRange, "", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), null);
@@ -526,38 +526,38 @@ namespace cAlgo.Robots
             }
         }
         //end of Cancel Orders terms
-        
-        Jumping Stop Loss
+
+        //Jumping Stop Loss
         private double GetProtectiveStopPrice(Position OpenPosition)
         {
             double PipGain = OpenPosition.TradeType == TradeType.Buy ? (Symbol.Ask - OpenPosition.EntryPrice) / Symbol.PipSize : (OpenPosition.EntryPrice - Symbol.Bid) / Symbol.PipSize;
             int Milestone = (int)(PipGain % WaveInterval);
-        
-        
+
+
             for (int i = 0; i < 2 && Milestone > 0; i++)
             {
                 if (PipGain >= WaveInterval * Milestone)
                 {
                     double ProtectiveStopSize = (((Milestone - 1) * WaveInterval) + PSLAddPips) * Symbol.PipSize;
-        
-        
+
+
                     if (OpenPosition.TradeType == TradeType.Buy)
                     {
                         double ProtectiveStopPrice = OpenPosition.EntryPrice + ProtectiveStopSize;
-        
-        
+
+
                         if (OpenPosition.StopLoss == null || OpenPosition.StopLoss < ProtectiveStopPrice)
                         {
                             return ProtectiveStopPrice;
                         }
                     }
-        
-        
+
+
                     else if (OpenPosition.TradeType == TradeType.Sell)
                     {
                         double ProtectiveStopPrice = OpenPosition.EntryPrice - ProtectiveStopSize;
-        
-        
+
+
                         if (OpenPosition.StopLoss == null || OpenPosition.StopLoss > ProtectiveStopPrice)
                         {
                             return ProtectiveStopPrice;

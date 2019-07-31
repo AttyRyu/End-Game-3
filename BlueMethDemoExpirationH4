@@ -23,6 +23,9 @@ namespace cAlgo.Robots
 
         [Parameter("Limit Range and Allowance", DefaultValue = 3)]
         public double LimitRange { get; set; }
+        
+        [Parameter("Retracement - Refresh Pips Multiplier v. LimitRange", DefaultValue = 1.5)]
+        public double RefreshPipsMultiplier { get; set; }        
 
         [Parameter("Jumping TP Pips Trigger Divisor", DefaultValue = 1.5)]
         public double JTPDivisor { get; set; }
@@ -176,7 +179,7 @@ namespace cAlgo.Robots
                 {
                     foreach (var position in Positions)
                     {
-                        if ((position.Pips != 0) && (position.Pips >= LimitRange * -1.5) && (position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Sell) && (position.HasTrailingStop == true))
+                        if ((position.Pips != 0) && (position.Pips >= LimitRange * RefreshPipsMultiplier) && (position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Sell) && (position.HasTrailingStop == true))
                         {
                             CancelPendingBuyOrders();
                             ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), LimitRange);
@@ -191,7 +194,7 @@ namespace cAlgo.Robots
                 {
                     foreach (var position in Positions)
                     {
-                        if ((position.Pips != 0) && (position.Pips >= LimitRange * -1.5) && (position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Buy) && (position.HasTrailingStop == true))
+                        if ((position.Pips != 0) && (position.Pips >= LimitRange * RefreshPipsMultiplier) && (position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Buy) && (position.HasTrailingStop == true))
                         {
                             CancelPendingSellOrders();
                             ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0", Math.Round(ATRw1.Result.LastValue / Symbol.PipSize) * 10, Math.Round(ATRh1.Result.LastValue / Symbol.PipSize), LimitRange);

@@ -356,15 +356,26 @@ namespace cAlgo.Robots
                     var previousFastMa = fastMad1.Result.Last(1);
 
                     //buy bias
+                    bool _TPAdjustedForBias;
+                    bool _conditionMet;
+        
                     if ((position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid > currentSlowMa) && (Symbol.Bid > currentFastMa))
                     {
                         ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize + ATRh4.Result.LastValue * NukeTPMultiplier, true);
                         Print("Golden Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
+                        if (!_TPAdjustedforBias && _conditionMet)
+                        {
+                            _TPAdjustedForBias = true;
+                        }
                     }
                     else if ((position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid < currentSlowMa) && (Symbol.Bid < currentFastMa))
                     {
                         ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue * JTPMultiplier);
                         Print("Death Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
+                        if (!_TPAdjustedforBias && _conditionMet)
+                        {
+                            _TPAdjustedForBias = true;
+                        }
                     }
                     //end of buy bias
 
@@ -373,11 +384,19 @@ namespace cAlgo.Robots
                     {
                         ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize - ATRh4.Result.LastValue * NukeTPMultiplier, true);
                         Print("Death Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
+                        if (!_TPAdjustedforBias && _conditionMet)
+                        {
+                            _TPAdjustedForBias = true;
+                        }
                     }
                     else if ((position.TradeType == TradeType.Sell) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid > currentSlowMa) && (Symbol.Bid > currentFastMa))
                     {
                         ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPMultiplier);
                         Print("Golden Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
+                        if (!_TPAdjustedforBias && _conditionMet)
+                        {
+                            _TPAdjustedForBias = true;
+                        }
                     }
                     //end of sell bias
 

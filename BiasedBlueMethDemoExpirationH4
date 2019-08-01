@@ -156,8 +156,8 @@ namespace cAlgo.Robots
             //end of ADX
 
             //Trend
-            fastMad1 = Indicators.SimpleMovingAverage(h4.Close, 50);
-            slowMad1 = Indicators.SimpleMovingAverage(h4.Close, 200);
+            fastMad1 = Indicators.SimpleMovingAverage(d1.Close, 50);
+            slowMad1 = Indicators.SimpleMovingAverage(d1.Close, 200);
             ///End of Trend
         }
         protected override void OnBar()

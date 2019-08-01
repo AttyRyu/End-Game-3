@@ -244,33 +244,33 @@ namespace cAlgo.Robots
                 //end of Modify Buy Side for Trailing Stop
 
                 //jumping take profit
-                //foreach (var position in Positions)
-                //{
-                //    //buy
-                //    if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Buy) && (position.TakeProfit > position.EntryPrice) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
-                //    {
-                //        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPMultiplier);
-                //        Print("Jumping Stop Loss Activated, new Buy Take Profit = " + position.TakeProfit);
-                //    }
-                //    if ((position.VolumeInUnits > Volume) && (position.TradeType == TradeType.Buy) && (position.TakeProfit != position.EntryPrice + ATRh1.Result.LastValue * JTPNukeMultiplier + JumpingNukeTP * Symbol.PipSize) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
-                //    {
-                //        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue * JTPNukeMultiplier + JumpingNukeTP * Symbol.PipSize);
-                //        Print("Jumping Stop Loss Activated, new Buy Take Profit = " + position.TakeProfit);
-                //    }
-                //    //end of buy
-                //    //sell
-                //    if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Sell) && (position.TakeProfit < position.EntryPrice) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
-                //    {
-                //        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue * JTPMultiplier);
-                //        Print("Jumping Stop Loss Activated, new Sell Take Profit = " + position.TakeProfit);
-                //    }
-                //    if ((position.VolumeInUnits > Volume) && (position.TradeType == TradeType.Sell) && (position.TakeProfit != position.EntryPrice - ATRh1.Result.LastValue * JTPNukeMultiplier - JumpingNukeTP * Symbol.PipSize) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
-                //    {
-                //        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPNukeMultiplier - JumpingNukeTP * Symbol.PipSize);
-                //        Print("Jumping Stop Loss Activated, new Sell Take Profit = " + position.TakeProfit);
-                //    }
-                //    //end of sell
-                //}
+                foreach (var position in Positions)
+                {
+                    //buy
+                    if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Buy) && (position.TakeProfit > position.EntryPrice) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
+                    {
+                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPMultiplier);
+                        Print("Jumping Stop Loss Activated, new Buy Take Profit = " + position.TakeProfit);
+                    }
+                    if ((position.VolumeInUnits > Volume) && (position.TradeType == TradeType.Buy) && (position.TakeProfit != position.EntryPrice + ATRh1.Result.LastValue * JTPNukeMultiplier + JumpingNukeTP * Symbol.PipSize) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
+                    {
+                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue * JTPNukeMultiplier + JumpingNukeTP * Symbol.PipSize);
+                        Print("Jumping Stop Loss Activated, new Buy Take Profit = " + position.TakeProfit);
+                    }
+                    //end of buy
+                    //sell
+                    if ((position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Sell) && (position.TakeProfit < position.EntryPrice) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
+                    {
+                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue * JTPMultiplier);
+                        Print("Jumping Stop Loss Activated, new Sell Take Profit = " + position.TakeProfit);
+                    }
+                    if ((position.VolumeInUnits > Volume) && (position.TradeType == TradeType.Sell) && (position.TakeProfit != position.EntryPrice - ATRh1.Result.LastValue * JTPNukeMultiplier - JumpingNukeTP * Symbol.PipSize) && (position.Pips <= Math.Round(ATRd1.Result.LastValue / Symbol.PipSize / JTPDivisor) * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
+                    {
+                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPNukeMultiplier - JumpingNukeTP * Symbol.PipSize);
+                        Print("Jumping Stop Loss Activated, new Sell Take Profit = " + position.TakeProfit);
+                    }
+                    //end of sell
+                }
                 //end of jumping take profit
 
                 //nuking logic
@@ -361,45 +361,45 @@ namespace cAlgo.Robots
                     var previousFastMa = fastMad1.Result.Last(1);
 
                     //buy bias
-                    if ((position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid > currentSlowMa) && (Symbol.Bid > currentFastMa))
-                    {
-                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize + ATRh4.Result.LastValue * NukeTPMultiplier, true);
-                        Print("Golden Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
-                        if (!_TPAdjustedforBias && _conditionMet)
-                        {
-                            _TPAdjustedForBias = true;
-                        }
-                    }
-                    else if ((position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid < currentSlowMa) && (Symbol.Bid < currentFastMa))
-                    {
-                        ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue * JTPMultiplier);
-                        Print("Death Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
-                        if (!_TPAdjustedforBias && _conditionMet)
-                        {
-                            _TPAdjustedForBias = true;
-                        }
-                    }
+                    //if ((position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid > currentSlowMa) && (Symbol.Bid > currentFastMa))
+                    //{
+                    //    ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + NukeTP * Symbol.PipSize + ATRh4.Result.LastValue * NukeTPMultiplier, true);
+                    //    Print("Golden Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
+                    //    if (!_TPAdjustedforBias && _conditionMet)
+                    //    {
+                    //        _TPAdjustedForBias = true;
+                    //    }
+                    //}
+                    //else if ((position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid < currentSlowMa) && (Symbol.Bid < currentFastMa))
+                    //{
+                    //    ModifyPosition(position, position.EntryPrice - ATRw1.Result.LastValue * 10, position.EntryPrice + ATRh1.Result.LastValue * JTPMultiplier);
+                    //    Print("Death Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
+                    //    if (!_TPAdjustedforBias && _conditionMet)
+                    //    {
+                    //        _TPAdjustedForBias = true;
+                    //    }
+                    //}
                     //end of buy bias
 
-                    //sell bias
-                    if ((position.TradeType == TradeType.Sell) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid < currentSlowMa) && (Symbol.Bid < currentFastMa))
-                    {
-                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize - ATRh4.Result.LastValue * NukeTPMultiplier, true);
-                        Print("Death Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
-                        if (!_TPAdjustedforBias && _conditionMet)
-                        {
-                            _TPAdjustedForBias = true;
-                        }
-                    }
-                    else if ((position.TradeType == TradeType.Sell) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid > currentSlowMa) && (Symbol.Bid > currentFastMa))
-                    {
-                        ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPMultiplier);
-                        Print("Golden Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
-                        if (!_TPAdjustedforBias && _conditionMet)
-                        {
-                            _TPAdjustedForBias = true;
-                        }
-                    }
+                    ////sell bias
+                    //if ((position.TradeType == TradeType.Sell) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid < currentSlowMa) && (Symbol.Bid < currentFastMa))
+                    //{
+                    //    ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - NukeTP * Symbol.PipSize - ATRh4.Result.LastValue * NukeTPMultiplier, true);
+                    //    Print("Death Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
+                    //    if (!_TPAdjustedforBias && _conditionMet)
+                    //    {
+                    //        _TPAdjustedForBias = true;
+                    //    }
+                    //}
+                    //else if ((position.TradeType == TradeType.Sell) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name) && (Symbol.Bid > currentSlowMa) && (Symbol.Bid > currentFastMa))
+                    //{
+                    //    ModifyPosition(position, position.EntryPrice + ATRw1.Result.LastValue * 10, position.EntryPrice - ATRh1.Result.LastValue * JTPMultiplier);
+                    //    Print("Golden Cross, Modify Nuked Position, Volume " + position.VolumeInUnits + " Position " + position.TradeType + " New Take Profit " + position.TakeProfit);
+                    //    if (!_TPAdjustedforBias && _conditionMet)
+                    //    {
+                    //        _TPAdjustedForBias = true;
+                    //    }
+                    //}
                     //end of sell bias
 
                     //end of nuking bias golden/death cross

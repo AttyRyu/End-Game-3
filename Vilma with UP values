@@ -166,10 +166,6 @@ namespace cAlgo.Robots
         bool _buyconditionmet;
         bool _selltrendreversal;
         bool _sellconditionmet;
-        bool _rangebuytrendreversal;
-        bool _rangebuyconditionmet;
-        bool _rangeselltrendreversal;
-        bool _rangesellconditionmet;
         bool _finalnukebuyvolume;
         bool _finalnukebuyconditionmet;
         bool _finalnukesellvolume;
@@ -277,7 +273,7 @@ namespace cAlgo.Robots
                     ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0", sldistance, tpdistance, LimitRange);
                     Print("Refresh Buy");
                 }
-                else if ((price > currentFastMa) && (stdevlimit > StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsplus > dmsminus) && (dmsplus > ADXTrendFilter) && (adxexhaustion < ADXExhaustionThreshold) && (Positions.Find("Stretched", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                else if ((price > currentFastMa) && (stdevlimit > StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsplus > dmsminus) && (dmsplus > ADXTrendFilter) && (adxexhaustion >= ADXExhaustionThreshold) && (Positions.Find("Stretched", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
                     ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0 Stretched", sldistance, tpdistance, LimitRange);
                     Print("Refresh Sell, Stretched");
@@ -290,7 +286,7 @@ namespace cAlgo.Robots
                     ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0", sldistance, tpdistance, LimitRange);
                     Print("Refresh Sell");
                 }
-                else if ((price < currentFastMa) && (stdevlimit > StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsminus > dmsplus) && (dmsminus > ADXTrendFilter) && (adxexhaustion < ADXExhaustionThreshold) && (Positions.Find("Stretched", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Buy) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                else if ((price < currentFastMa) && (stdevlimit > StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsminus > dmsplus) && (dmsminus > ADXTrendFilter) && (adxexhaustion >= ADXExhaustionThreshold) && (Positions.Find("Stretched", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Buy) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
                     ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0 Stretched", sldistance, tpdistance, LimitRange);
                     Print("Refresh Buy, Stretched");
@@ -394,7 +390,6 @@ namespace cAlgo.Robots
                         var nukerounderallowance = 0.5;
                         {
                             ////trend nuking rules
-
                             //buy nuke 
                             //volume modification 
                             if ((position.Pips <= nukedistance * -1) && (Symbol.Ask >= upmin && Symbol.Ask <= upmax) && (nukespike > RSILowerLimit) && (position.TradeType == TradeType.Buy) && (position.Label != "Range") && (position.Label != "Wave 0 Range") && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
@@ -404,19 +399,6 @@ namespace cAlgo.Robots
                                 Print("Up Value = " + up + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                             }
                             //end of volume modification 
-
-                            //trend reversal nuke modification
-                            if ((price < currentFastMa) && (position.Label != "Range") && (position.Label != "Wave 0 Range") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.SymbolName == Symbol.Name))
-                            {
-                                _buyconditionmet = true;
-                            }
-                            if (!_buytrendreversal && _buyconditionmet)
-                            {
-                                ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + ReverseNukeTP * Symbol.PipSize + rawnuketpdistance * ReverseNukeTPMultiplier);
-                                Print("Long Term Trend Reversed, new position take profit " + position.TakeProfit + " Volume " + position.VolumeInUnits + " Position " + position.TradeType);
-                                _buytrendreversal = true;
-                            }
-                            //end of trend reversal nuke modification
                             //end of buy nuke
 
                             //sell nuke
@@ -428,25 +410,10 @@ namespace cAlgo.Robots
                                 Print("Up Value = " + up + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                             }
                             //end of volume modification 
-
-                            //trend reversal nuke modification
-                            if ((price > currentFastMa) && (position.Label != "Range") && (position.Label != "Wave 0 Range") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name))
-                            {
-                                _sellconditionmet = true;
-                            }
-                            if (!_selltrendreversal && _sellconditionmet)
-                            {
-                                ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - ReverseNukeTP * Symbol.PipSize - rawnuketpdistance * ReverseNukeTPMultiplier);
-                                Print("Long Term Trend Reversed, new position take profit " + position.TakeProfit + " Volume " + position.VolumeInUnits + " Position " + position.TradeType);
-                                _selltrendreversal = true;
-                            }
-                            //end of trend reversal nuke modification
                             //end of sell nuke
-
                             ////end of trend nuking rules
 
                             ////ranging nuking logic
-
                             //buy nuke 
                             //volume modification 
                             if ((position.Pips <= nukedistance * -1) && (Symbol.Ask >= upmin && Symbol.Ask <= upmax) && (nukespike > RSILowerLimit) && (position.TradeType == TradeType.Buy) && (position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
@@ -456,19 +423,6 @@ namespace cAlgo.Robots
                                 Print("Up Value = " + up + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                             }
                             //end of volume modification 
-
-                            //trend reversal nuke modification
-                            if ((price < currentFastMa) && (position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.SymbolName == Symbol.Name))
-                            {
-                                _rangebuyconditionmet = true;
-                            }
-                            if (!_rangebuytrendreversal && _rangebuyconditionmet)
-                            {
-                                ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + ReverseNukeTP * Symbol.PipSize + rawnuketpdistance * ReverseNukeTPMultiplier);
-                                Print("Long Term Trend Reversed, new position take profit " + position.TakeProfit + " Volume " + position.VolumeInUnits + " Position " + position.TradeType);
-                                _rangebuytrendreversal = true;
-                            }
-                            //end of trend reversal nuke modification
                             //end of buy nuke
 
                             //sell nuke
@@ -480,24 +434,39 @@ namespace cAlgo.Robots
                                 Print("Up Value = " + up + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                             }
                             //end of volume modification
+                            //end of sell nuke
+                            ////end of ranging nuking logic
 
-                            //trend reversal nuke modification
-                            if ((price > currentFastMa) && (position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.SymbolName == Symbol.Name))
+                            ////trend reversal nuke modification
+                            //buy
+                            if ((price < currentFastMa) && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.SymbolName == Symbol.Name))
                             {
-                                _rangesellconditionmet = true;
+                                _buyconditionmet = true;
                             }
-                            if (!_rangeselltrendreversal && _rangesellconditionmet)
+                            if (!_buytrendreversal && _buyconditionmet)
+                            {
+                                ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + ReverseNukeTP * Symbol.PipSize + rawnuketpdistance * ReverseNukeTPMultiplier);
+                                Print("Long Term Trend Reversed, new position take profit " + position.TakeProfit + " Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                                _buytrendreversal = true;
+                            }
+                            //end of buy
+
+                            //sell
+                            if ((price > currentFastMa) && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.SymbolName == Symbol.Name))
+                            {
+                                _sellconditionmet = true;
+                            }
+                            if (!_selltrendreversal && _sellconditionmet)
                             {
                                 ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - ReverseNukeTP * Symbol.PipSize - rawnuketpdistance * ReverseNukeTPMultiplier);
                                 Print("Long Term Trend Reversed, new position take profit " + position.TakeProfit + " Volume " + position.VolumeInUnits + " Position " + position.TradeType);
-                                _rangeselltrendreversal = true;
+                                _selltrendreversal = true;
                             }
+                            //end of sell
                             //end of trend reversal nuke modification
-                            //end of sell nuke
-
-                            ////end of ranging nuking logic
 
                             //final nuke logic for buy and sell, range or trend
+                            //buy
                             if ((position.VolumeInUnits >= MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.SymbolName == Symbol.Name))
                             {
                                 _finalnukebuyconditionmet = true;
@@ -505,9 +474,12 @@ namespace cAlgo.Robots
                             if (!_finalnukebuyvolume && _finalnukebuyconditionmet)
                             {
                                 ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + FinalNukeTP * Symbol.PipSize);
-                                Print("The Last Stand " + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                                Print("The Last Stand " + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                                 _finalnukebuyvolume = true;
                             }
+                            //end of buy
+
+                            //sell
                             if ((position.VolumeInUnits >= MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.SymbolName == Symbol.Name))
                             {
                                 _finalnukesellconditionmet = true;
@@ -515,9 +487,10 @@ namespace cAlgo.Robots
                             if (!_finalnukesellvolume && _finalnukesellconditionmet)
                             {
                                 ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - FinalNukeTP * Symbol.PipSize);
-                                Print("The Last Stand " + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                                Print("The Last Stand " + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                                 _finalnukesellvolume = true;
                             }
+                            //end of sell
                             //end of final nuke logic for buy and sell, range or trend
                         }
                     }

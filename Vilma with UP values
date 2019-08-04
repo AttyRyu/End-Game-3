@@ -265,12 +265,12 @@ namespace cAlgo.Robots
             {
                 ////trend entry rules
                 //above sma and not stretched, buy otherwise sell
-                if ((price > currentFastMa) && (stdevlimit < StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsplus > dmsminus) && (dmsplus > ADXTrendFilter) && (adxexhaustion < ADXExhaustionThreshold) && (Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                if ((price > previousFastMa) && (stdevlimit < StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsplus > dmsminus) && (dmsplus > ADXTrendFilter) && (adxexhaustion < ADXExhaustionThreshold) && (Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
                     ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0", sldistance, tpdistance, LimitRange);
                     Print("Refresh Buy");
                 }
-                else if ((price > currentFastMa) && (stdevlimit > StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsplus > dmsminus) && (dmsplus > ADXTrendFilter) && (adxexhaustion >= ADXExhaustionThreshold) && (Positions.Find("Stretched", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                else if ((price > previousFastMa) && (stdevlimit > StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsplus > dmsminus) && (dmsplus > ADXTrendFilter) && (adxexhaustion >= ADXExhaustionThreshold) && (Positions.Find("Stretched", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
                     ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0 Stretched", sldistance, tpdistance, LimitRange);
                     Print("Refresh Sell, Stretched");
@@ -278,12 +278,12 @@ namespace cAlgo.Robots
                 //end of above sma and not stretched, buy otherwise sell
 
                 //below sma and not stretched, sell otherwise buy
-                if ((price < currentFastMa) && (stdevlimit < StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsminus > dmsplus) && (dmsminus > ADXTrendFilter) && (adxexhaustion < ADXExhaustionThreshold) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                if ((price < previousFastMa) && (stdevlimit < StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsminus > dmsplus) && (dmsminus > ADXTrendFilter) && (adxexhaustion < ADXExhaustionThreshold) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
                     ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0", sldistance, tpdistance, LimitRange);
                     Print("Refresh Sell");
                 }
-                else if ((price < currentFastMa) && (stdevlimit > StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsminus > dmsplus) && (dmsminus > ADXTrendFilter) && (adxexhaustion >= ADXExhaustionThreshold) && (Positions.Find("Stretched", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Buy) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                else if ((price < previousFastMa) && (stdevlimit > StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsminus > dmsplus) && (dmsminus > ADXTrendFilter) && (adxexhaustion >= ADXExhaustionThreshold) && (Positions.Find("Stretched", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Buy) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
                     ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0 Stretched", sldistance, tpdistance, LimitRange);
                     Print("Refresh Buy, Stretched");
@@ -407,7 +407,7 @@ namespace cAlgo.Robots
                                 {
                                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                                     ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - NukeTP * Symbol.PipSize - rawnuketpdistance * NukeTPMultiplier);
-                                    Print("Price " + price + "Up Value = " + up + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                                    Print("Price " + price + " Up Value = " + up + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                                 }
                                 //end of volume modification 
                                 //end of sell nuke
@@ -420,7 +420,7 @@ namespace cAlgo.Robots
                                 {
                                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                                     ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + RangeNukeTP * Symbol.PipSize + rawnuketpdistance * RangeNukeTPMultiplier);
-                                    Print("Price " + price + "Up Value = " + up + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                                    Print("Price " + price + " Up Value = " + up + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                                 }
                                 //end of volume modification 
                                 //end of buy nuke
@@ -431,7 +431,7 @@ namespace cAlgo.Robots
                                 {
                                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                                     ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - RangeNukeTP * Symbol.PipSize - rawnuketpdistance * RangeNukeTPMultiplier);
-                                    Print("Price " + price + "Up Value = " + up + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                                    Print("Price " + price + " Up Value = " + up + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                                 }
                                 //end of volume modification
                                 //end of sell nuke
@@ -439,7 +439,7 @@ namespace cAlgo.Robots
 
                                 ////trend reversal nuke modification
                                 //buy
-                                if ((price < currentFastMa) && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.SymbolName == Symbol.Name))
+                                if ((price < previousFastMa) && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Buy) && (position.SymbolName == Symbol.Name))
                                 {
                                     _buyconditionmet = true;
                                 }
@@ -452,7 +452,7 @@ namespace cAlgo.Robots
                                 //end of buy
 
                                 //sell
-                                if ((price > currentFastMa) && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.SymbolName == Symbol.Name))
+                                if ((price > previousFastMa) && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < MaxVolumeMultiplier) && (position.TradeType == TradeType.Sell) && (position.SymbolName == Symbol.Name))
                                 {
                                     _sellconditionmet = true;
                                 }

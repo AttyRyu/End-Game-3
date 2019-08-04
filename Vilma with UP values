@@ -197,9 +197,12 @@ namespace cAlgo.Robots
             stdevh1 = Indicators.StandardDeviation(h1.Close, SMAPeriods, MovingAverageType.Simple);
             stdevh4 = Indicators.StandardDeviation(h4.Close, SMAPeriods, MovingAverageType.Simple);
             stdevd1 = Indicators.StandardDeviation(d1.Close, SMAPeriods, MovingAverageType.Simple);
-            fastMah1 = Indicators.SimpleMovingAverage(h1.Close, SMAPeriods);
-            fastMah4 = Indicators.SimpleMovingAverage(h4.Close, SMAPeriods);
-            fastMad1 = Indicators.SimpleMovingAverage(d1.Close, SMAPeriods);
+            closefastMah1 = Indicators.SimpleMovingAverage(h1.Close, SMAPeriods);
+            closefastMah4 = Indicators.SimpleMovingAverage(h4.Close, SMAPeriods);
+            closefastMad1 = Indicators.SimpleMovingAverage(d1.Close, SMAPeriods);
+            openfastMah1 = Indicators.SimpleMovingAverage(h1.Open, SMAPeriods);
+            openfastMah4 = Indicators.SimpleMovingAverage(h4.Open, SMAPeriods);
+            openfastMad1 = Indicators.SimpleMovingAverage(d1.Open, SMAPeriods);
             ///End of Trend
 
             //ADX
@@ -235,8 +238,8 @@ namespace cAlgo.Robots
         {
             //variables
             var price = (Symbol.Bid + Symbol.Ask) / 2;
-            var currentFastMa = fastMad1.Result.Last(0);
-            var previousFastMa = fastMad1.Result.Last(1);
+            var currentFastMa = openfastMad1.Result.Last(0);
+            var previousFastMa = closefastMad1.Result.Last(1);
             var stdevlimit = stdevd1.Result.LastValue;
             var adxnukelimiter = dmsm15.ADX.LastValue;
             var adxexhaustion = dmsh1.ADX.LastValue;
@@ -265,12 +268,12 @@ namespace cAlgo.Robots
             {
                 ////trend entry rules
                 //above sma and not stretched, buy otherwise sell
-                if ((price > previousFastMa) && (stdevlimit < StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsplus > dmsminus) && (dmsplus > ADXTrendFilter) && (adxexhaustion < ADXExhaustionThreshold) && (Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                if ((price > currentFastMa) && (stdevlimit < StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsplus > dmsminus) && (dmsplus > ADXTrendFilter) && (adxexhaustion < ADXExhaustionThreshold) && (Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
                     ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0", sldistance, tpdistance, LimitRange);
                     Print("Refresh Buy");
                 }
-                else if ((price > previousFastMa) && (stdevlimit > StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsplus > dmsminus) && (dmsplus > ADXTrendFilter) && (adxexhaustion >= ADXExhaustionThreshold) && (Positions.Find("Stretched", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                else if ((price > currentFastMa) && (stdevlimit > StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsplus > dmsminus) && (dmsplus > ADXTrendFilter) && (adxexhaustion >= ADXExhaustionThreshold) && (Positions.Find("Stretched", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
                     ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0 Stretched", sldistance, tpdistance, LimitRange);
                     Print("Refresh Sell, Stretched");
@@ -278,12 +281,12 @@ namespace cAlgo.Robots
                 //end of above sma and not stretched, buy otherwise sell
 
                 //below sma and not stretched, sell otherwise buy
-                if ((price < previousFastMa) && (stdevlimit < StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsminus > dmsplus) && (dmsminus > ADXTrendFilter) && (adxexhaustion < ADXExhaustionThreshold) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                if ((price < currentFastMa) && (stdevlimit < StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsminus > dmsplus) && (dmsminus > ADXTrendFilter) && (adxexhaustion < ADXExhaustionThreshold) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
                     ExecuteMarketOrder(TradeType.Sell, Symbol, Volume, "Wave 0", sldistance, tpdistance, LimitRange);
                     Print("Refresh Sell");
                 }
-                else if ((price < previousFastMa) && (stdevlimit > StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsminus > dmsplus) && (dmsminus > ADXTrendFilter) && (adxexhaustion >= ADXExhaustionThreshold) && (Positions.Find("Stretched", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Buy) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                else if ((price < currentFastMa) && (stdevlimit > StandardDeviationLimit) && (adxtrendfilter > ADXTrendFilter) && (dmsminus > dmsplus) && (dmsminus > ADXTrendFilter) && (adxexhaustion >= ADXExhaustionThreshold) && (Positions.Find("Stretched", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Buy) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
                     ExecuteMarketOrder(TradeType.Buy, Symbol, Volume, "Wave 0 Stretched", sldistance, tpdistance, LimitRange);
                     Print("Refresh Buy, Stretched");

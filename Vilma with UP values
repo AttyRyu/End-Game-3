@@ -134,9 +134,12 @@ namespace cAlgo.Robots
         private StandardDeviation stdevh1;
         private StandardDeviation stdevh4;
         private StandardDeviation stdevd1;
-        private MovingAverage fastMah1;
-        private MovingAverage fastMah4;
-        private MovingAverage fastMad1;
+        private MovingAverage openfastMah1;
+        private MovingAverage openfastMah4;
+        private MovingAverage openfastMad1;
+        private MovingAverage closefastMah1;
+        private MovingAverage closefastMah4;
+        private MovingAverage closefastMad1;
         private DirectionalMovementSystem dmsm15;
         private DirectionalMovementSystem dmsh1;
         private DirectionalMovementSystem dmsh4;

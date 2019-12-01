@@ -271,7 +271,7 @@ namespace cAlgo.Robots
                         }
                         if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.TradeType == TradeType.Sell) && (position.VolumeInUnits != Volume) && (position.Pips * -1 > tpdistance) && (position.Pips * -1 < nuketpdistance) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name))
                         {
-                            ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - NukeTP * Symbol.PipSize - rawtpdistance * 0, true);
+                            ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - (rawtpdistance / 2) - rawtpdistance * 0, true);
                             Print("Range Position " + position.TradeType + " Trailing Stop Modification? " + position.HasTrailingStop);
                         }
                     }
@@ -290,7 +290,7 @@ namespace cAlgo.Robots
                         }
                         if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.Pips * -1 > tpdistance) && (position.Pips * -1 < nuketpdistance) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name))
                         {
-                            ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + NukeTP * Symbol.PipSize + rawnuketpdistance * 0, true);
+                            ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + (rawtpdistance / 2) + rawnuketpdistance * 0, true);
                             Print("Range Position " + position.TradeType + " Trailing Stop Modification? " + position.HasTrailingStop);
                         }
                     }
@@ -342,7 +342,7 @@ namespace cAlgo.Robots
                     }
                     if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < 3000000) && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
                     {
-                        ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + NukeTP * Symbol.PipSize + rawnuketpdistance * 0, false);
+                        ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + (rawtpdistance / 2) + rawnuketpdistance * 0, false);
                         Print("Spike RSI = " + nukespike + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
                     //end of spike modification
@@ -350,7 +350,7 @@ namespace cAlgo.Robots
                     if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits < 3000000) && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike > 20) && (adxnukelimiter < ADXNukeLimiter) && (stochspike <= 3) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
-                        ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + NukeTP * Symbol.PipSize + rawnuketpdistance * 0, true);
+                        ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + (rawtpdistance / 2) + rawnuketpdistance * 0, true);
                         Print("Nuke RSI = " + nukespike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                         _buyconditionmet = false;
                         _buytrendreversal = false;
@@ -368,7 +368,7 @@ namespace cAlgo.Robots
                     }
                     if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < 3000000) && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
                     {
-                        ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - NukeTP * Symbol.PipSize - rawtpdistance * 0, false);
+                        ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - (rawtpdistance / 2) - rawtpdistance * 0, false);
                         Print("Spike RSI = " + nukespike + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                     }
                     //end of spike modification
@@ -376,7 +376,7 @@ namespace cAlgo.Robots
                     if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits < 3000000) && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike < 80) && (adxnukelimiter < ADXNukeLimiter) && (stochspike >= 97) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
-                        ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - NukeTP * Symbol.PipSize - rawnuketpdistance * 0, true);
+                        ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - (rawtpdistance / 2) - rawnuketpdistance * 0, true);
                         Print("Nuke RSI = " + nukespike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
                         _sellconditionmet = false;
                         _selltrendreversal = false;

@@ -1,0 +1,537 @@
+using System;
+using System.Linq;
+using cAlgo.API;
+using cAlgo.API.Indicators;
+using cAlgo.API.Internals;
+using cAlgo.Indicators;
+using System.Collections;
+using System.IO;
+
+namespace cAlgo.Robots
+{
+    [Robot(TimeZone = TimeZones.SingaporeStandardTime, AccessRights = AccessRights.FullAccess)]
+    public class VilmaStochastics : Robot
+    {
+        [Parameter("Limit Range", DefaultValue = 2, Group = "Anti-Slippage")]
+        public double LimitRange { get; set; }
+
+        [Parameter("Wave Allowance", DefaultValue = 3, Group = "Anti-Slippage")]
+        public double WaveAllowance { get; set; }
+
+        //risk management, 0.01 lot for every 100 USD is the calculation. 400 net loss close assumes we are playing with 4 pairs on backtest
+        [Parameter("Volume", DefaultValue = 1000, Group = "Risk Management")]
+        public int Volume { get; set; }
+
+        [Parameter("Net Loss Close", DefaultValue = -4000, Group = "Risk Management")]
+        public int NetLossClose { get; set; }
+
+        [Parameter("Net Profit Close", DefaultValue = 4000, Group = "Risk Management")]    
+        public int NetProfitClose { get; set; }
+        //end of risk management
+
+        //retracement parameters, for ranging markets
+        [Parameter("Retracement = Value Multiplied by LimitRange", DefaultValue = -1.5, Group = "Range Entry Protocol")]
+        public double RefreshPipsMultiplier { get; set; }
+        //end of retracement parameters, for ranging markets
+
+        //determining market condition
+        [Parameter("S/R TF", DefaultValue = "Daily", Group = "Reversal")]
+        public TimeFrame StochTF { get; set; }
+
+        [Parameter("S/R Periods", DefaultValue = 2, Group = "Reversal")]
+        public int StochPeriods { get; set; }
+
+        [Parameter("Resistance", DefaultValue = 97, Group = "Reversal")]
+        public double StochUpperLimit { get; set; }
+
+        [Parameter("Support", DefaultValue = 3, Group = "Reversal")]
+        public double StochLowerLimit { get; set; }
+        
+        [Parameter("Ranging Periods", DefaultValue = 12, Group = "Reversal")]
+        public int ADXSpikePeriods { get; set; }
+        
+        [Parameter("Nuke Limiter TF", DefaultValue = "Minute15", Group = "Reversal")]
+        public TimeFrame ADXNukeLimiterTF { get; set; }
+
+        [Parameter("Nuke Limiter", DefaultValue = 30, Group = "Reversal")]
+        public double ADXNukeLimiter { get; set; }
+        //end of determining market condition
+
+        //Market series declarations
+        private MarketSeries m15;
+        private MarketSeries h1;
+        private MarketSeries h4;
+        private MarketSeries h12;
+        private MarketSeries d1;
+        private MarketSeries w1;
+        private MarketSeries m1;
+        //end of Market series declarations
+
+        //ATR, SMA, STDEV, RSI and ADX Declarations
+        private MovingAverage smabias;
+        private StandardDeviation sdlimit;
+        private DirectionalMovementSystem dmstrend;
+        private DirectionalMovementSystem dmsexhaustion;
+        private DirectionalMovementSystem dmsrange;
+        private RelativeStrengthIndex rsispike;
+        private StochasticOscillator stochastics;
+        private DirectionalMovementSystem dmsnukelimiter;
+        private AverageTrueRange ATRoriginaltp;
+        private AverageTrueRange ATRnukecorrectiondistance;
+        private AverageTrueRange ATRnukecorrectiontp;
+        private AverageTrueRange ATRnukedistance;
+        private AverageTrueRange ATRnuketp;
+        private AverageTrueRange ATRm15;
+        private AverageTrueRange ATRh1;
+        private AverageTrueRange ATRh4;
+        private AverageTrueRange ATRh12;
+        private AverageTrueRange ATRd1;
+        private AverageTrueRange ATRw1;
+        private AverageTrueRange ATRm1;
+        //end of ATR, SMA, STDEV, RSI and ADX Declarations
+
+        //expiration code
+        bool timeprotected = true;
+        // if true ;Expiry YEAR MM DD
+        DateTime expirytime = new DateTime(2019, 12, 30);
+        //end of expiration code
+
+        //trend reversal
+        bool _buytrendreversal;
+        bool _buyconditionmet;
+        bool _selltrendreversal;
+        bool _sellconditionmet;
+        bool _finalnukebuyvolume;
+        bool _finalnukebuyconditionmet;
+        bool _finalnukesellvolume;
+        bool _finalnukesellconditionmet;
+        bool _createwaves;
+        bool _wavescreated;
+        //end of trend reversal
+
+        protected override void OnStart()
+        {
+            //Timeframes
+            var smabiasseries = MarketData.GetSeries(TimeFrame.Daily);
+            var stdevseries = MarketData.GetSeries(TimeFrame.Daily);
+            var adxtrendseries = MarketData.GetSeries(TimeFrame.Hour4);
+            var adxrangeseries = MarketData.GetSeries(TimeFrame.Hour4);
+            var adxexhaustionseries = MarketData.GetSeries(TimeFrame.Hour4);
+            var adxnukelimiterseries = MarketData.GetSeries(TimeFrame.Minute15);
+            var rsispikeseries = MarketData.GetSeries(TimeFrame.Minute15);
+            var stochasticsseries = MarketData.GetSeries(TimeFrame.Daily);
+            var atroriginaltpseries = MarketData.GetSeries(TimeFrame.Hour);
+            var atrnukecorrectiondistanceseries = MarketData.GetSeries(TimeFrame.Hour4);
+            var atrnukecorrectiontpseries = MarketData.GetSeries(TimeFrame.Hour);
+            var atrnukedistanceseries = MarketData.GetSeries(TimeFrame.Hour12);
+            var atrnuketpseries = MarketData.GetSeries(TimeFrame.Hour4);
+            m15 = MarketData.GetSeries(TimeFrame.Minute15);
+            h1 = MarketData.GetSeries(TimeFrame.Hour);
+            h4 = MarketData.GetSeries(TimeFrame.Hour4);
+            h12 = MarketData.GetSeries(TimeFrame.Hour12);
+            d1 = MarketData.GetSeries(TimeFrame.Daily);
+            w1 = MarketData.GetSeries(TimeFrame.Weekly);
+            m1 = MarketData.GetSeries(TimeFrame.Monthly);
+            //end of Timeframes
+
+            //Trend
+            smabias = Indicators.SimpleMovingAverage(smabiasseries.Close, 10);
+            sdlimit = Indicators.StandardDeviation(stdevseries.Close, 10, MovingAverageType.Simple);
+            ///End of Trend
+
+            //ADX
+            dmstrend = Indicators.DirectionalMovementSystem(adxtrendseries, 14);
+            dmsrange = Indicators.DirectionalMovementSystem(adxrangeseries, 14);
+            dmsexhaustion = Indicators.DirectionalMovementSystem(adxexhaustionseries, 14);
+            dmsnukelimiter = Indicators.DirectionalMovementSystem(adxnukelimiterseries, 12);
+            //end of ADX
+
+            //RSI
+            rsispike = Indicators.RelativeStrengthIndex(rsispikeseries.Close, 14);
+            //end of RSI 
+
+            //Stochastics
+            stochastics = Indicators.StochasticOscillator(stochasticsseries, 2, 1, 1, MovingAverageType.Simple);
+            //End of Stochastics
+
+            //ATR
+            ATRoriginaltp = Indicators.AverageTrueRange(atroriginaltpseries, 12, MovingAverageType.Simple);
+            ATRnukecorrectiondistance = Indicators.AverageTrueRange(atrnukecorrectiondistanceseries, 60, MovingAverageType.Simple);
+            ATRnukecorrectiontp = Indicators.AverageTrueRange(atrnukecorrectiontpseries, 60, MovingAverageType.Simple);
+            ATRnukedistance = Indicators.AverageTrueRange(atrnukedistanceseries, 10, MovingAverageType.Simple);
+            ATRnuketp = Indicators.AverageTrueRange(atrnuketpseries, 6, MovingAverageType.Simple);
+            ATRm15 = Indicators.AverageTrueRange(m15, 60, MovingAverageType.Simple);
+            ATRh1 = Indicators.AverageTrueRange(h1, 60, MovingAverageType.Simple);
+            ATRh4 = Indicators.AverageTrueRange(h4, 60, MovingAverageType.Simple);
+            ATRh12 = Indicators.AverageTrueRange(h12, 60, MovingAverageType.Simple);
+            ATRd1 = Indicators.AverageTrueRange(d1, 30, MovingAverageType.Simple);
+            ATRw1 = Indicators.AverageTrueRange(w1, 12, MovingAverageType.Simple);
+            ATRm1 = Indicators.AverageTrueRange(m1, 3, MovingAverageType.Simple);
+            //end of ATR
+
+            Positions.Closed += OnPositionsClosed;
+        }
+        protected override void OnBar()
+        {
+        }
+        protected override void OnTick()
+        {
+            //variables
+            var price = (Symbol.Bid + Symbol.Ask) / 2;
+            var spread = Symbol.Spread / Symbol.PipSize;
+            var hour = Server.Time.Hour;
+
+            var currentFastMa = smabias.Result.Last(0);
+            var previousFastMa = smabias.Result.Last(1);
+            var stdevlimit = sdlimit.Result.LastValue;
+
+            var adxtrendfilter = dmstrend.ADX.LastValue;
+            var dmsplus = dmstrend.DIPlus.LastValue;
+            var dmsminus = dmstrend.DIMinus.LastValue;
+            var adxexhaustion = dmsexhaustion.ADX.LastValue;
+            var adxrangelimit = dmsrange.ADX.LastValue;
+
+            var sldistance = ATRw1.Result.LastValue / Symbol.PipSize * 10;
+            var rawsldistance = ATRw1.Result.LastValue * 10;
+            var tpdistance = ATRoriginaltp.Result.LastValue / Symbol.PipSize;
+            var rawtpdistance = ATRoriginaltp.Result.LastValue;
+
+            var nukecorrectiondistance = ATRnukecorrectiondistance.Result.LastValue / Symbol.PipSize;
+            var nukecorrectiontp = ATRnukecorrectiontp.Result.LastValue / Symbol.PipSize;
+            var rawnukecorrectiontp = ATRnukecorrectiontp.Result.LastValue;
+            var nukedistance = ATRnukedistance.Result.LastValue / Symbol.PipSize;
+            var nuketpdistance = ATRnuketp.Result.LastValue / Symbol.PipSize;
+            var rawnuketpdistance = ATRnuketp.Result.LastValue;
+            var nukespike = rsispike.Result.LastValue;
+            var stochspike = stochastics.PercentK.LastValue;
+            var adxnukelimiter = dmsnukelimiter.ADX.LastValue;
+            var nukerounderallowance = 0.5;
+            //end of variables
+
+            //informational            
+            if (Account.IsLive)
+            {
+                Chart.DrawStaticText("", "This is a live account. Blue Meth license expires on Dec. 30, 2019. To inquire, please contact attorneyryu@gmail.com", VerticalAlignment.Bottom, HorizontalAlignment.Center, Color.LightBlue);
+            }
+            else
+            {
+                Chart.DrawStaticText("", "This is a demo account. Blue Meth license expires on Dec. 30, 2019. To inquire, please contact attorneyryu@gmail.com", VerticalAlignment.Bottom, HorizontalAlignment.Center, Color.LightBlue);
+            }
+            //informational
+
+            //expiration code
+            if (timeprotected == true && DateTime.Compare(Server.Time.Date, expirytime) >= 1)
+            {
+                Chart.DrawStaticText("", "Time expired, please contact attorneyryu@gmail.com", VerticalAlignment.Top, HorizontalAlignment.Center, Color.LightBlue);
+                Stop();
+            }
+            else
+            {
+                //ranging rules
+                //ranging entry rules
+                if ((adxrangelimit < 100) && (Positions.Find("Range", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Range", SymbolName, TradeType.Buy) == null) && (Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Positions.Find("Stretched", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Buy) == null) && (Positions.Find("Range", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Range", SymbolName, TradeType.Buy) == null) && (Positions.Find("Range", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0 Range", SymbolName, TradeType.Sell) == null) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Positions.Find("Stretched", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    _createwaves = true;
+                }
+                if (!_wavescreated && _createwaves)
+                {
+                    CancelPendingOrders();
+                    ExecuteMarketRangeOrder(TradeType.Buy, SymbolName, Volume, LimitRange, Symbol.Ask, "Wave 0 Range", Math.Round(sldistance), Math.Round(tpdistance));
+                    ExecuteMarketRangeOrder(TradeType.Sell, SymbolName, Volume, LimitRange, Symbol.Bid, "Wave 0 Range", Math.Round(sldistance), Math.Round(tpdistance));
+                    CreateRangeWaves(TradeType.Buy);
+                    CreateRangeWaves(TradeType.Sell);
+                    Print("Refresh Everything, Range");
+                    _wavescreated = true;
+                }
+                //end of ranging entry rules
+
+                //return flag to false
+                if ((Positions.Find("Range", SymbolName, TradeType.Buy) != null) || (Positions.Find("Wave 0 Range", SymbolName, TradeType.Buy) != null) || (Positions.Find("", SymbolName, TradeType.Buy) != null) || (Positions.Find("Wave 0", SymbolName, TradeType.Buy) != null) || (Positions.Find("Stretched", SymbolName, TradeType.Buy) != null) || (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Buy) != null) || (Positions.Find("Range", SymbolName, TradeType.Sell) != null) || (Positions.Find("Wave 0 Range", SymbolName, TradeType.Sell) != null) || (Positions.Find("", SymbolName, TradeType.Sell) != null) || (Positions.Find("Wave 0", SymbolName, TradeType.Sell) != null) || (Positions.Find("Stretched", SymbolName, TradeType.Sell) != null) || (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Sell) != null))
+                {
+                    _createwaves = false;
+                    _wavescreated = false;
+                }
+                //end of return flag to false
+
+                //Modify Sell Side for Trailing Stop
+                if ((Positions.Find("Range", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Range", SymbolName, TradeType.Buy) == null) && (Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Positions.Find("Stretched", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Buy) == null) && (spread < LimitRange))
+                {
+                    foreach (var position in Positions)
+                    {
+                        if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.TradeType == TradeType.Sell) && (position.VolumeInUnits == Volume) && (position.Pips * -1 > tpdistance) && (position.Pips * -1 < nuketpdistance) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name))
+                        {
+                            ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - rawtpdistance, true);
+                            Print("Range Position " + position.TradeType + " Trailing Stop Modification? " + position.HasTrailingStop);
+                        }
+                        if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.TradeType == TradeType.Sell) && (position.VolumeInUnits != Volume) && (position.Pips * -1 > tpdistance) && (position.Pips * -1 < nuketpdistance) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name))
+                        {
+                            ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - 5 * Symbol.PipSize - rawtpdistance * 0, true);
+                            Print("Range Position " + position.TradeType + " Trailing Stop Modification? " + position.HasTrailingStop);
+                        }
+                    }
+                }
+                //end of Modify Sell Side for Trailing Stop
+
+                //Modify Buy Side for Trailing Stop
+                if ((Positions.Find("Range", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0 Range", SymbolName, TradeType.Sell) == null) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Positions.Find("Stretched", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Sell) == null) && (spread < LimitRange))
+                {
+                    foreach (var position in Positions)
+                    {
+                        if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.TradeType == TradeType.Buy) && (position.VolumeInUnits == Volume) && (position.Pips * -1 > tpdistance) && (position.Pips * -1 < nuketpdistance) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name))
+                        {
+                            ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + rawtpdistance, true);
+                            Print("Range Position " + position.TradeType + " Trailing Stop Modification? " + position.HasTrailingStop);
+                        }
+                        if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.Pips * -1 > tpdistance) && (position.Pips * -1 < nuketpdistance) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name))
+                        {
+                            ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + 5 * Symbol.PipSize + rawnuketpdistance * 0, true);
+                            Print("Range Position " + position.TradeType + " Trailing Stop Modification? " + position.HasTrailingStop);
+                        }
+                    }
+                }
+                //end of Modify Buy Side for Trailing Stop
+
+                //retracement refresh
+                //buy side
+                if ((Positions.Find("Range", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Range", SymbolName, TradeType.Buy) == null) && (Positions.Find("", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Buy) == null) && (Positions.Find("Stretched", SymbolName, TradeType.Buy) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Buy) == null) && (spread < LimitRange))
+                {
+                    foreach (var position in Positions)
+                    {
+                        if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.Pips != 0) && (position.Pips >= LimitRange * RefreshPipsMultiplier) && (position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Sell) && (position.HasTrailingStop == true))
+                        {
+                            CancelPendingBuyOrders();
+                            ExecuteMarketRangeOrder(TradeType.Buy, SymbolName, Volume, LimitRange, Symbol.Ask, "Wave 0 Range", Math.Round(sldistance), Math.Round(tpdistance));
+                            CreateRangeWaves(TradeType.Buy);
+                            Print("Refresh Market Buy Side");
+                        }
+                    }
+                }
+                //end of buy side
+                //sell side
+                if ((Positions.Find("Range", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0 Range", SymbolName, TradeType.Sell) == null) && (Positions.Find("", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0", SymbolName, TradeType.Sell) == null) && (Positions.Find("Stretched", SymbolName, TradeType.Sell) == null) && (Positions.Find("Wave 0 Stretched", SymbolName, TradeType.Sell) == null) && (spread < LimitRange))
+                {
+                    foreach (var position in Positions)
+                    {
+                        if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.Pips != 0) && (position.Pips >= LimitRange * RefreshPipsMultiplier) && (position.SymbolName == Symbol.Name) && (position.TradeType == TradeType.Buy) && (position.HasTrailingStop == true))
+                        {
+                            CancelPendingSellOrders();
+                            ExecuteMarketRangeOrder(TradeType.Sell, SymbolName, Volume, LimitRange, Symbol.Bid, "Wave 0 Range", Math.Round(sldistance), Math.Round(tpdistance));
+                            CreateRangeWaves(TradeType.Sell);
+                            Print("Refresh Market Sell Side");
+                        }
+                    }
+                }
+                //end of sell side
+                //end of retracement refresh
+                
+                ////ranging nuking logic
+                foreach (var position in Positions)
+                {
+                    //buy nuke 
+                    //spike modification
+                    if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
+                    {
+                        ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + rawtpdistance, false);
+                        Print("Spike RSI = " + nukespike + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                    }
+                    if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < 3000000) && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
+                    {
+                        ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + 5 * Symbol.PipSize + rawnuketpdistance * 0, false);
+                        Print("Spike RSI = " + nukespike + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                    }
+                    //end of spike modification
+                    //volume modification after spike
+                    if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits < 3000000) && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike > 20) && (adxnukelimiter < ADXNukeLimiter) && (stochspike <= 3) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                    {
+                        ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                        ModifyPosition(position, position.EntryPrice - rawsldistance, position.EntryPrice + 5 * Symbol.PipSize + rawnuketpdistance * 0, true);
+                        Print("Nuke RSI = " + nukespike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                        _buyconditionmet = false;
+                        _buytrendreversal = false;
+                        _finalnukebuyconditionmet = false;
+                        _finalnukebuyvolume = false;
+                    }
+                    //end of volume modification after spike
+                    //end of buy nuke
+                    //sell nuke
+                    //spike modification 
+                    if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits == Volume) && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
+                    {
+                        ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - rawtpdistance, false);
+                        Print("Spike RSI = " + nukespike + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                    }
+                    if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits != Volume) && (position.VolumeInUnits < 3000000) && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.HasTrailingStop == true) && (position.SymbolName == Symbol.Name))
+                    {
+                        ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - 5 * Symbol.PipSize - rawtpdistance * 0, false);
+                        Print("Spike RSI = " + nukespike + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                    }
+                    //end of spike modification
+                    //volume modification after spike
+                    if ((position.Label != "") && (position.Label != "Wave 0") && (position.Label != "Stretched") && (position.Label != "Wave 0 Stretched") && (position.VolumeInUnits < 3000000) && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.HasTrailingStop == false) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike < 80) && (adxnukelimiter < ADXNukeLimiter) && (stochspike >= 97) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                    {
+                        ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                        ModifyPosition(position, position.EntryPrice + rawsldistance, position.EntryPrice - 5 * Symbol.PipSize - rawnuketpdistance * 0, true);
+                        Print("Nuke RSI = " + nukespike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Trailing Stop? " + position.HasTrailingStop);
+                        _sellconditionmet = false;
+                        _selltrendreversal = false;
+                        _finalnukesellconditionmet = false;
+                        _finalnukesellvolume = false;
+                    }
+                    //end of volume modification after spike
+                    //end of sell nuke
+                }
+                //end of ranging nuking logic
+                //end of ranging rules
+
+                //Risk Management
+                if (Account.UnrealizedNetProfit >= NetProfitClose)
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                    foreach (var position in Positions)
+                    {
+                        if (position.SymbolName == Symbol.Name)
+                        {
+                            CancelPendingOrders();
+                            ClosePositionAsync(position);
+                        }
+                    }
+                }
+                if (Account.UnrealizedNetProfit <= NetLossClose)
+                {
+                    Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                    foreach (var position in Positions)
+                    {
+                        if (position.SymbolName == Symbol.Name)
+                        {
+                            CancelPendingOrders();
+                            ClosePositionAsync(position);
+                        }
+                    }
+                }
+                //end of Risk Management
+            }
+            //end of expiration code
+        }
+
+        //waves
+        private void CreateWaves(TradeType type)
+        {
+            //variables
+            var sldistance = ATRw1.Result.LastValue / Symbol.PipSize * 10;
+            var rawsldistance = ATRw1.Result.LastValue * 10;
+            var tpdistance = ATRoriginaltp.Result.LastValue / Symbol.PipSize;
+            var rawtpdistance = ATRoriginaltp.Result.LastValue;
+            var nukedistance = ATRnukedistance.Result.LastValue / Symbol.PipSize;
+            var nuketpdistance = ATRnuketp.Result.LastValue / Symbol.PipSize;
+            var rawnuketpdistance = ATRnuketp.Result.LastValue;
+            var rawwaveallowance = WaveAllowance * Symbol.PipSize;
+            //end of variables
+
+            double TargetPrice = type == TradeType.Buy ? Symbol.Ask : Symbol.Bid;
+            for (int i = 0; i < Math.Round((nukedistance / (tpdistance + WaveAllowance)) / 3); i++)
+            {
+                TargetPrice = type == TradeType.Buy ? TargetPrice + (rawtpdistance + rawwaveallowance) : TargetPrice - (rawtpdistance + rawwaveallowance);
+                PlaceStopLimitOrderAsync(type, SymbolName, Volume, TargetPrice, LimitRange, "", sldistance, tpdistance, null);
+            }
+        }
+        private void CreateStretchedWaves(TradeType type)
+        {
+            //variables
+            var sldistance = ATRw1.Result.LastValue / Symbol.PipSize * 10;
+            var rawsldistance = ATRw1.Result.LastValue * 10;
+            var tpdistance = ATRoriginaltp.Result.LastValue / Symbol.PipSize;
+            var rawtpdistance = ATRoriginaltp.Result.LastValue;
+            var nukedistance = ATRnukedistance.Result.LastValue / Symbol.PipSize;
+            var nuketpdistance = ATRnuketp.Result.LastValue / Symbol.PipSize;
+            var rawnuketpdistance = ATRnuketp.Result.LastValue;
+            var rawwaveallowance = WaveAllowance * Symbol.PipSize;
+            //end of variables
+
+            double TargetPrice = type == TradeType.Buy ? Symbol.Ask : Symbol.Bid;
+            for (int i = 0; i < Math.Round((nukedistance / (tpdistance + WaveAllowance)) / 3); i++)
+            {
+                TargetPrice = type == TradeType.Buy ? TargetPrice + (rawtpdistance + rawwaveallowance) : TargetPrice - (rawtpdistance + rawwaveallowance);
+                PlaceStopLimitOrderAsync(type, SymbolName, Volume, TargetPrice, LimitRange, "Stretched", sldistance, tpdistance, null);
+            }
+        }
+        private void CreateRangeWaves(TradeType type)
+        {
+            //variables
+            var sldistance = ATRw1.Result.LastValue / Symbol.PipSize * 10;
+            var rawsldistance = ATRw1.Result.LastValue * 10;
+            var tpdistance = ATRoriginaltp.Result.LastValue / Symbol.PipSize;
+            var rawtpdistance = ATRoriginaltp.Result.LastValue;
+            var nukedistance = ATRnukedistance.Result.LastValue / Symbol.PipSize;
+            var nuketpdistance = ATRnuketp.Result.LastValue / Symbol.PipSize;
+            var rawnuketpdistance = ATRnuketp.Result.LastValue;
+            var rawwaveallowance = WaveAllowance * Symbol.PipSize;
+            //end of variables
+
+            double TargetPrice = type == TradeType.Buy ? Symbol.Ask : Symbol.Bid;
+            for (int i = 0; i < Math.Round((nukedistance / (tpdistance + WaveAllowance)) / 1); i++)
+            {
+                TargetPrice = type == TradeType.Buy ? TargetPrice + (rawtpdistance + rawwaveallowance) : TargetPrice - (rawtpdistance + rawwaveallowance);
+                PlaceStopLimitOrderAsync(type, SymbolName, Volume, TargetPrice, LimitRange, "Range", Math.Round(sldistance), Math.Round(tpdistance), null);
+            }
+        }
+        //end of waves
+
+        //Cancel Orders terms
+        private void CancelPendingOrders()
+        {
+            foreach (var order in PendingOrders)
+            {
+                if (order.SymbolCode == Symbol.Name)
+                {
+                    CancelPendingOrderAsync(order);
+                }
+            }
+        }
+        private void CancelPendingBuyOrders()
+        {
+            foreach (var order in PendingOrders)
+            {
+                if ((order.SymbolCode == Symbol.Name) && (order.TradeType == TradeType.Buy))
+                {
+                    CancelPendingOrderAsync(order);
+                }
+            }
+        }
+        private void CancelPendingSellOrders()
+        {
+            foreach (var order in PendingOrders)
+            {
+                if ((order.SymbolCode == Symbol.Name) && (order.TradeType == TradeType.Sell))
+                {
+                    CancelPendingOrderAsync(order);
+                }
+            }
+        }
+        //end of Cancel Orders terms
+
+        //long term trend reversed nuked position closed
+        private void OnPositionsClosed(PositionClosedEventArgs args)
+        {
+            var position = args.Position;
+            if ((position.TradeType == TradeType.Buy) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name))
+            {
+                _buyconditionmet = false;
+                _buytrendreversal = false;
+                _finalnukebuyconditionmet = false;
+                _finalnukebuyvolume = false;
+                _wavescreated = false;
+                _createwaves = false;
+            }
+            if ((position.TradeType == TradeType.Sell) && (position.VolumeInUnits != Volume) && (position.SymbolName == Symbol.Name))
+            {
+                _sellconditionmet = false;
+                _selltrendreversal = false;
+                _finalnukesellconditionmet = false;
+                _finalnukesellvolume = false;
+                _wavescreated = false;
+                _createwaves = false;
+            }
+        }
+        //long term trend reversed nuked position closed
+    }
+}

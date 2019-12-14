@@ -38,6 +38,12 @@ namespace cAlgo.Robots
         //end of retracement parameters, for ranging markets
 
         //determining market condition
+        [Parameter("Spike Upper Limit, set to 0 to disable", DefaultValue = 80, Group = "Spike before Reversal Filter")]
+        public double RSIUpperLimit { get; set; }
+
+        [Parameter("Spike Lower Limit, set to 100 to disable", DefaultValue = 20, Group = "Spike before Reversal Filter")]
+        public double RSILowerLimit { get; set; }
+
         [Parameter("S/R TF", DefaultValue = "Daily", Group = "Reversal")]
         public TimeFrame StochTF { get; set; }
 
@@ -290,12 +296,13 @@ namespace cAlgo.Robots
                     //consolidation modification
                     if (!_initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (adxnukelimiter < ADXNukeLimiter))
                     {
+                        _closesellposition = false;
                         _initialvolumeconsolidationbuy = true;
                         Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
                     }
                     //end of consolidation modification
                     //volume modification after consolidation hitting S/R
-                    if (!_closesellposition && _initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike > 20) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                    if (!_closesellposition && _initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                         ModifyPosition(position, null, position.EntryPrice + NukeTP * Symbol.PipSize + rawnuketpdistance * NukeTPMultiplier);
@@ -316,12 +323,13 @@ namespace cAlgo.Robots
                     //consolidation modification 
                     if (!_initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (adxnukelimiter < ADXNukeLimiter))
                     {
+                        _closesellposition = false;
                         _initialvolumeconsolidationsell = true;
                         Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
                     }
                     //end of consolidation modification
                     //volume modification after consolidation hitting S/R
-                    if (!_closebuyposition && _initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike < 80) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                    if (!_closebuyposition && _initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                         ModifyPosition(position, null, position.EntryPrice - NukeTP * Symbol.PipSize - rawnuketpdistance * NukeTPMultiplier);

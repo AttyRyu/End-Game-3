@@ -104,6 +104,10 @@ namespace cAlgo.Robots
         private DirectionalMovementSystem dmsrange;
         private RelativeStrengthIndex rsispike;
         private StochasticOscillator stochastics;
+        private StochasticOscillator stochastics2;
+        private StochasticOscillator stochastics3;
+        private StochasticOscillator stochastics4;
+        private StochasticOscillator stochastics5;
         private DirectionalMovementSystem dmsnukelimiter;
         private AverageTrueRange ATRoriginaltp;
         private AverageTrueRange ATRnukecorrectiondistance;
@@ -201,8 +205,6 @@ namespace cAlgo.Robots
             ATRw1 = Indicators.AverageTrueRange(w1, 12, MovingAverageType.Simple);
             ATRm1 = Indicators.AverageTrueRange(m1, 3, MovingAverageType.Simple);
             //end of ATR
-
-            Positions.Closed += OnPositionsClosed;
         }
         protected override void OnBar()
         {
@@ -270,7 +272,7 @@ namespace cAlgo.Robots
                 //hedge entry rules
                 if ((Positions.Find("Buy", SymbolName, TradeType.Buy) == null) && (Positions.Find("Sell", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6))
                 {
-                    ExecuteMarketRangeOrder(TradeType.Buy, SymbolName, Volume, LimitRange, Symbol.Ask, "Buy", null, null));
+                    ExecuteMarketRangeOrder(TradeType.Buy, SymbolName, Volume, LimitRange, Symbol.Ask, "Buy", null, null);
                     ExecuteMarketRangeOrder(TradeType.Sell, SymbolName, Volume, LimitRange, Symbol.Bid, "Sell", null, null);
                     Print("Hedge");
                 }
@@ -298,7 +300,7 @@ namespace cAlgo.Robots
                     }
                     if (_closesellposition && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName))
                     {
-                        ClosePosition(position)
+                        ClosePosition(position);
                         _closesellposition = false;
                     }
                     //end of volume modification after consolidation hitting S/R
@@ -323,7 +325,7 @@ namespace cAlgo.Robots
                     }
                     if (_closebuyposition && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName))
                     {
-                        ClosePosition(position)
+                        ClosePosition(position);
                         _closebuyposition = false;
                     }
                     //end of volume modification after consolidation hitting S/R

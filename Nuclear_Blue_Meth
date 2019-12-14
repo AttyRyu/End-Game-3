@@ -15,21 +15,21 @@ namespace cAlgo.Robots
         [Parameter("Limit Range", DefaultValue = 2, Group = "Anti-Slippage")]
         public double LimitRange { get; set; }
 
-        [Parameter("Wave Allowance", DefaultValue = 3, Group = "Anti-Slippage")]
-        public double WaveAllowance { get; set; }
-
         //risk management, 0.01 lot for every 100 USD is the calculation. 400 net loss close assumes we are playing with 4 pairs on backtest
-        [Parameter("Volume", DefaultValue = 10000, Group = "Risk Management")]
+        [Parameter("Volume", DefaultValue = 1000, Group = "Risk Management")]
         public int Volume { get; set; }
 
-        [Parameter("Net Loss Close", DefaultValue = -1000, Group = "Risk Management")]
+        [Parameter("Net Loss Close", DefaultValue = -200, Group = "Risk Management")]
         public int NetLossClose { get; set; }
 
-        [Parameter("Net Profit Close", DefaultValue = 1000, Group = "Risk Management")]
+        [Parameter("Net Profit Close", DefaultValue = 200, Group = "Risk Management")]
         public int NetProfitClose { get; set; }
 
-        [Parameter("Nuke TP", DefaultValue = 2, Group = "Targets")]
+        [Parameter("Nuke TP", DefaultValue = 0, Group = "Targets")]
         public double NukeTP { get; set; }
+
+        [Parameter("Nuke TP Multiplier", DefaultValue = 1, Group = "Targets")]
+        public double NukeTPMultiplier { get; set; }
         //end of risk management
 
         //retracement parameters, for ranging markets
@@ -287,7 +287,7 @@ namespace cAlgo.Robots
                     if (_initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike > 20) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
-                        ModifyPosition(position, null, position.EntryPrice + NukeTP * Symbol.PipSize + rawnuketpdistance * 0);
+                        ModifyPosition(position, null, position.EntryPrice + NukeTP * Symbol.PipSize + rawnuketpdistance * NukeTPMultiplier);
                         Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                         _initialvolumeconsolidationbuy = false;
                         _closesellposition = true;
@@ -312,7 +312,7 @@ namespace cAlgo.Robots
                     if (_initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike > 20) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
-                        ModifyPosition(position, null, position.EntryPrice - NukeTP * Symbol.PipSize - rawnuketpdistance * 0);
+                        ModifyPosition(position, null, position.EntryPrice - NukeTP * Symbol.PipSize - rawnuketpdistance * NukeTPMultiplier);
                         Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                         _initialvolumeconsolidationsell = false;
                         _closebuyposition = true;

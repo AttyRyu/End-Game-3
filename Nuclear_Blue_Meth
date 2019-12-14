@@ -277,14 +277,14 @@ namespace cAlgo.Robots
                 {
                     //buy nuke 
                     //consolidation modification
-                    if ((position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (adxnukelimiter < ADXNukeLimiter))
+                    if (!_initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (adxnukelimiter < ADXNukeLimiter))
                     {
                         _initialvolumeconsolidationbuy = true;
                         Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Initial Consolidation Buy ");
                     }
                     //end of consolidation modification
                     //volume modification after consolidation hitting S/R
-                    if (_initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike > 20) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                    if (!_closesellposition && _initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike > 20) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                         ModifyPosition(position, null, position.EntryPrice + NukeTP * Symbol.PipSize + rawnuketpdistance * NukeTPMultiplier);
@@ -302,14 +302,14 @@ namespace cAlgo.Robots
 
                     //sell nuke
                     //consolidation modification 
-                    if ((position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (adxnukelimiter < ADXNukeLimiter))
+                    if (!_initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (adxnukelimiter < ADXNukeLimiter))
                     {
                         _initialvolumeconsolidationsell = true;
                         Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Initial Consolidation Sell ");
                     }
                     //end of consolidation modification
                     //volume modification after consolidation hitting S/R
-                    if (_initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike > 20) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                    if (!_closebuyposition && _initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike > 20) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                         ModifyPosition(position, null, position.EntryPrice - NukeTP * Symbol.PipSize - rawnuketpdistance * NukeTPMultiplier);

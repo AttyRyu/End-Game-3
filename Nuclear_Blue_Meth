@@ -130,6 +130,7 @@ namespace cAlgo.Robots
         //end of expiration code
 
         //flags
+        bool _hedge;
         bool _initialvolumeconsolidationbuy;
         bool _initialvolumeconsolidationsell;
         bool _closebuyposition;
@@ -264,11 +265,21 @@ namespace cAlgo.Robots
             {
                 //hedge rules
                 //hedge entry rules
-                if ((Positions.Find("Buy", SymbolName, TradeType.Buy) == null) && (Positions.Find("Sell", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6))
+                if (!_hedge && (Positions.Find("Buy", SymbolName, TradeType.Buy) == null) && (Positions.Find("Sell", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (hour != 4) && (hour != 5) && (hour != 6))
                 {
+                    _closebuyposition = false;
+                    _closesellposition = false;
+                    _initialvolumeconsolidationbuy = false;
+                    _initialvolumeconsolidationsell = false;
                     ExecuteMarketRangeOrder(TradeType.Buy, SymbolName, Volume, LimitRange, Symbol.Ask, "Buy", null, null);
                     ExecuteMarketRangeOrder(TradeType.Sell, SymbolName, Volume, LimitRange, Symbol.Bid, "Sell", null, null);
                     Print("Hedge");
+                    _hedge = true;
+                }
+                if (_hedge && (Positions.Find("Buy", SymbolName, TradeType.Buy) != null) && (Positions.Find("Sell", SymbolName, TradeType.Sell) != null))
+                {
+                    _hedge = false;
+                    Print("Return Hedge flag to false)
                 }
                 //end of hedge entry rules
 
@@ -280,7 +291,7 @@ namespace cAlgo.Robots
                     if (!_initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (adxnukelimiter < ADXNukeLimiter))
                     {
                         _initialvolumeconsolidationbuy = true;
-                        Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Initial Consolidation Buy ");
+                        Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
                     }
                     //end of consolidation modification
                     //volume modification after consolidation hitting S/R
@@ -288,14 +299,15 @@ namespace cAlgo.Robots
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                         ModifyPosition(position, null, position.EntryPrice + NukeTP * Symbol.PipSize + rawnuketpdistance * NukeTPMultiplier);
-                        Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                         _initialvolumeconsolidationbuy = false;
                         _closesellposition = true;
+                        Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                     }
                     if (_closesellposition && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName))
                     {
                         ClosePosition(position);
                         _closesellposition = false;
+                        Print("Return Close Sell Position Flag to False");
                     }
                     //end of volume modification after consolidation hitting S/R
                     //end of buy nuke
@@ -305,7 +317,7 @@ namespace cAlgo.Robots
                     if (!_initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (adxnukelimiter < ADXNukeLimiter))
                     {
                         _initialvolumeconsolidationsell = true;
-                        Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Initial Consolidation Sell ");
+                        Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
                     }
                     //end of consolidation modification
                     //volume modification after consolidation hitting S/R
@@ -313,14 +325,15 @@ namespace cAlgo.Robots
                     {
                         ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                         ModifyPosition(position, null, position.EntryPrice - NukeTP * Symbol.PipSize - rawnuketpdistance * NukeTPMultiplier);
-                        Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                         _initialvolumeconsolidationsell = false;
                         _closebuyposition = true;
+                        Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                     }
                     if (_closebuyposition && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName))
                     {
                         ClosePosition(position);
                         _closebuyposition = false;
+                        Print("Return Close Buy Position Flag to False");
                     }
                     //end of volume modification after consolidation hitting S/R
                     //end of sell nuke
@@ -336,6 +349,7 @@ namespace cAlgo.Robots
                         if (position.SymbolName == Symbol.Name)
                         {
                             ClosePositionAsync(position);
+                            Print("Close All Positions due to Profit");
                         }
                     }
                 }
@@ -347,6 +361,7 @@ namespace cAlgo.Robots
                         if (position.SymbolName == Symbol.Name)
                         {
                             ClosePositionAsync(position);
+                            Print("Close All Positions due to Loss");
                         }
                     }
                 }

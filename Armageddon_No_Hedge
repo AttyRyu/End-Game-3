@@ -243,9 +243,9 @@ namespace cAlgo.Robots
             var nukespike = rsispike.Result.LastValue;
             var stochspike = stochastics.PercentK.LastValue;
             var stochspike2 = stochastics2.PercentK.LastValue;
-            var stochspike3 = stochastics3.PercentK.LastValue;
-            var stochspike4 = stochastics4.PercentK.LastValue;
-            var stochspike5 = stochastics5.PercentK.LastValue;
+            //var stochspike3 = stochastics3.PercentK.LastValue;
+            //var stochspike4 = stochastics4.PercentK.LastValue;
+            //var stochspike5 = stochastics5.PercentK.LastValue;
             var adxnukelimiter = dmsnukelimiter.ADX.LastValue;
             var nukerounderallowance = 0.5;
             //end of variables

@@ -33,10 +33,10 @@ namespace cAlgo.Robots
         //end of risk management
 
         //determining market condition
-        [Parameter("Spike Periods", DefaultValue = 12, Group = "Spike before Reversal Filter")]
+        [Parameter("Spike Periods", DefaultValue = 12, Group = "Reversal")]
         public int RSIPeriods { get; set; }
 
-        [Parameter("Spike TF", DefaultValue = "Minute15", Group = "Spike before Reversal Filter")]
+        [Parameter("Spike TF", DefaultValue = "Minute15", Group = "Reversal")]
         public TimeFrame RSISpikeTF { get; set; }
         
         [Parameter("Spike Upper Limit, set to 0 to disable", DefaultValue = 80, Group = "Reversal")]
@@ -285,7 +285,7 @@ namespace cAlgo.Robots
                     {
                         ExecuteMarketRangeOrder(TradeType.Buy, SymbolName, Volume, LimitRange, Symbol.Ask, "Buy", null, nuketpdistance);
                         _initialvolumeconsolidation = false;
-                        Print(" Support = " + stochspike + " Position " + position.TradeType);
+                        Print(" Open at Support = " + stochspike);
                     }
                     //end of buy after hitting S/R
                     //sell after hitting S/R
@@ -293,7 +293,7 @@ namespace cAlgo.Robots
                     {
                         ExecuteMarketRangeOrder(TradeType.Sell, SymbolName, Volume, LimitRange, Symbol.Bid, "Sell", null, nuketpdistance);
                         _initialvolumeconsolidation = false;
-                        Print(" Resistance = " + stochspike + " Position " + position.TradeType);
+                        Print(" Open at Resistance = " + stochspike);
                     }
                     //end of sell after hitting S/R
                 

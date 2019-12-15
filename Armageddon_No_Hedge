@@ -42,9 +42,9 @@ namespace cAlgo.Robots
         [Parameter("Spike Upper Limit, set to 0 to disable", DefaultValue = 80, Group = "Reversal")]
         public double RSIUpperLimit { get; set; }
 
-        public double RSILowerLimit { get; set; }
         [Parameter("Spike Lower Limit, set to 100 to disable", DefaultValue = 20, Group = "Reversal")]
-
+        public double RSILowerLimit { get; set; }
+        
         [Parameter("S/R TF", DefaultValue = "Daily", Group = "Reversal")]
         public TimeFrame StochTF { get; set; }
 
@@ -137,7 +137,6 @@ namespace cAlgo.Robots
         //end of expiration code
 
         //flags
-        bool _hedge;
         bool _initialvolumeconsolidationbuy;
         bool _initialvolumeconsolidation;
         bool _initialvolumeconsolidationsell;

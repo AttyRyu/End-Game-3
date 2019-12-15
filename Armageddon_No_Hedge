@@ -12,7 +12,7 @@ namespace cAlgo.Robots
     [Robot(TimeZone = TimeZones.SingaporeStandardTime, AccessRights = AccessRights.FullAccess)]
     public class VilmaStochastics : Robot
     {
-        [Parameter("Limit Range", DefaultValue = 1.5, Group = "Anti-Slippage")]
+        [Parameter("Limit Range", DefaultValue = 2, Group = "Anti-Slippage")]
         public double LimitRange { get; set; }
 
         //risk management, 0.01 lot for every 100 USD is the calculation. 400 net loss close assumes we are playing with 4 pairs on backtest
@@ -28,39 +28,40 @@ namespace cAlgo.Robots
         [Parameter("Add Nuke TP", DefaultValue = 0.5, Group = "Targets")]
         public double NukeTP { get; set; }
 
-        [Parameter("Nuke TP Multiplier", DefaultValue = 0, Group = "Targets")]
+        [Parameter("Nuke TP Multiplier", DefaultValue = 0.1, Group = "Targets")]
         public double NukeTPMultiplier { get; set; }
         //end of risk management
 
-        //retracement parameters, for ranging markets
-        [Parameter("Retracement = Value Multiplied by LimitRange", DefaultValue = -1.5, Group = "Range Entry Protocol")]
-        public double RefreshPipsMultiplier { get; set; }
-        //end of retracement parameters, for ranging markets
-
         //determining market condition
+        [Parameter("Spike Periods", DefaultValue = 12, Group = "Spike before Reversal Filter")]
+        public int RSIPeriods { get; set; }
+
+        [Parameter("Spike TF", DefaultValue = "Minute15", Group = "Spike before Reversal Filter")]
+        public TimeFrame RSISpikeTF { get; set; }
+        
         [Parameter("Spike Upper Limit, set to 0 to disable", DefaultValue = 80, Group = "Reversal")]
         public double RSIUpperLimit { get; set; }
 
-        [Parameter("Spike Lower Limit, set to 100 to disable", DefaultValue = 20, Group = "Reversal")]
         public double RSILowerLimit { get; set; }
+        [Parameter("Spike Lower Limit, set to 100 to disable", DefaultValue = 20, Group = "Reversal")]
 
         [Parameter("S/R TF", DefaultValue = "Daily", Group = "Reversal")]
         public TimeFrame StochTF { get; set; }
 
-        [Parameter("S/R Periods", DefaultValue = 3, Group = "Reversal")]
+        [Parameter("S/R Periods", DefaultValue = 2, Group = "Reversal")]
         public int StochPeriods { get; set; }
 
         [Parameter("S/R Periods 2", DefaultValue = 6, Group = "Reversal")]
         public int StochPeriods2 { get; set; }
 
-        [Parameter("S/R Periods 3", DefaultValue = 11, Group = "Reversal")]
-        public int StochPeriods3 { get; set; }
+        //[Parameter("S/R Periods 3", DefaultValue = 11, Group = "Reversal")]
+        //public int StochPeriods3 { get; set; }
 
-        [Parameter("S/R Periods 4", DefaultValue = 16, Group = "Reversal")]
+        //[Parameter("S/R Periods 4", DefaultValue = 16, Group = "Reversal")]
         public int StochPeriods4 { get; set; }
         
-        [Parameter("S/R Periods 5", DefaultValue = 31, Group = "Reversal")]
-        public int StochPeriods5 { get; set; }
+        //[Parameter("S/R Periods 5", DefaultValue = 31, Group = "Reversal")]
+        //public int StochPeriods5 { get; set; }
         
         [Parameter("Resistance", DefaultValue = 95, Group = "Reversal")]
         public double StochUpperLimit { get; set; }
@@ -74,7 +75,7 @@ namespace cAlgo.Robots
         [Parameter("Nuke Limiter TF", DefaultValue = "Minute15", Group = "Reversal")]
         public TimeFrame ADXNukeLimiterTF { get; set; }
 
-        [Parameter("Nuke Limiter", DefaultValue = 30, Group = "Reversal")]
+        [Parameter("Nuke Limiter", DefaultValue = 25, Group = "Reversal")]
         public double ADXNukeLimiter { get; set; }
         //end of determining market condition
 
@@ -88,7 +89,7 @@ namespace cAlgo.Robots
         [Parameter("Nuke Position ATR TF", DefaultValue = "Hour4", Group = "Take Profit Targets and Nuke Distance")]
         public TimeFrame NukePositionATRTF { get; set; }
 
-        [Parameter("ATR NUKE TP PERIOD", DefaultValue = 30, Group = "Take Profit Targets and Nuke Distance")]
+        [Parameter("ATR NUKE TP PERIOD", DefaultValue = 120, Group = "Take Profit Targets and Nuke Distance")]
         public int ATRNUKETPPERIOD { get; set; }
         //end of TP Targets and Nuke Distance
 
@@ -111,9 +112,9 @@ namespace cAlgo.Robots
         private RelativeStrengthIndex rsispike;
         private StochasticOscillator stochastics;
         private StochasticOscillator stochastics2;
-        private StochasticOscillator stochastics3;
-        private StochasticOscillator stochastics4;
-        private StochasticOscillator stochastics5;
+        //private StochasticOscillator stochastics3;
+        //private StochasticOscillator stochastics4;
+        //private StochasticOscillator stochastics5;
         private DirectionalMovementSystem dmsnukelimiter;
         private AverageTrueRange ATRoriginaltp;
         private AverageTrueRange ATRnukecorrectiondistance;
@@ -153,7 +154,7 @@ namespace cAlgo.Robots
             var adxrangeseries = MarketData.GetSeries(TimeFrame.Hour4);
             var adxexhaustionseries = MarketData.GetSeries(TimeFrame.Hour4);
             var adxnukelimiterseries = MarketData.GetSeries(ADXNukeLimiterTF);
-            var rsispikeseries = MarketData.GetSeries(TimeFrame.Minute15);
+            var rsispikeseries = MarketData.GetSeries(RSISpikeTF);
             var stochasticsseries = MarketData.GetSeries(StochTF);
             var atroriginaltpseries = MarketData.GetSeries(TimeFrame.Hour);
             var atrnukecorrectiondistanceseries = MarketData.GetSeries(TimeFrame.Hour4);
@@ -182,15 +183,15 @@ namespace cAlgo.Robots
             //end of ADX
 
             //RSI
-            rsispike = Indicators.RelativeStrengthIndex(rsispikeseries.Close, 14);
+            rsispike = Indicators.RelativeStrengthIndex(rsispikeseries.Close, RSIPeriods);
             //end of RSI 
 
             //Stochastics
             stochastics = Indicators.StochasticOscillator(stochasticsseries, StochPeriods, 1, 1, MovingAverageType.Simple);
             stochastics2 = Indicators.StochasticOscillator(stochasticsseries, StochPeriods2, 1, 1, MovingAverageType.Simple);
-            stochastics3 = Indicators.StochasticOscillator(stochasticsseries, StochPeriods3, 1, 1, MovingAverageType.Simple);
-            stochastics4 = Indicators.StochasticOscillator(stochasticsseries, StochPeriods4, 1, 1, MovingAverageType.Simple);
-            stochastics5 = Indicators.StochasticOscillator(stochasticsseries, StochPeriods5, 1, 1, MovingAverageType.Simple);
+            //stochastics3 = Indicators.StochasticOscillator(stochasticsseries, StochPeriods3, 1, 1, MovingAverageType.Simple);
+            //stochastics4 = Indicators.StochasticOscillator(stochasticsseries, StochPeriods4, 1, 1, MovingAverageType.Simple);
+            //stochastics5 = Indicators.StochasticOscillator(stochasticsseries, StochPeriods5, 1, 1, MovingAverageType.Simple);
             //End of Stochastics
 
             //ATR
@@ -271,8 +272,7 @@ namespace cAlgo.Robots
             else
             {
                 //entry logic
-                foreach (var position in Positions)
-                {
+                
                     //consolidation modification
                     if (!_initialvolumeconsolidation && (adxnukelimiter < ADXNukeLimiter))
                     {
@@ -296,7 +296,7 @@ namespace cAlgo.Robots
                         Print(" Resistance = " + stochspike + " Position " + position.TradeType);
                     }
                     //end of sell after hitting S/R
-                }
+                
                 //end of entry logic
 
                 //nuking logic

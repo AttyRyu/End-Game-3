@@ -19,10 +19,10 @@ namespace cAlgo.Robots
         [Parameter("Volume", DefaultValue = 1000, Group = "Risk Management")]
         public int Volume { get; set; }
 
-        [Parameter("Net Loss Close", DefaultValue = -100, Group = "Risk Management")]
+        [Parameter("Net Loss Close", DefaultValue = -10000, Group = "Risk Management")]
         public double NetLossClose { get; set; }
 
-        [Parameter("Net Profit Close", DefaultValue = 100, Group = "Risk Management")]
+        [Parameter("Net Profit Close", DefaultValue = 1000, Group = "Risk Management")]
         public double NetProfitClose { get; set; }
 
         [Parameter("Add Nuke TP", DefaultValue = 0.5, Group = "Targets")]

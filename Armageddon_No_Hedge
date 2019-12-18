@@ -48,7 +48,7 @@ namespace cAlgo.Robots
         [Parameter("S/R TF", DefaultValue = "Daily", Group = "Reversal")]
         public TimeFrame StochTF { get; set; }
 
-        [Parameter("S/R Periods", DefaultValue = 3, Group = "Reversal")]
+        [Parameter("S/R Periods", DefaultValue = 2, Group = "Reversal")]
         public int StochPeriods { get; set; }
 
         [Parameter("S/R Periods 2", DefaultValue = 6, Group = "Reversal")]
@@ -63,10 +63,10 @@ namespace cAlgo.Robots
         //[Parameter("S/R Periods 5", DefaultValue = 31, Group = "Reversal")]
         //public int StochPeriods5 { get; set; }
 
-        [Parameter("Resistance", DefaultValue = 95, Group = "Reversal")]
+        [Parameter("Resistance", DefaultValue = 99, Group = "Reversal")]
         public double StochUpperLimit { get; set; }
 
-        [Parameter("Support", DefaultValue = 5, Group = "Reversal")]
+        [Parameter("Support", DefaultValue = 1, Group = "Reversal")]
         public double StochLowerLimit { get; set; }
 
         [Parameter("Ranging Periods", DefaultValue = 12, Group = "Reversal")]
@@ -94,6 +94,9 @@ namespace cAlgo.Robots
 
         [Parameter("ATR NUKE TP PERIOD", DefaultValue = 28, Group = "Take Profit Targets and Nuke Distance")]
         public int ATRNUKETPPERIOD { get; set; }
+        
+        [Parameter("Nuke TP %", DefaultValue = 0.95, Group = "Take Profit Targets and Nuke Distance")]
+        public double NukeTPPercentage { get; set; }
         //end of TP Targets and Nuke Distance
 
         //Market series declarations
@@ -283,7 +286,7 @@ namespace cAlgo.Robots
                 //buy after consolidation hitting S/R
                 if (_initialvolumeconsolidation && (Positions.Find("Buy", SymbolName, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
-                    ExecuteMarketRangeOrder(TradeType.Buy, SymbolName, Volume, LimitRange, Symbol.Ask, "Buy", null, nuketpdistance);
+                    ExecuteMarketRangeOrder(TradeType.Buy, SymbolName, Volume, LimitRange, Symbol.Ask, "Buy", null, nuketpdistance * NukeTPPercentage);
                     _initialvolumeconsolidation = false;
                     Print(" Open at Support = " + stochspike);
                 }
@@ -291,7 +294,7 @@ namespace cAlgo.Robots
                 //sell after hitting S/R
                 if (_initialvolumeconsolidation && (Positions.Find("Sell", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
-                    ExecuteMarketRangeOrder(TradeType.Sell, SymbolName, Volume, LimitRange, Symbol.Bid, "Sell", null, nuketpdistance);
+                    ExecuteMarketRangeOrder(TradeType.Sell, SymbolName, Volume, LimitRange, Symbol.Bid, "Sell", null, nuketpdistance * NukeTPPercentage);
                     _initialvolumeconsolidation = false;
                     Print(" Open at Resistance = " + stochspike);
                 }
@@ -318,7 +321,7 @@ namespace cAlgo.Robots
                         _initialvolumeconsolidationbuy = false;
                         Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                     }
-                                        //end of volume modification after consolidation hitting S/R
+                    //end of volume modification after consolidation hitting S/R
                     //end of buy nuke
 
                     //sell nuke

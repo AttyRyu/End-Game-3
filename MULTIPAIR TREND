@@ -1,0 +1,231 @@
+using System;
+using System.Linq;
+using System.Text;
+using cAlgo.API;
+using cAlgo.API.Indicators;
+using cAlgo.API.Internals;
+using cAlgo.Indicators;
+
+namespace cAlgo.Robots
+{
+    [Robot(TimeZone = TimeZones.UTC, AccessRights = AccessRights.None)]
+    public class SampleTrendMultipair : Robot
+    {
+        public Symbol[] MySymbols;
+
+        [Parameter("Quantity (Lots)", Group = "Volume", DefaultValue = 1, MinValue = 0.01, Step = 0.01)]
+        public double Quantity { get; set; }
+
+        [Parameter("MA Type", Group = "Moving Average")]
+        public MovingAverageType MAType { get; set; }
+
+        [Parameter("Source", Group = "Moving Average")]
+        public DataSeries SourceSeries { get; set; }
+
+        [Parameter("Slow Periods", Group = "Moving Average", DefaultValue = 10)]
+        public int SlowPeriods { get; set; }
+
+        [Parameter("Fast Periods", Group = "Moving Average", DefaultValue = 5)]
+        public int FastPeriods { get; set; }
+
+        private MovingAverage slowMaEURUSD;
+        private MovingAverage fastMaEURUSD;
+
+        private MovingAverage slowMaGBPUSD;
+        private MovingAverage fastMaGBPUSD;
+
+        private MovingAverage slowMaUSDJPY;
+        private MovingAverage fastMaUSDJPY;
+
+        private MovingAverage slowMaUSDCHF;
+        private MovingAverage fastMaUSDCHF;
+
+        private MovingAverage slowMaAUDUSD;
+        private MovingAverage fastMaAUDUSD;
+
+        private MovingAverage slowMaNZDUSD;
+        private MovingAverage fastMaNZDUSD;
+
+        private MovingAverage slowMaUSDCAD;
+        private MovingAverage fastMaUSDCAD;
+
+        private MovingAverage slowMaEURCAD;
+        private MovingAverage fastMaEURCAD;
+
+        private MovingAverage slowMaGBPCAD;
+        private MovingAverage fastMaGBPCAD;
+
+        private MovingAverage slowMaCADJPY;
+        private MovingAverage fastMaCADJPY;
+
+        private MovingAverage slowMaCADCHF;
+        private MovingAverage fastMaCADCHF;
+
+        private MovingAverage slowMaAUDCAD;
+        private MovingAverage fastMaAUDCAD;
+
+        private MovingAverage slowMaNZDCAD;
+        private MovingAverage fastMaNZDCAD;
+
+        private MovingAverage slowMaEURNZD;
+        private MovingAverage fastMaEURNZD;
+
+        private MovingAverage slowMaGBPNZD;
+        private MovingAverage fastMaGBPNZD;
+
+        private MovingAverage slowMaNZDCHF;
+        private MovingAverage fastMaNZDCHF;
+
+        private MovingAverage slowMaNZDJPY;
+        private MovingAverage fastMaNZDJPY;
+
+        private MovingAverage slowMaAUDNZD;
+        private MovingAverage fastMaAUDNZD;
+
+        private MovingAverage slowMaEURAUD;
+        private MovingAverage fastMaEURAUD;
+
+        private MovingAverage slowMaGBPAUD;
+        private MovingAverage fastMaGBPAUD;
+
+        private MovingAverage slowMaAUDCHF;
+        private MovingAverage fastMaAUDCHF;
+
+        private MovingAverage slowMaAUDJPY;
+        private MovingAverage fastMaAUDJPY;
+
+        private MovingAverage slowMaEURJPY;
+        private MovingAverage fastMaEURJPY;
+
+        private MovingAverage slowMaGBPJPY;
+        private MovingAverage fastMaGBPJPY;
+
+        private MovingAverage slowMaCHFJPY;
+        private MovingAverage fastMaCHFJPY;
+
+        private MovingAverage slowMaEURCHF;
+        private MovingAverage fastMaEURCHF;
+
+        private MovingAverage slowMaGBPCHF;
+        private MovingAverage fastMaGBPCHF;
+
+        private MovingAverage slowMaEURGBP;
+        private MovingAverage fastMaEURGBP;
+
+        private const string label = "MultSymbolcBot";
+
+        protected override void OnStart()
+        {
+            MySymbols = Symbols.GetSymbols("EURUSD", "USDJPY", "GBPUSD", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "EURCAD", "GBPCAD", "CADJPY",
+            "CADCHF", "AUDCAD", "NZDCAD", "EURAUD", "GBPAUD", "AUDJPY", "AUDCHF", "AUDNZD", "EURNZD", "GBPNZD",
+            "NZDJPY", "NZDCHF", "EURJPY", "GBPJPY", "CHFJPY", "EURCHF", "GBPCHF", "EURGBP");
+            foreach (var symbol in MySymbols)
+            {
+                symbol.Tick += Symbol_Tick;
+            }
+
+            Bars seriesEURUSD = MarketData.GetBars(TimeFrame, "EURUSD");
+            Bars seriesUSDJPY = MarketData.GetBars(TimeFrame, "USDJPY");
+            Bars seriesGBPUSD = MarketData.GetBars(TimeFrame, "GBPUSD");
+            Bars seriesUSDCHF = MarketData.GetBars(TimeFrame, "USDCHF");
+
+            Bars seriesAUDUSD = MarketData.GetBars(TimeFrame, "AUDUSD");
+            Bars seriesNZDUSD = MarketData.GetBars(TimeFrame, "NZDUSD");
+            Bars seriesUSDCAD = MarketData.GetBars(TimeFrame, "USDCAD");
+            Bars seriesEURCAD = MarketData.GetBars(TimeFrame, "EURCAD");
+
+            Bars seriesGBPCAD = MarketData.GetBars(TimeFrame, "GBPCAD");
+            Bars seriesCADJPY = MarketData.GetBars(TimeFrame, "CADJPY");
+            Bars seriesCADCHF = MarketData.GetBars(TimeFrame, "CADCHF");
+            Bars seriesAUDCAD = MarketData.GetBars(TimeFrame, "AUDCAD");
+
+            Bars seriesNZDCAD = MarketData.GetBars(TimeFrame, "NZDCAD");
+            Bars seriesEURAUD = MarketData.GetBars(TimeFrame, "EURAUD");
+            Bars seriesGBPAUD = MarketData.GetBars(TimeFrame, "GBPAUD");
+            Bars seriesAUDJPY = MarketData.GetBars(TimeFrame, "AUDJPY");
+
+            Bars seriesAUDCHF = MarketData.GetBars(TimeFrame, "AUDCHF");
+            Bars seriesAUDNZD = MarketData.GetBars(TimeFrame, "AUDNZD");
+            Bars seriesEURNZD = MarketData.GetBars(TimeFrame, "EURNZD");
+            Bars seriesGBPNZD = MarketData.GetBars(TimeFrame, "GBPNZD");
+
+            Bars seriesNZDCHF = MarketData.GetBars(TimeFrame, "NZDCHF");
+            Bars seriesNZDJPY = MarketData.GetBars(TimeFrame, "NZDJPY");
+            Bars seriesEURJPY = MarketData.GetBars(TimeFrame, "EURJPY");
+            Bars seriesGBPJPY = MarketData.GetBars(TimeFrame, "GBPJPY");
+
+            Bars seriesCHFJPY = MarketData.GetBars(TimeFrame, "CHFJPY");
+            Bars seriesEURCHF = MarketData.GetBars(TimeFrame, "EURCHF");
+            Bars seriesGBPCHF = MarketData.GetBars(TimeFrame, "GBPCHF");
+            Bars seriesEURGBP = MarketData.GetBars(TimeFrame, "EURGBP");
+
+
+            fastMaEURUSD = Indicators.MovingAverage(seriesEURUSD.ClosePrices, FastPeriods, MAType);
+            slowMaEURUSD = Indicators.MovingAverage(seriesEURUSD.ClosePrices, SlowPeriods, MAType);
+
+            fastMaUSDJPY = Indicators.MovingAverage(seriesUSDJPY.ClosePrices, FastPeriods, MAType);
+            slowMaUSDJPY = Indicators.MovingAverage(seriesUSDJPY.ClosePrices, SlowPeriods, MAType);
+
+            fastMaGBPUSD = Indicators.MovingAverage(seriesGBPUSD.ClosePrices, FastPeriods, MAType);
+            slowMaGBPUSD = Indicators.MovingAverage(seriesGBPUSD.ClosePrices, SlowPeriods, MAType);
+        }
+
+        protected override void OnTick()
+        {
+
+        }
+
+        protected override void OnStop()
+        {
+
+        }
+
+        private void Symbol_Tick(SymbolTickEventArgs obj)
+        {
+            foreach (var symbol in MySymbols)
+            {
+                switch (symbol.Name)
+                {
+                    case "EURUSD":
+                        SymbolTrade(symbol, fastMaEURUSD, slowMaEURUSD);
+                        break;
+                    case "USDJPY":
+                        SymbolTrade(symbol, fastMaUSDJPY, slowMaUSDJPY);
+                        break;
+                    case "GBPUSD":
+                        SymbolTrade(symbol, fastMaGBPUSD, slowMaGBPUSD);
+                        break;
+                }
+            }
+        }
+
+        private double VolumeInUnits
+        {
+            get { return Symbol.QuantityToVolumeInUnits(Quantity); }
+        }
+
+        private void SymbolTrade(Symbol SymbolName, MovingAverage MaNameFast, MovingAverage MaNameSlow)
+        {
+            var longPosition = Positions.Find(label, SymbolName.Name, TradeType.Buy);
+            var shortPosition = Positions.Find(label, SymbolName.Name, TradeType.Sell);
+
+            var currentSlowMa = MaNameSlow.Result.Last(0);
+            var currentFastMa = MaNameFast.Result.Last(0);
+            var previousSlowMa = MaNameSlow.Result.Last(1);
+            var previousFastMa = MaNameFast.Result.Last(1);
+
+            if (previousSlowMa > previousFastMa && currentSlowMa <= currentFastMa && longPosition == null)
+            {
+                if (shortPosition != null)
+                    ClosePosition(shortPosition);
+                ExecuteMarketOrder(TradeType.Buy, SymbolName.Name, VolumeInUnits, label);
+            }
+            else if (previousSlowMa < previousFastMa && currentSlowMa >= currentFastMa && shortPosition == null)
+            {
+                if (longPosition != null)
+                    ClosePosition(longPosition);
+                ExecuteMarketOrder(TradeType.Sell, SymbolName.Name, VolumeInUnits, label);
+            }
+        }
+    }
+}

@@ -19,7 +19,7 @@ namespace cAlgo.Robots
         //end of expiration code
 
         public Symbol[] MySymbols;
-        
+
         [Parameter("Limit Range", DefaultValue = 2, Group = "Anti-Slippage")]
         public double LimitRange { get; set; }
 
@@ -144,7 +144,7 @@ namespace cAlgo.Robots
         private AverageTrueRange ATRd1GBPUSD;
         private AverageTrueRange ATRw1GBPUSD;
         private AverageTrueRange ATRm1GBPUSD;
-        
+
         private Bars m15USDJPY;
         private Bars h1USDJPY;
         private Bars h4USDJPY;
@@ -167,7 +167,7 @@ namespace cAlgo.Robots
         private AverageTrueRange ATRd1USDJPY;
         private AverageTrueRange ATRw1USDJPY;
         private AverageTrueRange ATRm1USDJPY;
-        
+
 
         private Bars m15USDCHF;
         private Bars h1USDCHF;
@@ -191,7 +191,7 @@ namespace cAlgo.Robots
         private AverageTrueRange ATRd1USDCHF;
         private AverageTrueRange ATRm1USDCHF;
         private AverageTrueRange ATRw1USDCHF;
-        
+
         private Bars m15AUDUSD;
         private Bars h1AUDUSD;
         private Bars h4AUDUSD;
@@ -214,7 +214,7 @@ namespace cAlgo.Robots
         private AverageTrueRange ATRd1AUDUSD;
         private AverageTrueRange ATRm1AUDUSD;
         private AverageTrueRange ATRw1AUDUSD;
-        
+
         private Bars m15NZDUSD;
         private Bars h1NZDUSD;
         private Bars h4NZDUSD;
@@ -521,7 +521,7 @@ namespace cAlgo.Robots
         private Bars d1EURAUD;
         private Bars w1EURAUD;
         private Bars m1EURAUD;
-        private DirectionalMovementSystem dmstrendEURAUD;           
+        private DirectionalMovementSystem dmstrendEURAUD;
         private DirectionalMovementSystem dmsnukelimiterEURAUD;
         private DirectionalMovementSystem dmsrangeEURAUD;
         private RelativeStrengthIndex rsispikeEURAUD;
@@ -544,7 +544,7 @@ namespace cAlgo.Robots
         private Bars d1GBPAUD;
         private Bars w1GBPAUD;
         private Bars m1GBPAUD;
-        private DirectionalMovementSystem dmstrendGBPAUD;       
+        private DirectionalMovementSystem dmstrendGBPAUD;
         private DirectionalMovementSystem dmsnukelimiterGBPAUD;
         private DirectionalMovementSystem dmsrangeGBPAUD;
         private RelativeStrengthIndex rsispikeGBPAUD;
@@ -567,7 +567,7 @@ namespace cAlgo.Robots
         private Bars d1AUDCHF;
         private Bars w1AUDCHF;
         private Bars m1AUDCHF;
-        private DirectionalMovementSystem dmstrendAUDCHF;       
+        private DirectionalMovementSystem dmstrendAUDCHF;
         private DirectionalMovementSystem dmsnukelimiterAUDCHF;
         private DirectionalMovementSystem dmsrangeAUDCHF;
         private RelativeStrengthIndex rsispikeAUDCHF;
@@ -590,7 +590,7 @@ namespace cAlgo.Robots
         private Bars d1AUDJPY;
         private Bars w1AUDJPY;
         private Bars m1AUDJPY;
-        private DirectionalMovementSystem dmstrendAUDJPY;       
+        private DirectionalMovementSystem dmstrendAUDJPY;
         private DirectionalMovementSystem dmsnukelimiterAUDJPY;
         private DirectionalMovementSystem dmsrangeAUDJPY;
         private RelativeStrengthIndex rsispikeAUDJPY;
@@ -613,7 +613,7 @@ namespace cAlgo.Robots
         private Bars d1EURJPY;
         private Bars w1EURJPY;
         private Bars m1EURJPY;
-        private DirectionalMovementSystem dmstrendEURJPY;       
+        private DirectionalMovementSystem dmstrendEURJPY;
         private DirectionalMovementSystem dmsnukelimiterEURJPY;
         private DirectionalMovementSystem dmsrangeEURJPY;
         private RelativeStrengthIndex rsispikeEURJPY;
@@ -636,7 +636,7 @@ namespace cAlgo.Robots
         private Bars d1GBPJPY;
         private Bars w1GBPJPY;
         private Bars m1GBPJPY;
-        private DirectionalMovementSystem dmstrendGBPJPY;             
+        private DirectionalMovementSystem dmstrendGBPJPY;
         private DirectionalMovementSystem dmsnukelimiterGBPJPY;
         private DirectionalMovementSystem dmsrangeGBPJPY;
         private RelativeStrengthIndex rsispikeGBPJPY;
@@ -659,7 +659,7 @@ namespace cAlgo.Robots
         private Bars d1CHFJPY;
         private Bars w1CHFJPY;
         private Bars m1CHFJPY;
-        private DirectionalMovementSystem dmstrendCHFJPY;             
+        private DirectionalMovementSystem dmstrendCHFJPY;
         private DirectionalMovementSystem dmsnukelimiterCHFJPY;
         private DirectionalMovementSystem dmsrangeCHFJPY;
         private RelativeStrengthIndex rsispikeCHFJPY;
@@ -682,7 +682,7 @@ namespace cAlgo.Robots
         private Bars d1EURCHF;
         private Bars w1EURCHF;
         private Bars m1EURCHF;
-        private DirectionalMovementSystem dmstrendEURCHF;             
+        private DirectionalMovementSystem dmstrendEURCHF;
         private DirectionalMovementSystem dmsnukelimiterEURCHF;
         private DirectionalMovementSystem dmsrangeEURCHF;
         private RelativeStrengthIndex rsispikeEURCHF;
@@ -705,7 +705,7 @@ namespace cAlgo.Robots
         private Bars d1GBPCHF;
         private Bars w1GBPCHF;
         private Bars m1GBPCHF;
-        private DirectionalMovementSystem dmstrendGBPCHF;             
+        private DirectionalMovementSystem dmstrendGBPCHF;
         private DirectionalMovementSystem dmsnukelimiterGBPCHF;
         private DirectionalMovementSystem dmsrangeGBPCHF;
         private RelativeStrengthIndex rsispikeGBPCHF;
@@ -728,7 +728,7 @@ namespace cAlgo.Robots
         private Bars d1EURGBP;
         private Bars w1EURGBP;
         private Bars m1EURGBP;
-        private DirectionalMovementSystem dmstrendEURGBP;             
+        private DirectionalMovementSystem dmstrendEURGBP;
         private DirectionalMovementSystem dmsnukelimiterEURGBP;
         private DirectionalMovementSystem dmsrangeEURGBP;
         private RelativeStrengthIndex rsispikeEURGBP;
@@ -749,7 +749,9 @@ namespace cAlgo.Robots
 
         protected override void OnStart()
         {
-            MySymbols = Symbols.GetSymbols("EURUSD", "USDJPY", "GBPUSD", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "EURCAD", "GBPCAD", "CADJPY","CADCHF", "AUDCAD", "NZDCAD", "EURAUD", "GBPAUD", "AUDJPY", "AUDCHF", "AUDNZD", "EURNZD", "GBPNZD", "NZDJPY", "NZDCHF", "EURJPY", "GBPJPY", "CHFJPY", "EURCHF", "GBPCHF", "EURGBP");
+            MySymbols = Symbols.GetSymbols("EURUSD", "USDJPY", "GBPUSD", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "EURCAD", "GBPCAD", "CADJPY",
+            "CADCHF", "AUDCAD", "NZDCAD", "EURAUD", "GBPAUD", "AUDJPY", "AUDCHF", "AUDNZD", "EURNZD", "GBPNZD",
+            "NZDJPY", "NZDCHF", "EURJPY", "GBPJPY", "CHFJPY", "EURCHF", "GBPCHF", "EURGBP");
 
             foreach (var symbol in MySymbols)
             {
@@ -807,11 +809,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesEURUSD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesEURUSD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesEURUSD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15EURUSD = Indicators.AverageTrueRange(m15EURUSD, 60, MovingAverageType.Simple);
             ATRh1EURUSD = Indicators.AverageTrueRange(h1EURUSD, 60, MovingAverageType.Simple);
             ATRh4EURUSD = Indicators.AverageTrueRange(h4EURUSD, 60, MovingAverageType.Simple);
-            ATRh12EURUSD = Indicators.AverageTrueRange(h12EURUSD, 60, MovingAverageType.Simple);    
+            ATRh12EURUSD = Indicators.AverageTrueRange(h12EURUSD, 60, MovingAverageType.Simple);
             ATRd1EURUSD = Indicators.AverageTrueRange(d1EURUSD, 30, MovingAverageType.Simple);
             ATRw1EURUSD = Indicators.AverageTrueRange(w1EURUSD, 12, MovingAverageType.Simple);
             ATRm1EURUSD = Indicators.AverageTrueRange(m1EURUSD, 3, MovingAverageType.Simple);
@@ -839,11 +841,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesUSDJPY = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesUSDJPY = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesUSDJPY = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15USDJPY = Indicators.AverageTrueRange(m15USDJPY, 60, MovingAverageType.Simple);
             ATRh1USDJPY = Indicators.AverageTrueRange(h1USDJPY, 60, MovingAverageType.Simple);
             ATRh4USDJPY = Indicators.AverageTrueRange(h4USDJPY, 60, MovingAverageType.Simple);
-            ATRh12USDJPY = Indicators.AverageTrueRange(h12USDJPY, 60, MovingAverageType.Simple);    
+            ATRh12USDJPY = Indicators.AverageTrueRange(h12USDJPY, 60, MovingAverageType.Simple);
             ATRd1USDJPY = Indicators.AverageTrueRange(d1USDJPY, 30, MovingAverageType.Simple);
             ATRw1USDJPY = Indicators.AverageTrueRange(w1USDJPY, 12, MovingAverageType.Simple);
             ATRm1USDJPY = Indicators.AverageTrueRange(m1USDJPY, 3, MovingAverageType.Simple);
@@ -871,11 +873,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesGBPUSD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesGBPUSD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesGBPUSD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15GBPUSD = Indicators.AverageTrueRange(m15GBPUSD, 60, MovingAverageType.Simple);
             ATRh1GBPUSD = Indicators.AverageTrueRange(h1GBPUSD, 60, MovingAverageType.Simple);
             ATRh4GBPUSD = Indicators.AverageTrueRange(h4GBPUSD, 60, MovingAverageType.Simple);
-            ATRh12GBPUSD = Indicators.AverageTrueRange(h12GBPUSD, 60, MovingAverageType.Simple);    
+            ATRh12GBPUSD = Indicators.AverageTrueRange(h12GBPUSD, 60, MovingAverageType.Simple);
             ATRd1GBPUSD = Indicators.AverageTrueRange(d1GBPUSD, 30, MovingAverageType.Simple);
             ATRw1GBPUSD = Indicators.AverageTrueRange(w1GBPUSD, 12, MovingAverageType.Simple);
             ATRm1GBPUSD = Indicators.AverageTrueRange(m1GBPUSD, 3, MovingAverageType.Simple);
@@ -903,11 +905,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesUSDCHF = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesUSDCHF = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesUSDCHF = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15USDCHF = Indicators.AverageTrueRange(m15USDCHF, 60, MovingAverageType.Simple);
             ATRh1USDCHF = Indicators.AverageTrueRange(h1USDCHF, 60, MovingAverageType.Simple);
             ATRh4USDCHF = Indicators.AverageTrueRange(h4USDCHF, 60, MovingAverageType.Simple);
-            ATRh12USDCHF = Indicators.AverageTrueRange(h12USDCHF, 60, MovingAverageType.Simple);    
+            ATRh12USDCHF = Indicators.AverageTrueRange(h12USDCHF, 60, MovingAverageType.Simple);
             ATRd1USDCHF = Indicators.AverageTrueRange(d1USDCHF, 30, MovingAverageType.Simple);
             ATRw1USDCHF = Indicators.AverageTrueRange(w1USDCHF, 12, MovingAverageType.Simple);
             ATRm1USDCHF = Indicators.AverageTrueRange(m1USDCHF, 3, MovingAverageType.Simple);
@@ -935,11 +937,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesAUDUSD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesAUDUSD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesAUDUSD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15AUDUSD = Indicators.AverageTrueRange(m15AUDUSD, 60, MovingAverageType.Simple);
             ATRh1AUDUSD = Indicators.AverageTrueRange(h1AUDUSD, 60, MovingAverageType.Simple);
             ATRh4AUDUSD = Indicators.AverageTrueRange(h4AUDUSD, 60, MovingAverageType.Simple);
-            ATRh12AUDUSD = Indicators.AverageTrueRange(h12AUDUSD, 60, MovingAverageType.Simple);    
+            ATRh12AUDUSD = Indicators.AverageTrueRange(h12AUDUSD, 60, MovingAverageType.Simple);
             ATRd1AUDUSD = Indicators.AverageTrueRange(d1AUDUSD, 30, MovingAverageType.Simple);
             ATRw1AUDUSD = Indicators.AverageTrueRange(w1AUDUSD, 12, MovingAverageType.Simple);
             ATRm1AUDUSD = Indicators.AverageTrueRange(m1AUDUSD, 3, MovingAverageType.Simple);
@@ -967,11 +969,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesNZDUSD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesNZDUSD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesNZDUSD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15NZDUSD = Indicators.AverageTrueRange(m15NZDUSD, 60, MovingAverageType.Simple);
             ATRh1NZDUSD = Indicators.AverageTrueRange(h1NZDUSD, 60, MovingAverageType.Simple);
             ATRh4NZDUSD = Indicators.AverageTrueRange(h4NZDUSD, 60, MovingAverageType.Simple);
-            ATRh12NZDUSD = Indicators.AverageTrueRange(h12NZDUSD, 60, MovingAverageType.Simple);    
+            ATRh12NZDUSD = Indicators.AverageTrueRange(h12NZDUSD, 60, MovingAverageType.Simple);
             ATRd1NZDUSD = Indicators.AverageTrueRange(d1NZDUSD, 30, MovingAverageType.Simple);
             ATRw1NZDUSD = Indicators.AverageTrueRange(w1NZDUSD, 12, MovingAverageType.Simple);
             ATRm1NZDUSD = Indicators.AverageTrueRange(m1NZDUSD, 3, MovingAverageType.Simple);
@@ -999,11 +1001,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesUSDCAD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesUSDCAD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesUSDCAD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15USDCAD = Indicators.AverageTrueRange(m15USDCAD, 60, MovingAverageType.Simple);
             ATRh1USDCAD = Indicators.AverageTrueRange(h1USDCAD, 60, MovingAverageType.Simple);
             ATRh4USDCAD = Indicators.AverageTrueRange(h4USDCAD, 60, MovingAverageType.Simple);
-            ATRh12USDCAD = Indicators.AverageTrueRange(h12USDCAD, 60, MovingAverageType.Simple);    
+            ATRh12USDCAD = Indicators.AverageTrueRange(h12USDCAD, 60, MovingAverageType.Simple);
             ATRd1USDCAD = Indicators.AverageTrueRange(d1USDCAD, 30, MovingAverageType.Simple);
             ATRw1USDCAD = Indicators.AverageTrueRange(w1USDCAD, 12, MovingAverageType.Simple);
             ATRm1USDCAD = Indicators.AverageTrueRange(m1USDCAD, 3, MovingAverageType.Simple);
@@ -1031,11 +1033,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesEURCAD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesEURCAD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesEURCAD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15EURCAD = Indicators.AverageTrueRange(m15EURCAD, 60, MovingAverageType.Simple);
             ATRh1EURCAD = Indicators.AverageTrueRange(h1EURCAD, 60, MovingAverageType.Simple);
             ATRh4EURCAD = Indicators.AverageTrueRange(h4EURCAD, 60, MovingAverageType.Simple);
-            ATRh12EURCAD = Indicators.AverageTrueRange(h12EURCAD, 60, MovingAverageType.Simple);    
+            ATRh12EURCAD = Indicators.AverageTrueRange(h12EURCAD, 60, MovingAverageType.Simple);
             ATRd1EURCAD = Indicators.AverageTrueRange(d1EURCAD, 30, MovingAverageType.Simple);
             ATRw1EURCAD = Indicators.AverageTrueRange(w1EURCAD, 12, MovingAverageType.Simple);
             ATRm1EURCAD = Indicators.AverageTrueRange(m1EURCAD, 3, MovingAverageType.Simple);
@@ -1063,11 +1065,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesGBPCAD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesGBPCAD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesGBPCAD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15GBPCAD = Indicators.AverageTrueRange(m15GBPCAD, 60, MovingAverageType.Simple);
             ATRh1GBPCAD = Indicators.AverageTrueRange(h1GBPCAD, 60, MovingAverageType.Simple);
             ATRh4GBPCAD = Indicators.AverageTrueRange(h4GBPCAD, 60, MovingAverageType.Simple);
-            ATRh12GBPCAD = Indicators.AverageTrueRange(h12GBPCAD, 60, MovingAverageType.Simple);    
+            ATRh12GBPCAD = Indicators.AverageTrueRange(h12GBPCAD, 60, MovingAverageType.Simple);
             ATRd1GBPCAD = Indicators.AverageTrueRange(d1GBPCAD, 30, MovingAverageType.Simple);
             ATRw1GBPCAD = Indicators.AverageTrueRange(w1GBPCAD, 12, MovingAverageType.Simple);
             ATRm1GBPCAD = Indicators.AverageTrueRange(m1GBPCAD, 3, MovingAverageType.Simple);
@@ -1095,11 +1097,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesCADJPY = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesCADJPY = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesCADJPY = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15CADJPY = Indicators.AverageTrueRange(m15CADJPY, 60, MovingAverageType.Simple);
             ATRh1CADJPY = Indicators.AverageTrueRange(h1CADJPY, 60, MovingAverageType.Simple);
             ATRh4CADJPY = Indicators.AverageTrueRange(h4CADJPY, 60, MovingAverageType.Simple);
-            ATRh12CADJPY = Indicators.AverageTrueRange(h12CADJPY, 60, MovingAverageType.Simple);    
+            ATRh12CADJPY = Indicators.AverageTrueRange(h12CADJPY, 60, MovingAverageType.Simple);
             ATRd1CADJPY = Indicators.AverageTrueRange(d1CADJPY, 30, MovingAverageType.Simple);
             ATRw1CADJPY = Indicators.AverageTrueRange(w1CADJPY, 12, MovingAverageType.Simple);
             ATRm1CADJPY = Indicators.AverageTrueRange(m1CADJPY, 3, MovingAverageType.Simple);
@@ -1127,11 +1129,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesCADCHF = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesCADCHF = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesCADCHF = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15CADCHF = Indicators.AverageTrueRange(m15CADCHF, 60, MovingAverageType.Simple);
             ATRh1CADCHF = Indicators.AverageTrueRange(h1CADCHF, 60, MovingAverageType.Simple);
             ATRh4CADCHF = Indicators.AverageTrueRange(h4CADCHF, 60, MovingAverageType.Simple);
-            ATRh12CADCHF = Indicators.AverageTrueRange(h12CADCHF, 60, MovingAverageType.Simple);    
+            ATRh12CADCHF = Indicators.AverageTrueRange(h12CADCHF, 60, MovingAverageType.Simple);
             ATRd1CADCHF = Indicators.AverageTrueRange(d1CADCHF, 30, MovingAverageType.Simple);
             ATRw1CADCHF = Indicators.AverageTrueRange(w1CADCHF, 12, MovingAverageType.Simple);
             ATRm1CADCHF = Indicators.AverageTrueRange(m1CADCHF, 3, MovingAverageType.Simple);
@@ -1159,11 +1161,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesAUDCAD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesAUDCAD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesAUDCAD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15AUDCAD = Indicators.AverageTrueRange(m15AUDCAD, 60, MovingAverageType.Simple);
             ATRh1AUDCAD = Indicators.AverageTrueRange(h1AUDCAD, 60, MovingAverageType.Simple);
             ATRh4AUDCAD = Indicators.AverageTrueRange(h4AUDCAD, 60, MovingAverageType.Simple);
-            ATRh12AUDCAD = Indicators.AverageTrueRange(h12AUDCAD, 60, MovingAverageType.Simple);    
+            ATRh12AUDCAD = Indicators.AverageTrueRange(h12AUDCAD, 60, MovingAverageType.Simple);
             ATRd1AUDCAD = Indicators.AverageTrueRange(d1AUDCAD, 30, MovingAverageType.Simple);
             ATRw1AUDCAD = Indicators.AverageTrueRange(w1AUDCAD, 12, MovingAverageType.Simple);
             ATRm1AUDCAD = Indicators.AverageTrueRange(m1AUDCAD, 3, MovingAverageType.Simple);
@@ -1191,11 +1193,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesNZDCAD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesNZDCAD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesNZDCAD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15NZDCAD = Indicators.AverageTrueRange(m15NZDCAD, 60, MovingAverageType.Simple);
             ATRh1NZDCAD = Indicators.AverageTrueRange(h1NZDCAD, 60, MovingAverageType.Simple);
             ATRh4NZDCAD = Indicators.AverageTrueRange(h4NZDCAD, 60, MovingAverageType.Simple);
-            ATRh12NZDCAD = Indicators.AverageTrueRange(h12NZDCAD, 60, MovingAverageType.Simple);    
+            ATRh12NZDCAD = Indicators.AverageTrueRange(h12NZDCAD, 60, MovingAverageType.Simple);
             ATRd1NZDCAD = Indicators.AverageTrueRange(d1NZDCAD, 30, MovingAverageType.Simple);
             ATRw1NZDCAD = Indicators.AverageTrueRange(w1NZDCAD, 12, MovingAverageType.Simple);
             ATRm1NZDCAD = Indicators.AverageTrueRange(m1NZDCAD, 3, MovingAverageType.Simple);
@@ -1223,11 +1225,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesEURAUD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesEURAUD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesEURAUD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15EURAUD = Indicators.AverageTrueRange(m15EURAUD, 60, MovingAverageType.Simple);
             ATRh1EURAUD = Indicators.AverageTrueRange(h1EURAUD, 60, MovingAverageType.Simple);
             ATRh4EURAUD = Indicators.AverageTrueRange(h4EURAUD, 60, MovingAverageType.Simple);
-            ATRh12EURAUD = Indicators.AverageTrueRange(h12EURAUD, 60, MovingAverageType.Simple);    
+            ATRh12EURAUD = Indicators.AverageTrueRange(h12EURAUD, 60, MovingAverageType.Simple);
             ATRd1EURAUD = Indicators.AverageTrueRange(d1EURAUD, 30, MovingAverageType.Simple);
             ATRw1EURAUD = Indicators.AverageTrueRange(w1EURAUD, 12, MovingAverageType.Simple);
             ATRm1EURAUD = Indicators.AverageTrueRange(m1EURAUD, 3, MovingAverageType.Simple);
@@ -1255,11 +1257,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesGBPAUD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesGBPAUD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesGBPAUD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15GBPAUD = Indicators.AverageTrueRange(m15GBPAUD, 60, MovingAverageType.Simple);
             ATRh1GBPAUD = Indicators.AverageTrueRange(h1GBPAUD, 60, MovingAverageType.Simple);
             ATRh4GBPAUD = Indicators.AverageTrueRange(h4GBPAUD, 60, MovingAverageType.Simple);
-            ATRh12GBPAUD = Indicators.AverageTrueRange(h12GBPAUD, 60, MovingAverageType.Simple);    
+            ATRh12GBPAUD = Indicators.AverageTrueRange(h12GBPAUD, 60, MovingAverageType.Simple);
             ATRd1GBPAUD = Indicators.AverageTrueRange(d1GBPAUD, 30, MovingAverageType.Simple);
             ATRw1GBPAUD = Indicators.AverageTrueRange(w1GBPAUD, 12, MovingAverageType.Simple);
             ATRm1GBPAUD = Indicators.AverageTrueRange(m1GBPAUD, 3, MovingAverageType.Simple);
@@ -1287,11 +1289,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesAUDJPY = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesAUDJPY = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesAUDJPY = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15AUDJPY = Indicators.AverageTrueRange(m15AUDJPY, 60, MovingAverageType.Simple);
             ATRh1AUDJPY = Indicators.AverageTrueRange(h1AUDJPY, 60, MovingAverageType.Simple);
             ATRh4AUDJPY = Indicators.AverageTrueRange(h4AUDJPY, 60, MovingAverageType.Simple);
-            ATRh12AUDJPY = Indicators.AverageTrueRange(h12AUDJPY, 60, MovingAverageType.Simple);    
+            ATRh12AUDJPY = Indicators.AverageTrueRange(h12AUDJPY, 60, MovingAverageType.Simple);
             ATRd1AUDJPY = Indicators.AverageTrueRange(d1AUDJPY, 30, MovingAverageType.Simple);
             ATRw1AUDJPY = Indicators.AverageTrueRange(w1AUDJPY, 12, MovingAverageType.Simple);
             ATRm1AUDJPY = Indicators.AverageTrueRange(m1AUDJPY, 3, MovingAverageType.Simple);
@@ -1319,11 +1321,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesAUDCHF = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesAUDCHF = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesAUDCHF = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15AUDCHF = Indicators.AverageTrueRange(m15AUDCHF, 60, MovingAverageType.Simple);
             ATRh1AUDCHF = Indicators.AverageTrueRange(h1AUDCHF, 60, MovingAverageType.Simple);
             ATRh4AUDCHF = Indicators.AverageTrueRange(h4AUDCHF, 60, MovingAverageType.Simple);
-            ATRh12AUDCHF = Indicators.AverageTrueRange(h12AUDCHF, 60, MovingAverageType.Simple);    
+            ATRh12AUDCHF = Indicators.AverageTrueRange(h12AUDCHF, 60, MovingAverageType.Simple);
             ATRd1AUDCHF = Indicators.AverageTrueRange(d1AUDCHF, 30, MovingAverageType.Simple);
             ATRw1AUDCHF = Indicators.AverageTrueRange(w1AUDCHF, 12, MovingAverageType.Simple);
             ATRm1AUDCHF = Indicators.AverageTrueRange(m1AUDCHF, 3, MovingAverageType.Simple);
@@ -1351,11 +1353,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesAUDNZD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesAUDNZD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesAUDNZD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15AUDNZD = Indicators.AverageTrueRange(m15AUDNZD, 60, MovingAverageType.Simple);
             ATRh1AUDNZD = Indicators.AverageTrueRange(h1AUDNZD, 60, MovingAverageType.Simple);
             ATRh4AUDNZD = Indicators.AverageTrueRange(h4AUDNZD, 60, MovingAverageType.Simple);
-            ATRh12AUDNZD = Indicators.AverageTrueRange(h12AUDNZD, 60, MovingAverageType.Simple);    
+            ATRh12AUDNZD = Indicators.AverageTrueRange(h12AUDNZD, 60, MovingAverageType.Simple);
             ATRd1AUDNZD = Indicators.AverageTrueRange(d1AUDNZD, 30, MovingAverageType.Simple);
             ATRw1AUDNZD = Indicators.AverageTrueRange(w1AUDNZD, 12, MovingAverageType.Simple);
             ATRm1AUDNZD = Indicators.AverageTrueRange(m1AUDNZD, 3, MovingAverageType.Simple);
@@ -1383,11 +1385,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesEURNZD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesEURNZD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesEURNZD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15EURNZD = Indicators.AverageTrueRange(m15EURNZD, 60, MovingAverageType.Simple);
             ATRh1EURNZD = Indicators.AverageTrueRange(h1EURNZD, 60, MovingAverageType.Simple);
             ATRh4EURNZD = Indicators.AverageTrueRange(h4EURNZD, 60, MovingAverageType.Simple);
-            ATRh12EURNZD = Indicators.AverageTrueRange(h12EURNZD, 60, MovingAverageType.Simple);    
+            ATRh12EURNZD = Indicators.AverageTrueRange(h12EURNZD, 60, MovingAverageType.Simple);
             ATRd1EURNZD = Indicators.AverageTrueRange(d1EURNZD, 30, MovingAverageType.Simple);
             ATRw1EURNZD = Indicators.AverageTrueRange(w1EURNZD, 12, MovingAverageType.Simple);
             ATRm1EURNZD = Indicators.AverageTrueRange(m1EURNZD, 3, MovingAverageType.Simple);
@@ -1415,11 +1417,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesGBPNZD = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesGBPNZD = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesGBPNZD = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15GBPNZD = Indicators.AverageTrueRange(m15GBPNZD, 60, MovingAverageType.Simple);
             ATRh1GBPNZD = Indicators.AverageTrueRange(h1GBPNZD, 60, MovingAverageType.Simple);
             ATRh4GBPNZD = Indicators.AverageTrueRange(h4GBPNZD, 60, MovingAverageType.Simple);
-            ATRh12GBPNZD = Indicators.AverageTrueRange(h12GBPNZD, 60, MovingAverageType.Simple);    
+            ATRh12GBPNZD = Indicators.AverageTrueRange(h12GBPNZD, 60, MovingAverageType.Simple);
             ATRd1GBPNZD = Indicators.AverageTrueRange(d1GBPNZD, 30, MovingAverageType.Simple);
             ATRw1GBPNZD = Indicators.AverageTrueRange(w1GBPNZD, 12, MovingAverageType.Simple);
             ATRm1GBPNZD = Indicators.AverageTrueRange(m1GBPNZD, 3, MovingAverageType.Simple);
@@ -1447,11 +1449,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesNZDCHF = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesNZDCHF = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesNZDCHF = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15NZDCHF = Indicators.AverageTrueRange(m15NZDCHF, 60, MovingAverageType.Simple);
             ATRh1NZDCHF = Indicators.AverageTrueRange(h1NZDCHF, 60, MovingAverageType.Simple);
             ATRh4NZDCHF = Indicators.AverageTrueRange(h4NZDCHF, 60, MovingAverageType.Simple);
-            ATRh12NZDCHF = Indicators.AverageTrueRange(h12NZDCHF, 60, MovingAverageType.Simple);    
+            ATRh12NZDCHF = Indicators.AverageTrueRange(h12NZDCHF, 60, MovingAverageType.Simple);
             ATRd1NZDCHF = Indicators.AverageTrueRange(d1NZDCHF, 30, MovingAverageType.Simple);
             ATRw1NZDCHF = Indicators.AverageTrueRange(w1NZDCHF, 12, MovingAverageType.Simple);
             ATRm1NZDCHF = Indicators.AverageTrueRange(m1NZDCHF, 3, MovingAverageType.Simple);
@@ -1479,11 +1481,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesNZDJPY = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesNZDJPY = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesNZDJPY = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15NZDJPY = Indicators.AverageTrueRange(m15NZDJPY, 60, MovingAverageType.Simple);
             ATRh1NZDJPY = Indicators.AverageTrueRange(h1NZDJPY, 60, MovingAverageType.Simple);
             ATRh4NZDJPY = Indicators.AverageTrueRange(h4NZDJPY, 60, MovingAverageType.Simple);
-            ATRh12NZDJPY = Indicators.AverageTrueRange(h12NZDJPY, 60, MovingAverageType.Simple);    
+            ATRh12NZDJPY = Indicators.AverageTrueRange(h12NZDJPY, 60, MovingAverageType.Simple);
             ATRd1NZDJPY = Indicators.AverageTrueRange(d1NZDJPY, 30, MovingAverageType.Simple);
             ATRw1NZDJPY = Indicators.AverageTrueRange(w1NZDJPY, 12, MovingAverageType.Simple);
             ATRm1NZDJPY = Indicators.AverageTrueRange(m1NZDJPY, 3, MovingAverageType.Simple);
@@ -1511,11 +1513,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesEURJPY = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesEURJPY = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesEURJPY = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15EURJPY = Indicators.AverageTrueRange(m15EURJPY, 60, MovingAverageType.Simple);
             ATRh1EURJPY = Indicators.AverageTrueRange(h1EURJPY, 60, MovingAverageType.Simple);
             ATRh4EURJPY = Indicators.AverageTrueRange(h4EURJPY, 60, MovingAverageType.Simple);
-            ATRh12EURJPY = Indicators.AverageTrueRange(h12EURJPY, 60, MovingAverageType.Simple);    
+            ATRh12EURJPY = Indicators.AverageTrueRange(h12EURJPY, 60, MovingAverageType.Simple);
             ATRd1EURJPY = Indicators.AverageTrueRange(d1EURJPY, 30, MovingAverageType.Simple);
             ATRw1EURJPY = Indicators.AverageTrueRange(w1EURJPY, 12, MovingAverageType.Simple);
             ATRm1EURJPY = Indicators.AverageTrueRange(m1EURJPY, 3, MovingAverageType.Simple);
@@ -1543,11 +1545,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesGBPJPY = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesGBPJPY = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesGBPJPY = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15GBPJPY = Indicators.AverageTrueRange(m15GBPJPY, 60, MovingAverageType.Simple);
             ATRh1GBPJPY = Indicators.AverageTrueRange(h1GBPJPY, 60, MovingAverageType.Simple);
             ATRh4GBPJPY = Indicators.AverageTrueRange(h4GBPJPY, 60, MovingAverageType.Simple);
-            ATRh12GBPJPY = Indicators.AverageTrueRange(h12GBPJPY, 60, MovingAverageType.Simple);    
+            ATRh12GBPJPY = Indicators.AverageTrueRange(h12GBPJPY, 60, MovingAverageType.Simple);
             ATRd1GBPJPY = Indicators.AverageTrueRange(d1GBPJPY, 30, MovingAverageType.Simple);
             ATRw1GBPJPY = Indicators.AverageTrueRange(w1GBPJPY, 12, MovingAverageType.Simple);
             ATRm1GBPJPY = Indicators.AverageTrueRange(m1GBPJPY, 3, MovingAverageType.Simple);
@@ -1575,11 +1577,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesCHFJPY = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesCHFJPY = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesCHFJPY = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15CHFJPY = Indicators.AverageTrueRange(m15CHFJPY, 60, MovingAverageType.Simple);
             ATRh1CHFJPY = Indicators.AverageTrueRange(h1CHFJPY, 60, MovingAverageType.Simple);
             ATRh4CHFJPY = Indicators.AverageTrueRange(h4CHFJPY, 60, MovingAverageType.Simple);
-            ATRh12CHFJPY = Indicators.AverageTrueRange(h12CHFJPY, 60, MovingAverageType.Simple);    
+            ATRh12CHFJPY = Indicators.AverageTrueRange(h12CHFJPY, 60, MovingAverageType.Simple);
             ATRd1CHFJPY = Indicators.AverageTrueRange(d1CHFJPY, 30, MovingAverageType.Simple);
             ATRw1CHFJPY = Indicators.AverageTrueRange(w1CHFJPY, 12, MovingAverageType.Simple);
             ATRm1CHFJPY = Indicators.AverageTrueRange(m1CHFJPY, 3, MovingAverageType.Simple);
@@ -1607,11 +1609,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesEURCHF = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesEURCHF = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesEURCHF = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15EURCHF = Indicators.AverageTrueRange(m15EURCHF, 60, MovingAverageType.Simple);
             ATRh1EURCHF = Indicators.AverageTrueRange(h1EURCHF, 60, MovingAverageType.Simple);
             ATRh4EURCHF = Indicators.AverageTrueRange(h4EURCHF, 60, MovingAverageType.Simple);
-            ATRh12EURCHF = Indicators.AverageTrueRange(h12EURCHF, 60, MovingAverageType.Simple);    
+            ATRh12EURCHF = Indicators.AverageTrueRange(h12EURCHF, 60, MovingAverageType.Simple);
             ATRd1EURCHF = Indicators.AverageTrueRange(d1EURCHF, 30, MovingAverageType.Simple);
             ATRw1EURCHF = Indicators.AverageTrueRange(w1EURCHF, 12, MovingAverageType.Simple);
             ATRm1EURCHF = Indicators.AverageTrueRange(m1EURCHF, 3, MovingAverageType.Simple);
@@ -1639,11 +1641,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesGBPCHF = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesGBPCHF = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesGBPCHF = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15GBPCHF = Indicators.AverageTrueRange(m15GBPCHF, 60, MovingAverageType.Simple);
             ATRh1GBPCHF = Indicators.AverageTrueRange(h1GBPCHF, 60, MovingAverageType.Simple);
             ATRh4GBPCHF = Indicators.AverageTrueRange(h4GBPCHF, 60, MovingAverageType.Simple);
-            ATRh12GBPCHF = Indicators.AverageTrueRange(h12GBPCHF, 60, MovingAverageType.Simple);    
+            ATRh12GBPCHF = Indicators.AverageTrueRange(h12GBPCHF, 60, MovingAverageType.Simple);
             ATRd1GBPCHF = Indicators.AverageTrueRange(d1GBPCHF, 30, MovingAverageType.Simple);
             ATRw1GBPCHF = Indicators.AverageTrueRange(w1GBPCHF, 12, MovingAverageType.Simple);
             ATRm1GBPCHF = Indicators.AverageTrueRange(m1GBPCHF, 3, MovingAverageType.Simple);
@@ -1671,11 +1673,11 @@ namespace cAlgo.Robots
             var atroriginaltpseriesEURGBP = MarketData.GetBars(TimeFrame.Hour);
             var atrnukedistanceseriesEURGBP = MarketData.GetBars(NukeDistanceATRTF);
             var atrnuketpseriesEURGBP = MarketData.GetBars(NukePositionATRTF);
-            
+
             ATRm15EURGBP = Indicators.AverageTrueRange(m15EURGBP, 60, MovingAverageType.Simple);
             ATRh1EURGBP = Indicators.AverageTrueRange(h1EURGBP, 60, MovingAverageType.Simple);
             ATRh4EURGBP = Indicators.AverageTrueRange(h4EURGBP, 60, MovingAverageType.Simple);
-            ATRh12EURGBP = Indicators.AverageTrueRange(h12EURGBP, 60, MovingAverageType.Simple);    
+            ATRh12EURGBP = Indicators.AverageTrueRange(h12EURGBP, 60, MovingAverageType.Simple);
             ATRd1EURGBP = Indicators.AverageTrueRange(d1EURGBP, 30, MovingAverageType.Simple);
             ATRw1EURGBP = Indicators.AverageTrueRange(w1EURGBP, 12, MovingAverageType.Simple);
             ATRm1EURGBP = Indicators.AverageTrueRange(m1EURGBP, 3, MovingAverageType.Simple);
@@ -1701,7 +1703,7 @@ namespace cAlgo.Robots
                 Stop();
             }
             //end of expiration code   
-            
+
             //informational            
             if (Account.IsLive)
             {
@@ -1730,7 +1732,7 @@ namespace cAlgo.Robots
             {
                 Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
                 foreach (var position in Positions)
-                {ˀ
+                {
                     if (position.SymbolName == Symbol.Name)
                     {
                         ClosePositionAsync(position);
@@ -1740,100 +1742,158 @@ namespace cAlgo.Robots
             }
             //end of Risk Management
         }
-       private void Symbol_Tick(SymbolTickEventArgs obj)
-       {
-           foreach (var symbol in MySymbols)
-           {
-               switch (symbol.Name)
-               {
+        private void Symbol_Tick(SymbolTickEventArgs obj)
+        {
+            foreach (var symbol in MySymbols)
+            {
+                switch (symbol.Name)
+                {
                     case "EURUSD":
-                        SymbolTrade(symbol, dmstrendEURUSD, dmsrangeEURUSD, dmsnukelimiterEURUSD, rsispikeEURUSD, stochasticsEURUSD, ATRoriginaltpEURUSD, ATRnukedistanceEURUSD, ATRnuketpEURUSD, ATRm1EURUSD, ATRw1EURUSD, ATRd1EURUSD, ATRh12EURUSD, ATRh4EURUSD, ATRh1EURUSD, ATRm15EURUSD, m15EURUSD, h1EURUSD, h4EURUSD, h12EURUSD, d1EURUSD, w1EURUSD, m1EURUSD);
+                        SymbolTrade(symbol, dmstrendEURUSD, dmsrangeEURUSD, dmsnukelimiterEURUSD, rsispikeEURUSD, stochasticsEURUSD, ATRoriginaltpEURUSD, ATRnukedistanceEURUSD, ATRnuketpEURUSD, ATRm1EURUSD,
+                        ATRw1EURUSD, ATRd1EURUSD, ATRh12EURUSD, ATRh4EURUSD, ATRh1EURUSD, ATRm15EURUSD, m15EURUSD, h1EURUSD, h4EURUSD, h12EURUSD,
+                        d1EURUSD, w1EURUSD, m1EURUSD);
                         break;
                     case "USDJPY":
-                        SymbolTrade(symbol, dmstrendUSDJPY, dmsrangeUSDJPY, dmsnukelimiterUSDJPY, rsispikeUSDJPY, stochasticsUSDJPY, ATRoriginaltpUSDJPY, ATRnukedistanceUSDJPY, ATRnuketpUSDJPY, ATRm1USDJPY, ATRw1USDJPY, ATRd1USDJPY, ATRh12USDJPY, ATRh4USDJPY, ATRh1USDJPY, ATRm15USDJPY, m15USDJPY, h1USDJPY, h4USDJPY, h12USDJPY, d1USDJPY, w1USDJPY, m1USDJPY);
+                        SymbolTrade(symbol, dmstrendUSDJPY, dmsrangeUSDJPY, dmsnukelimiterUSDJPY, rsispikeUSDJPY, stochasticsUSDJPY, ATRoriginaltpUSDJPY, ATRnukedistanceUSDJPY, ATRnuketpUSDJPY, ATRm1USDJPY,
+                        ATRw1USDJPY, ATRd1USDJPY, ATRh12USDJPY, ATRh4USDJPY, ATRh1USDJPY, ATRm15USDJPY, m15USDJPY, h1USDJPY, h4USDJPY, h12USDJPY,
+                        d1USDJPY, w1USDJPY, m1USDJPY);
                         break;
                     case "GBPUSD":
-                        SymbolTrade(symbol, dmstrendGBPUSD, dmsrangeGBPUSD, dmsnukelimiterGBPUSD, rsispikeGBPUSD, stochasticsGBPUSD, ATRoriginaltpGBPUSD, ATRnukedistanceGBPUSD, ATRnuketpGBPUSD, ATRm1GBPUSD, ATRw1GBPUSD, ATRd1GBPUSD, ATRh12GBPUSD, ATRh4GBPUSD, ATRh1GBPUSD, ATRm15GBPUSD, m15GBPUSD, h1GBPUSD, h4GBPUSD, h12GBPUSD, d1GBPUSD, w1GBPUSD, m1GBPUSD);
+                        SymbolTrade(symbol, dmstrendGBPUSD, dmsrangeGBPUSD, dmsnukelimiterGBPUSD, rsispikeGBPUSD, stochasticsGBPUSD, ATRoriginaltpGBPUSD, ATRnukedistanceGBPUSD, ATRnuketpGBPUSD, ATRm1GBPUSD,
+                        ATRw1GBPUSD, ATRd1GBPUSD, ATRh12GBPUSD, ATRh4GBPUSD, ATRh1GBPUSD, ATRm15GBPUSD, m15GBPUSD, h1GBPUSD, h4GBPUSD, h12GBPUSD,
+                        d1GBPUSD, w1GBPUSD, m1GBPUSD);
                         break;
                     case "USDCHF":
-                        SymbolTrade(symbol, dmstrendUSDCHF, dmsrangeUSDCHF, dmsnukelimiterUSDCHF, rsispikeUSDCHF, stochasticsUSDCHF, ATRoriginaltpUSDCHF, ATRnukedistanceUSDCHF, ATRnuketpUSDCHF, ATRm1USDCHF, ATRw1USDCHF, ATRd1USDCHF, ATRh12USDCHF, ATRh4USDCHF, ATRh1USDCHF, ATRm15USDCHF, m15USDCHF, h1USDCHF, h4USDCHF, h12USDCHF, d1USDCHF, w1USDCHF, m1USDCHF);
+                        SymbolTrade(symbol, dmstrendUSDCHF, dmsrangeUSDCHF, dmsnukelimiterUSDCHF, rsispikeUSDCHF, stochasticsUSDCHF, ATRoriginaltpUSDCHF, ATRnukedistanceUSDCHF, ATRnuketpUSDCHF, ATRm1USDCHF,
+                        ATRw1USDCHF, ATRd1USDCHF, ATRh12USDCHF, ATRh4USDCHF, ATRh1USDCHF, ATRm15USDCHF, m15USDCHF, h1USDCHF, h4USDCHF, h12USDCHF,
+                        d1USDCHF, w1USDCHF, m1USDCHF);
                         break;
                     case "AUDUSD":
-                        SymbolTrade(symbol, dmstrendAUDUSD, dmsrangeAUDUSD, dmsnukelimiterAUDUSD, rsispikeAUDUSD, stochasticsAUDUSD, ATRoriginaltpAUDUSD, ATRnukedistanceAUDUSD, ATRnuketpAUDUSD, ATRm1AUDUSD, ATRw1AUDUSD, ATRd1AUDUSD, ATRh12AUDUSD, ATRh4AUDUSD, ATRh1AUDUSD, ATRm15AUDUSD, m15AUDUSD, h1AUDUSD, h4AUDUSD, h12AUDUSD, d1AUDUSD, w1AUDUSD, m1AUDUSD);
+                        SymbolTrade(symbol, dmstrendAUDUSD, dmsrangeAUDUSD, dmsnukelimiterAUDUSD, rsispikeAUDUSD, stochasticsAUDUSD, ATRoriginaltpAUDUSD, ATRnukedistanceAUDUSD, ATRnuketpAUDUSD, ATRm1AUDUSD,
+                        ATRw1AUDUSD, ATRd1AUDUSD, ATRh12AUDUSD, ATRh4AUDUSD, ATRh1AUDUSD, ATRm15AUDUSD, m15AUDUSD, h1AUDUSD, h4AUDUSD, h12AUDUSD,
+                        d1AUDUSD, w1AUDUSD, m1AUDUSD);
                         break;
                     case "NZDUSD":
-                        SymbolTrade(symbol, dmstrendNZDUSD, dmsrangeNZDUSD, dmsnukelimiterNZDUSD, rsispikeNZDUSD, stochasticsNZDUSD, ATRoriginaltpNZDUSD, ATRnukedistanceNZDUSD, ATRnuketpNZDUSD, ATRm1NZDUSD, ATRw1NZDUSD, ATRd1NZDUSD, ATRh12NZDUSD, ATRh4NZDUSD, ATRh1NZDUSD, ATRm15NZDUSD, m15NZDUSD, h1NZDUSD, h4NZDUSD, h12NZDUSD, d1NZDUSD, w1NZDUSD, m1NZDUSD);
+                        SymbolTrade(symbol, dmstrendNZDUSD, dmsrangeNZDUSD, dmsnukelimiterNZDUSD, rsispikeNZDUSD, stochasticsNZDUSD, ATRoriginaltpNZDUSD, ATRnukedistanceNZDUSD, ATRnuketpNZDUSD, ATRm1NZDUSD,
+                        ATRw1NZDUSD, ATRd1NZDUSD, ATRh12NZDUSD, ATRh4NZDUSD, ATRh1NZDUSD, ATRm15NZDUSD, m15NZDUSD, h1NZDUSD, h4NZDUSD, h12NZDUSD,
+                        d1NZDUSD, w1NZDUSD, m1NZDUSD);
                         break;
                     case "USDCAD":
-                        SymbolTrade(symbol, dmstrendUSDCAD, dmsrangeUSDCAD, dmsnukelimiterUSDCAD, rsispikeUSDCAD, stochasticsUSDCAD, ATRoriginaltpUSDCAD, ATRnukedistanceUSDCAD, ATRnuketpUSDCAD, ATRm1USDCAD, ATRw1USDCAD, ATRd1USDCAD, ATRh12USDCAD, ATRh4USDCAD, ATRh1USDCAD, ATRm15USDCAD, m15USDCAD, h1USDCAD, h4USDCAD, h12USDCAD, d1USDCAD, w1USDCAD, m1USDCAD);
+                        SymbolTrade(symbol, dmstrendUSDCAD, dmsrangeUSDCAD, dmsnukelimiterUSDCAD, rsispikeUSDCAD, stochasticsUSDCAD, ATRoriginaltpUSDCAD, ATRnukedistanceUSDCAD, ATRnuketpUSDCAD, ATRm1USDCAD,
+                        ATRw1USDCAD, ATRd1USDCAD, ATRh12USDCAD, ATRh4USDCAD, ATRh1USDCAD, ATRm15USDCAD, m15USDCAD, h1USDCAD, h4USDCAD, h12USDCAD,
+                        d1USDCAD, w1USDCAD, m1USDCAD);
                         break;
                     case "EURCAD":
-                        SymbolTrade(symbol, dmstrendEURCAD, dmsrangeEURCAD, dmsnukelimiterEURCAD, rsispikeEURCAD, stochasticsEURCAD, ATRoriginaltpEURCAD, ATRnukedistanceEURCAD, ATRnuketpEURCAD, ATRm1EURCAD, ATRw1EURCAD, ATRd1EURCAD, ATRh12EURCAD, ATRh4EURCAD, ATRh1EURCAD, ATRm15EURCAD, m15EURCAD, h1EURCAD, h4EURCAD, h12EURCAD, d1EURCAD, w1EURCAD, m1EURCAD);
+                        SymbolTrade(symbol, dmstrendEURCAD, dmsrangeEURCAD, dmsnukelimiterEURCAD, rsispikeEURCAD, stochasticsEURCAD, ATRoriginaltpEURCAD, ATRnukedistanceEURCAD, ATRnuketpEURCAD, ATRm1EURCAD,
+                        ATRw1EURCAD, ATRd1EURCAD, ATRh12EURCAD, ATRh4EURCAD, ATRh1EURCAD, ATRm15EURCAD, m15EURCAD, h1EURCAD, h4EURCAD, h12EURCAD,
+                        d1EURCAD, w1EURCAD, m1EURCAD);
                         break;
                     case "GBPCAD":
-                        SymbolTrade(symbol, dmstrendGBPCAD, dmsrangeGBPCAD, dmsnukelimiterGBPCAD, rsispikeGBPCAD, stochasticsGBPCAD, ATRoriginaltpGBPCAD, ATRnukedistanceGBPCAD, ATRnuketpGBPCAD, ATRm1GBPCAD, ATRw1GBPCAD, ATRd1GBPCAD, ATRh12GBPCAD, ATRh4GBPCAD, ATRh1GBPCAD, ATRm15GBPCAD, m15GBPCAD, h1GBPCAD, h4GBPCAD, h12GBPCAD, d1GBPCAD, w1GBPCAD, m1GBPCAD);
+                        SymbolTrade(symbol, dmstrendGBPCAD, dmsrangeGBPCAD, dmsnukelimiterGBPCAD, rsispikeGBPCAD, stochasticsGBPCAD, ATRoriginaltpGBPCAD, ATRnukedistanceGBPCAD, ATRnuketpGBPCAD, ATRm1GBPCAD,
+                        ATRw1GBPCAD, ATRd1GBPCAD, ATRh12GBPCAD, ATRh4GBPCAD, ATRh1GBPCAD, ATRm15GBPCAD, m15GBPCAD, h1GBPCAD, h4GBPCAD, h12GBPCAD,
+                        d1GBPCAD, w1GBPCAD, m1GBPCAD);
                         break;
                     case "CADJPY":
-                        SymbolTrade(symbol, dmstrendCADJPY, dmsrangeCADJPY, dmsnukelimiterCADJPY, rsispikeCADJPY, stochasticsCADJPY, ATRoriginaltpCADJPY, ATRnukedistanceCADJPY, ATRnuketpCADJPY, ATRm1CADJPY, ATRw1CADJPY, ATRd1CADJPY, ATRh12CADJPY, ATRh4CADJPY, ATRh1CADJPY, ATRm15CADJPY, m15CADJPY, h1CADJPY, h4CADJPY, h12CADJPY, d1CADJPY, w1CADJPY, m1CADJPY);
+                        SymbolTrade(symbol, dmstrendCADJPY, dmsrangeCADJPY, dmsnukelimiterCADJPY, rsispikeCADJPY, stochasticsCADJPY, ATRoriginaltpCADJPY, ATRnukedistanceCADJPY, ATRnuketpCADJPY, ATRm1CADJPY,
+                        ATRw1CADJPY, ATRd1CADJPY, ATRh12CADJPY, ATRh4CADJPY, ATRh1CADJPY, ATRm15CADJPY, m15CADJPY, h1CADJPY, h4CADJPY, h12CADJPY,
+                        d1CADJPY, w1CADJPY, m1CADJPY);
                         break;
                     case "CADCHF":
-                        SymbolTrade(symbol, dmstrendCADCHF, dmsrangeCADCHF, dmsnukelimiterCADCHF, rsispikeCADCHF, stochasticsCADCHF, ATRoriginaltpCADCHF, ATRnukedistanceCADCHF, ATRnuketpCADCHF, ATRm1CADCHF, ATRw1CADCHF, ATRd1CADCHF, ATRh12CADCHF, ATRh4CADCHF, ATRh1CADCHF, ATRm15CADCHF, m15CADCHF, h1CADCHF, h4CADCHF, h12CADCHF, d1CADCHF, w1CADCHF, m1CADCHF);
+                        SymbolTrade(symbol, dmstrendCADCHF, dmsrangeCADCHF, dmsnukelimiterCADCHF, rsispikeCADCHF, stochasticsCADCHF, ATRoriginaltpCADCHF, ATRnukedistanceCADCHF, ATRnuketpCADCHF, ATRm1CADCHF,
+                        ATRw1CADCHF, ATRd1CADCHF, ATRh12CADCHF, ATRh4CADCHF, ATRh1CADCHF, ATRm15CADCHF, m15CADCHF, h1CADCHF, h4CADCHF, h12CADCHF,
+                        d1CADCHF, w1CADCHF, m1CADCHF);
                         break;
                     case "AUDCAD":
-                        SymbolTrade(symbol, dmstrendAUDCAD, dmsrangeAUDCAD, dmsnukelimiterAUDCAD, rsispikeAUDCAD, stochasticsAUDCAD, ATRoriginaltpAUDCAD, ATRnukedistanceAUDCAD, ATRnuketpAUDCAD, ATRm1AUDCAD, ATRw1AUDCAD, ATRd1AUDCAD, ATRh12AUDCAD, ATRh4AUDCAD, ATRh1AUDCAD, ATRm15AUDCAD, m15AUDCAD, h1AUDCAD, h4AUDCAD, h12AUDCAD, d1AUDCAD, w1AUDCAD, m1AUDCAD);
+                        SymbolTrade(symbol, dmstrendAUDCAD, dmsrangeAUDCAD, dmsnukelimiterAUDCAD, rsispikeAUDCAD, stochasticsAUDCAD, ATRoriginaltpAUDCAD, ATRnukedistanceAUDCAD, ATRnuketpAUDCAD, ATRm1AUDCAD,
+                        ATRw1AUDCAD, ATRd1AUDCAD, ATRh12AUDCAD, ATRh4AUDCAD, ATRh1AUDCAD, ATRm15AUDCAD, m15AUDCAD, h1AUDCAD, h4AUDCAD, h12AUDCAD,
+                        d1AUDCAD, w1AUDCAD, m1AUDCAD);
                         break;
                     case "NZDCAD":
-                        SymbolTrade(symbol, dmstrendNZDCAD, dmsrangeNZDCAD, dmsnukelimiterNZDCAD, rsispikeNZDCAD, stochasticsNZDCAD, ATRoriginaltpNZDCAD, ATRnukedistanceNZDCAD, ATRnuketpNZDCAD, ATRm1NZDCAD, ATRw1NZDCAD, ATRd1NZDCAD, ATRh12NZDCAD, ATRh4NZDCAD, ATRh1NZDCAD, ATRm15NZDCAD, m15NZDCAD, h1NZDCAD, h4NZDCAD, h12NZDCAD, d1NZDCAD, w1NZDCAD, m1NZDCAD);
+                        SymbolTrade(symbol, dmstrendNZDCAD, dmsrangeNZDCAD, dmsnukelimiterNZDCAD, rsispikeNZDCAD, stochasticsNZDCAD, ATRoriginaltpNZDCAD, ATRnukedistanceNZDCAD, ATRnuketpNZDCAD, ATRm1NZDCAD,
+                        ATRw1NZDCAD, ATRd1NZDCAD, ATRh12NZDCAD, ATRh4NZDCAD, ATRh1NZDCAD, ATRm15NZDCAD, m15NZDCAD, h1NZDCAD, h4NZDCAD, h12NZDCAD,
+                        d1NZDCAD, w1NZDCAD, m1NZDCAD);
                         break;
                     case "EURAUD":
-                        SymbolTrade(symbol, dmstrendEURAUD, dmsrangeEURAUD, dmsnukelimiterEURAUD, rsispikeEURAUD, stochasticsEURAUD, ATRoriginaltpEURAUD, ATRnukedistanceEURAUD, ATRnuketpEURAUD, ATRm1EURAUD, ATRw1EURAUD, ATRd1EURAUD, ATRh12EURAUD, ATRh4EURAUD, ATRh1EURAUD, ATRm15EURAUD, m15EURAUD, h1EURAUD, h4EURAUD, h12EURAUD, d1EURAUD, w1EURAUD, m1EURAUD);
+                        SymbolTrade(symbol, dmstrendEURAUD, dmsrangeEURAUD, dmsnukelimiterEURAUD, rsispikeEURAUD, stochasticsEURAUD, ATRoriginaltpEURAUD, ATRnukedistanceEURAUD, ATRnuketpEURAUD, ATRm1EURAUD,
+                        ATRw1EURAUD, ATRd1EURAUD, ATRh12EURAUD, ATRh4EURAUD, ATRh1EURAUD, ATRm15EURAUD, m15EURAUD, h1EURAUD, h4EURAUD, h12EURAUD,
+                        d1EURAUD, w1EURAUD, m1EURAUD);
                         break;
                     case "GBPAUD":
-                        SymbolTrade(symbol, dmstrendGBPAUD, dmsrangeGBPAUD, dmsnukelimiterGBPAUD, rsispikeGBPAUD, stochasticsGBPAUD, ATRoriginaltpGBPAUD, ATRnukedistanceGBPAUD, ATRnuketpGBPAUD, ATRm1GBPAUD, ATRw1GBPAUD, ATRd1GBPAUD, ATRh12GBPAUD, ATRh4GBPAUD, ATRh1GBPAUD, ATRm15GBPAUD, m15GBPAUD, h1GBPAUD, h4GBPAUD, h12GBPAUD, d1GBPAUD, w1GBPAUD, m1GBPAUD);
+                        SymbolTrade(symbol, dmstrendGBPAUD, dmsrangeGBPAUD, dmsnukelimiterGBPAUD, rsispikeGBPAUD, stochasticsGBPAUD, ATRoriginaltpGBPAUD, ATRnukedistanceGBPAUD, ATRnuketpGBPAUD, ATRm1GBPAUD,
+                        ATRw1GBPAUD, ATRd1GBPAUD, ATRh12GBPAUD, ATRh4GBPAUD, ATRh1GBPAUD, ATRm15GBPAUD, m15GBPAUD, h1GBPAUD, h4GBPAUD, h12GBPAUD,
+                        d1GBPAUD, w1GBPAUD, m1GBPAUD);
                         break;
                     case "AUDJPY":
-                        SymbolTrade(symbol, dmstrendAUDJPY, dmsrangeAUDJPY, dmsnukelimiterAUDJPY, rsispikeAUDJPY, stochasticsAUDJPY, ATRoriginaltpAUDJPY, ATRnukedistanceAUDJPY, ATRnuketpAUDJPY, ATRm1AUDJPY, ATRw1AUDJPY, ATRd1AUDJPY, ATRh12AUDJPY, ATRh4AUDJPY, ATRh1AUDJPY, ATRm15AUDJPY, m15AUDJPY, h1AUDJPY, h4AUDJPY, h12AUDJPY, d1AUDJPY, w1AUDJPY, m1AUDJPY);
+                        SymbolTrade(symbol, dmstrendAUDJPY, dmsrangeAUDJPY, dmsnukelimiterAUDJPY, rsispikeAUDJPY, stochasticsAUDJPY, ATRoriginaltpAUDJPY, ATRnukedistanceAUDJPY, ATRnuketpAUDJPY, ATRm1AUDJPY,
+                        ATRw1AUDJPY, ATRd1AUDJPY, ATRh12AUDJPY, ATRh4AUDJPY, ATRh1AUDJPY, ATRm15AUDJPY, m15AUDJPY, h1AUDJPY, h4AUDJPY, h12AUDJPY,
+                        d1AUDJPY, w1AUDJPY, m1AUDJPY);
                         break;
                     case "AUDCHF":
-                        SymbolTrade(symbol, dmstrendAUDCHF, dmsrangeAUDCHF, dmsnukelimiterAUDCHF, rsispikeAUDCHF, stochasticsAUDCHF, ATRoriginaltpAUDCHF, ATRnukedistanceAUDCHF, ATRnuketpAUDCHF, ATRm1AUDCHF, ATRw1AUDCHF, ATRd1AUDCHF, ATRh12AUDCHF, ATRh4AUDCHF, ATRh1AUDCHF, ATRm15AUDCHF, m15AUDCHF, h1AUDCHF, h4AUDCHF, h12AUDCHF, d1AUDCHF, w1AUDCHF, m1AUDCHF);
+                        SymbolTrade(symbol, dmstrendAUDCHF, dmsrangeAUDCHF, dmsnukelimiterAUDCHF, rsispikeAUDCHF, stochasticsAUDCHF, ATRoriginaltpAUDCHF, ATRnukedistanceAUDCHF, ATRnuketpAUDCHF, ATRm1AUDCHF,
+                        ATRw1AUDCHF, ATRd1AUDCHF, ATRh12AUDCHF, ATRh4AUDCHF, ATRh1AUDCHF, ATRm15AUDCHF, m15AUDCHF, h1AUDCHF, h4AUDCHF, h12AUDCHF,
+                        d1AUDCHF, w1AUDCHF, m1AUDCHF);
                         break;
                     case "AUDNZD":
-                        SymbolTrade(symbol, dmstrendAUDNZD, dmsrangeAUDNZD, dmsnukelimiterAUDNZD, rsispikeAUDNZD, stochasticsAUDNZD, ATRoriginaltpAUDNZD, ATRnukedistanceAUDNZD, ATRnuketpAUDNZD, ATRm1AUDNZD, ATRw1AUDNZD, ATRd1AUDNZD, ATRh12AUDNZD, ATRh4AUDNZD, ATRh1AUDNZD, ATRm15AUDNZD, m15AUDNZD, h1AUDNZD, h4AUDNZD, h12AUDNZD, d1AUDNZD, w1AUDNZD, m1AUDNZD);
+                        SymbolTrade(symbol, dmstrendAUDNZD, dmsrangeAUDNZD, dmsnukelimiterAUDNZD, rsispikeAUDNZD, stochasticsAUDNZD, ATRoriginaltpAUDNZD, ATRnukedistanceAUDNZD, ATRnuketpAUDNZD, ATRm1AUDNZD,
+                        ATRw1AUDNZD, ATRd1AUDNZD, ATRh12AUDNZD, ATRh4AUDNZD, ATRh1AUDNZD, ATRm15AUDNZD, m15AUDNZD, h1AUDNZD, h4AUDNZD, h12AUDNZD,
+                        d1AUDNZD, w1AUDNZD, m1AUDNZD);
                         break;
                     case "EURNZD":
-                        SymbolTrade(symbol, dmstrendEURNZD, dmsrangeEURNZD, dmsnukelimiterEURNZD, rsispikeEURNZD, stochasticsEURNZD, ATRoriginaltpEURNZD, ATRnukedistanceEURNZD, ATRnuketpEURNZD, ATRm1EURNZD, ATRw1EURNZD, ATRd1EURNZD, ATRh12EURNZD, ATRh4EURNZD, ATRh1EURNZD, ATRm15EURNZD, m15EURNZD, h1EURNZD, h4EURNZD, h12EURNZD, d1EURNZD, w1EURNZD, m1EURNZD);
+                        SymbolTrade(symbol, dmstrendEURNZD, dmsrangeEURNZD, dmsnukelimiterEURNZD, rsispikeEURNZD, stochasticsEURNZD, ATRoriginaltpEURNZD, ATRnukedistanceEURNZD, ATRnuketpEURNZD, ATRm1EURNZD,
+                        ATRw1EURNZD, ATRd1EURNZD, ATRh12EURNZD, ATRh4EURNZD, ATRh1EURNZD, ATRm15EURNZD, m15EURNZD, h1EURNZD, h4EURNZD, h12EURNZD,
+                        d1EURNZD, w1EURNZD, m1EURNZD);
                         break;
                     case "GBPNZD":
-                        SymbolTrade(symbol, dmstrendGBPNZD, dmsrangeGBPNZD, dmsnukelimiterGBPNZD, rsispikeGBPNZD, stochasticsGBPNZD, ATRoriginaltpGBPNZD, ATRnukedistanceGBPNZD, ATRnuketpGBPNZD, ATRm1GBPNZD, ATRw1GBPNZD, ATRd1GBPNZD, ATRh12GBPNZD, ATRh4GBPNZD, ATRh1GBPNZD, ATRm15GBPNZD, m15GBPNZD, h1GBPNZD, h4GBPNZD, h12GBPNZD, d1GBPNZD, w1GBPNZD, m1GBPNZD);
+                        SymbolTrade(symbol, dmstrendGBPNZD, dmsrangeGBPNZD, dmsnukelimiterGBPNZD, rsispikeGBPNZD, stochasticsGBPNZD, ATRoriginaltpGBPNZD, ATRnukedistanceGBPNZD, ATRnuketpGBPNZD, ATRm1GBPNZD,
+                        ATRw1GBPNZD, ATRd1GBPNZD, ATRh12GBPNZD, ATRh4GBPNZD, ATRh1GBPNZD, ATRm15GBPNZD, m15GBPNZD, h1GBPNZD, h4GBPNZD, h12GBPNZD,
+                        d1GBPNZD, w1GBPNZD, m1GBPNZD);
                         break;
                     case "NZDCHF":
-                        SymbolTrade(symbol, dmstrendNZDCHF, dmsrangeNZDCHF, dmsnukelimiterNZDCHF, rsispikeNZDCHF, stochasticsNZDCHF, ATRoriginaltpNZDCHF, ATRnukedistanceNZDCHF, ATRnuketpNZDCHF, ATRm1NZDCHF, ATRw1NZDCHF, ATRd1NZDCHF, ATRh12NZDCHF, ATRh4NZDCHF, ATRh1NZDCHF, ATRm15NZDCHF, m15NZDCHF, h1NZDCHF, h4NZDCHF, h12NZDCHF, d1NZDCHF, w1NZDCHF, m1NZDCHF);
+                        SymbolTrade(symbol, dmstrendNZDCHF, dmsrangeNZDCHF, dmsnukelimiterNZDCHF, rsispikeNZDCHF, stochasticsNZDCHF, ATRoriginaltpNZDCHF, ATRnukedistanceNZDCHF, ATRnuketpNZDCHF, ATRm1NZDCHF,
+                        ATRw1NZDCHF, ATRd1NZDCHF, ATRh12NZDCHF, ATRh4NZDCHF, ATRh1NZDCHF, ATRm15NZDCHF, m15NZDCHF, h1NZDCHF, h4NZDCHF, h12NZDCHF,
+                        d1NZDCHF, w1NZDCHF, m1NZDCHF);
                         break;
                     case "NZDJPY":
-                        SymbolTrade(symbol, dmstrendNZDJPY, dmsrangeNZDJPY, dmsnukelimiterNZDJPY, rsispikeNZDJPY, stochasticsNZDJPY, ATRoriginaltpNZDJPY, ATRnukedistanceNZDJPY, ATRnuketpNZDJPY, ATRm1NZDJPY, ATRw1NZDJPY, ATRd1NZDJPY, ATRh12NZDJPY, ATRh4NZDJPY, ATRh1NZDJPY, ATRm15NZDJPY, m15NZDJPY, h1NZDJPY, h4NZDJPY, h12NZDJPY, d1NZDJPY, w1NZDJPY, m1NZDJPY);
+                        SymbolTrade(symbol, dmstrendNZDJPY, dmsrangeNZDJPY, dmsnukelimiterNZDJPY, rsispikeNZDJPY, stochasticsNZDJPY, ATRoriginaltpNZDJPY, ATRnukedistanceNZDJPY, ATRnuketpNZDJPY, ATRm1NZDJPY,
+                        ATRw1NZDJPY, ATRd1NZDJPY, ATRh12NZDJPY, ATRh4NZDJPY, ATRh1NZDJPY, ATRm15NZDJPY, m15NZDJPY, h1NZDJPY, h4NZDJPY, h12NZDJPY,
+                        d1NZDJPY, w1NZDJPY, m1NZDJPY);
                         break;
                     case "EURJPY":
-                        SymbolTrade(symbol, dmstrendEURJPY, dmsrangeEURJPY, dmsnukelimiterEURJPY, rsispikeEURJPY, stochasticsEURJPY, ATRoriginaltpEURJPY, ATRnukedistanceEURJPY, ATRnuketpEURJPY, ATRm1EURJPY, ATRw1EURJPY, ATRd1EURJPY, ATRh12EURJPY, ATRh4EURJPY, ATRh1EURJPY, ATRm15EURJPY, m15EURJPY, h1EURJPY, h4EURJPY, h12EURJPY, d1EURJPY, w1EURJPY, m1EURJPY);
+                        SymbolTrade(symbol, dmstrendEURJPY, dmsrangeEURJPY, dmsnukelimiterEURJPY, rsispikeEURJPY, stochasticsEURJPY, ATRoriginaltpEURJPY, ATRnukedistanceEURJPY, ATRnuketpEURJPY, ATRm1EURJPY,
+                        ATRw1EURJPY, ATRd1EURJPY, ATRh12EURJPY, ATRh4EURJPY, ATRh1EURJPY, ATRm15EURJPY, m15EURJPY, h1EURJPY, h4EURJPY, h12EURJPY,
+                        d1EURJPY, w1EURJPY, m1EURJPY);
                         break;
                     case "GBPJPY":
-                        SymbolTrade(symbol, dmstrendGBPJPY, dmsrangeGBPJPY, dmsnukelimiterGBPJPY, rsispikeGBPJPY, stochasticsGBPJPY, ATRoriginaltpGBPJPY, ATRnukedistanceGBPJPY, ATRnuketpGBPJPY, ATRm1GBPJPY, ATRw1GBPJPY, ATRd1GBPJPY, ATRh12GBPJPY, ATRh4GBPJPY, ATRh1GBPJPY, ATRm15GBPJPY, m15GBPJPY, h1GBPJPY, h4GBPJPY, h12GBPJPY, d1GBPJPY, w1GBPJPY, m1GBPJPY);
+                        SymbolTrade(symbol, dmstrendGBPJPY, dmsrangeGBPJPY, dmsnukelimiterGBPJPY, rsispikeGBPJPY, stochasticsGBPJPY, ATRoriginaltpGBPJPY, ATRnukedistanceGBPJPY, ATRnuketpGBPJPY, ATRm1GBPJPY,
+                        ATRw1GBPJPY, ATRd1GBPJPY, ATRh12GBPJPY, ATRh4GBPJPY, ATRh1GBPJPY, ATRm15GBPJPY, m15GBPJPY, h1GBPJPY, h4GBPJPY, h12GBPJPY,
+                        d1GBPJPY, w1GBPJPY, m1GBPJPY);
                         break;
                     case "CHFJPY":
-                        SymbolTrade(symbol, dmstrendCHFJPY, dmsrangeCHFJPY, dmsnukelimiterCHFJPY, rsispikeCHFJPY, stochasticsCHFJPY, ATRoriginaltpCHFJPY, ATRnukedistanceCHFJPY, ATRnuketpCHFJPY, ATRm1CHFJPY, ATRw1CHFJPY, ATRd1CHFJPY, ATRh12CHFJPY, ATRh4CHFJPY, ATRh1CHFJPY, ATRm15CHFJPY, m15CHFJPY, h1CHFJPY, h4CHFJPY, h12CHFJPY, d1CHFJPY, w1CHFJPY, m1CHFJPY);
+                        SymbolTrade(symbol, dmstrendCHFJPY, dmsrangeCHFJPY, dmsnukelimiterCHFJPY, rsispikeCHFJPY, stochasticsCHFJPY, ATRoriginaltpCHFJPY, ATRnukedistanceCHFJPY, ATRnuketpCHFJPY, ATRm1CHFJPY,
+                        ATRw1CHFJPY, ATRd1CHFJPY, ATRh12CHFJPY, ATRh4CHFJPY, ATRh1CHFJPY, ATRm15CHFJPY, m15CHFJPY, h1CHFJPY, h4CHFJPY, h12CHFJPY,
+                        d1CHFJPY, w1CHFJPY, m1CHFJPY);
                         break;
                     case "EURCHF":
-                        SymbolTrade(symbol, dmstrendEURCHF, dmsrangeEURCHF, dmsnukelimiterEURCHF, rsispikeEURCHF, stochasticsEURCHF, ATRoriginaltpEURCHF, ATRnukedistanceEURCHF, ATRnuketpEURCHF, ATRm1EURCHF, ATRw1EURCHF, ATRd1EURCHF, ATRh12EURCHF, ATRh4EURCHF, ATRh1EURCHF, ATRm15EURCHF, m15EURCHF, h1EURCHF, h4EURCHF, h12EURCHF, d1EURCHF, w1EURCHF, m1EURCHF);
+                        SymbolTrade(symbol, dmstrendEURCHF, dmsrangeEURCHF, dmsnukelimiterEURCHF, rsispikeEURCHF, stochasticsEURCHF, ATRoriginaltpEURCHF, ATRnukedistanceEURCHF, ATRnuketpEURCHF, ATRm1EURCHF,
+                        ATRw1EURCHF, ATRd1EURCHF, ATRh12EURCHF, ATRh4EURCHF, ATRh1EURCHF, ATRm15EURCHF, m15EURCHF, h1EURCHF, h4EURCHF, h12EURCHF,
+                        d1EURCHF, w1EURCHF, m1EURCHF);
                         break;
                     case "GBPCHF":
-                        SymbolTrade(symbol, dmstrendGBPCHF, dmsrangeGBPCHF, dmsnukelimiterGBPCHF, rsispikeGBPCHF, stochasticsGBPCHF, ATRoriginaltpGBPCHF, ATRnukedistanceGBPCHF, ATRnuketpGBPCHF, ATRm1GBPCHF, ATRw1GBPCHF, ATRd1GBPCHF, ATRh12GBPCHF, ATRh4GBPCHF, ATRh1GBPCHF, ATRm15GBPCHF, m15GBPCHF, h1GBPCHF, h4GBPCHF, h12GBPCHF, d1GBPCHF, w1GBPCHF, m1GBPCHF);
+                        SymbolTrade(symbol, dmstrendGBPCHF, dmsrangeGBPCHF, dmsnukelimiterGBPCHF, rsispikeGBPCHF, stochasticsGBPCHF, ATRoriginaltpGBPCHF, ATRnukedistanceGBPCHF, ATRnuketpGBPCHF, ATRm1GBPCHF,
+                        ATRw1GBPCHF, ATRd1GBPCHF, ATRh12GBPCHF, ATRh4GBPCHF, ATRh1GBPCHF, ATRm15GBPCHF, m15GBPCHF, h1GBPCHF, h4GBPCHF, h12GBPCHF,
+                        d1GBPCHF, w1GBPCHF, m1GBPCHF);
                         break;
                     case "EURGBP":
-                        SymbolTrade(symbol, dmstrendEURGBP, dmsrangeEURGBP, dmsnukelimiterEURGBP, rsispikeEURGBP, stochasticsEURGBP, ATRoriginaltpEURGBP, ATRnukedistanceEURGBP, ATRnuketpEURGBP, ATRm1EURGBP, ATRw1EURGBP, ATRd1EURGBP, ATRh12EURGBP, ATRh4EURGBP, ATRh1EURGBP, ATRm15EURGBP, m15EURGBP, h1EURGBP, h4EURGBP, h12EURGBP, d1EURGBP, w1EURGBP, m1EURGBP);
-                        break;                    
-               }
-           }
-       }
-        private void SymbolTrade(Symbol SymbolName, DirectionalMovementSystem DMSTREND, DirectionalMovementSystem DMSRANGE, DirectionalMovementSystem DMSNUKELIMITER, RelativeStrengthIndex RSISPIKE, StochasticOscillator STOCHASTICS, AverageTrueRange ATRORIGINALTP, AverageTrueRange ATRNUKEDISTANCE, AverageTrueRange ATRNUKETP, AverageTrueRange ATRM1, AverageTrueRange ATRW1, AverageTrueRange ATRD1, AverageTrueRange ATRH12, AverageTrueRange ATRH4, AverageTrueRange ATRH1, AverageTrueRange ATRM15, Bars M15, Bars H1, Bars H4, Bars H12, Bars D1, Bars W1, Bars M1)
+                        SymbolTrade(symbol, dmstrendEURGBP, dmsrangeEURGBP, dmsnukelimiterEURGBP, rsispikeEURGBP, stochasticsEURGBP, ATRoriginaltpEURGBP, ATRnukedistanceEURGBP, ATRnuketpEURGBP, ATRm1EURGBP,
+                        ATRw1EURGBP, ATRd1EURGBP, ATRh12EURGBP, ATRh4EURGBP, ATRh1EURGBP, ATRm15EURGBP, m15EURGBP, h1EURGBP, h4EURGBP, h12EURGBP,
+                        d1EURGBP, w1EURGBP, m1EURGBP);
+                        break;
+                }
+            }
+        }
+        private void SymbolTrade(Symbol SymbolName, DirectionalMovementSystem DMSTREND, DirectionalMovementSystem DMSRANGE, DirectionalMovementSystem DMSNUKELIMITER, RelativeStrengthIndex RSISPIKE, StochasticOscillator STOCHASTICS, AverageTrueRange ATRORIGINALTP, AverageTrueRange ATRNUKEDISTANCE, AverageTrueRange ATRNUKETP, AverageTrueRange ATRM1,
+        AverageTrueRange ATRW1, AverageTrueRange ATRD1, AverageTrueRange ATRH12, AverageTrueRange ATRH4, AverageTrueRange ATRH1, AverageTrueRange ATRM15, Bars M15, Bars H1, Bars H4, Bars H12,
+        Bars D1, Bars W1, Bars M1)
         {
             //variables
             var price = (SymbolName.Bid + SymbolName.Ask) / 2;
@@ -1860,24 +1920,24 @@ namespace cAlgo.Robots
             //consolidation modification
             if (!_initialvolumeconsolidation && (adxnukelimiter < ADXRangeLimiter))
             {
+                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation " + " Symbol " + SymbolName.Name);
                 _initialvolumeconsolidation = true;
-                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
             }
             //end of consolidation modification
             //buy after consolidation hitting S/R
-            if (_initialvolumeconsolidation && (Positions.Find("Buy", SymbolName, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            if (_initialvolumeconsolidation && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
             {
-                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName, Volume, LimitRange, Symbol.Ask, "Buy", null, nuketpdistance);
+                Print(" Open at Support = " + stochspike + " Symbol " + SymbolName.Name);
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
                 _initialvolumeconsolidation = false;
-                Print(" Open at Support = " + stochspike);
             }
             //end of buy after hitting S/R
             //sell after hitting S/R
-            if (_initialvolumeconsolidation && (Positions.Find("Sell", SymbolName, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            if (_initialvolumeconsolidation && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
             {
-                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName, Volume, LimitRange, Symbol.Bid, "Sell", null, nuketpdistance);
+                Print(" Open at Resistance = " + stochspike + " Symbol " + SymbolName.Name);
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
                 _initialvolumeconsolidation = false;
-                Print(" Open at Resistance = " + stochspike);
             }
             //end of sell after hitting S/R
             //end of entry logic
@@ -1887,44 +1947,44 @@ namespace cAlgo.Robots
             {
                 //buy nuke 
                 //consolidation modification
-                if (!_initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (adxnukelimiter < ADXNukeLimiter))
+                if (!_initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
+                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy " + " Symbol " + SymbolName.Name);
                     _initialvolumeconsolidationbuy = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
-                if (_initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                if (_initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
+                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Symbol " + SymbolName.Name);
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
-                    ModifyPosition(position, null, position.EntryPrice + NukeTP * Symbol.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
                     _initialvolumeconsolidationbuy = false;
-                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
-                                    //end of volume modification after consolidation hitting S/R
+                //end of volume modification after consolidation hitting S/R
                 //end of buy nuke
 
                 //sell nuke
                 //consolidation modification 
-                if (!_initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == Symbol.Name) && (adxnukelimiter < ADXNukeLimiter))
+                if (!_initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
+                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell " + " Symbol " + SymbolName.Name);
                     _initialvolumeconsolidationsell = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
-                if (_initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                if (_initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
+                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Symbol " + SymbolName.Name);
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
-                    ModifyPosition(position, null, position.EntryPrice - NukeTP * Symbol.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
                     _initialvolumeconsolidationsell = false;
-                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of sell nuke
             }
             //end of nuking logic
         }
-        
+
     }
 }

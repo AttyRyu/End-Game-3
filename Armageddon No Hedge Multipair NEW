@@ -93,9 +93,96 @@ namespace cAlgo.Robots
         //end of TP Targets and Nuke Distance
 
         //flags
-        bool _initialvolumeconsolidationbuy;
         bool _initialvolumeconsolidation;
         bool _initialvolumeconsolidationsell;
+        
+        bool _initialvolumeconsolidationbuyEURUSD;
+        bool _initialvolumeconsolidationbuyUSDJPY;
+        bool _initialvolumeconsolidationbuyGBPUSD;
+        bool _initialvolumeconsolidationbuyUSDCHF;
+        bool _initialvolumeconsolidationbuyAUDUSD;
+        bool _initialvolumeconsolidationbuyNZDUSD;
+        bool _initialvolumeconsolidationbuyUSDCAD;
+        bool _initialvolumeconsolidationbuyEURCAD;
+        bool _initialvolumeconsolidationbuyGBPCAD;
+        bool _initialvolumeconsolidationbuyCADJPY;
+        bool _initialvolumeconsolidationbuyCADCHF;
+        bool _initialvolumeconsolidationbuyAUDCAD;
+        bool _initialvolumeconsolidationbuyNZDCAD;
+        bool _initialvolumeconsolidationbuyEURAUD;
+        bool _initialvolumeconsolidationbuyGBPAUD;
+        bool _initialvolumeconsolidationbuyAUDJPY;
+        bool _initialvolumeconsolidationbuyAUDCHF;
+        bool _initialvolumeconsolidationbuyAUDNZD;
+        bool _initialvolumeconsolidationbuyEURNZD;
+        bool _initialvolumeconsolidationbuyGBPNZD;
+        bool _initialvolumeconsolidationbuyNZDCHF;
+        bool _initialvolumeconsolidationbuyNZDJPY;
+        bool _initialvolumeconsolidationbuyEURJPY;
+        bool _initialvolumeconsolidationbuyGBPJPY;
+        bool _initialvolumeconsolidationbuyCHFJPY;
+        bool _initialvolumeconsolidationbuyEURCHF;
+        bool _initialvolumeconsolidationbuyGBPCHF;
+        bool _initialvolumeconsolidationbuyEURGBP;
+        
+        EURUSD;
+        USDJPY;
+        GBPUSD;
+        USDCHF;
+        AUDUSD;
+        NZDUSD;
+        USDCAD;
+        EURCAD;
+        GBPCAD;
+        CADJPY;
+        CADCHF;
+        AUDCAD;
+        NZDCAD;
+        EURAUD;
+        GBPAUD;
+        AUDJPY;
+        AUDCHF;
+        AUDNZD;
+        EURNZD;
+        GBPNZD;
+        NZDCHF;
+        NZDJPY;
+        EURJPY;
+        GBPJPY;
+        CHFJPY;
+        EURCHF;
+        GBPCHF;
+        EURGBP;
+        
+        EURUSD;
+        USDJPY;
+        GBPUSD;
+        USDCHF;
+        AUDUSD;
+        NZDUSD;
+        USDCAD;
+        EURCAD;
+        GBPCAD;
+        CADJPY;
+        CADCHF;
+        AUDCAD;
+        NZDCAD;
+        EURAUD;
+        GBPAUD;
+        AUDJPY;
+        AUDCHF;
+        AUDNZD;
+        EURNZD;
+        GBPNZD;
+        NZDCHF;
+        NZDJPY;
+        EURJPY;
+        GBPJPY;
+        CHFJPY;
+        EURCHF;
+        GBPCHF;
+        EURGBP;
+
         //end of flags
 
         //Market Series, ATR, RSI and ADX Declarations

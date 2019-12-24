@@ -93,9 +93,37 @@ namespace cAlgo.Robots
         //end of TP Targets and Nuke Distance
 
         //flags
-        bool _initialvolumeconsolidation;
-        bool _initialvolumeconsolidationsell;
-        
+        //bool _initialvolumeconsolidation;
+        bool _initialvolumeconsolidationEURUSD;
+        bool _initialvolumeconsolidationUSDJPY;
+        bool _initialvolumeconsolidationGBPUSD;
+        bool _initialvolumeconsolidationUSDCHF;
+        bool _initialvolumeconsolidationAUDUSD;
+        bool _initialvolumeconsolidationNZDUSD;
+        bool _initialvolumeconsolidationUSDCAD;
+        bool _initialvolumeconsolidationEURCAD;
+        bool _initialvolumeconsolidationGBPCAD;
+        bool _initialvolumeconsolidationCADJPY;
+        bool _initialvolumeconsolidationCADCHF;
+        bool _initialvolumeconsolidationAUDCAD;
+        bool _initialvolumeconsolidationNZDCAD;
+        bool _initialvolumeconsolidationEURAUD;
+        bool _initialvolumeconsolidationGBPAUD;
+        bool _initialvolumeconsolidationAUDJPY;
+        bool _initialvolumeconsolidationAUDCHF;
+        bool _initialvolumeconsolidationAUDNZD;
+        bool _initialvolumeconsolidationEURNZD;
+        bool _initialvolumeconsolidationGBPNZD;
+        bool _initialvolumeconsolidationNZDCHF;
+        bool _initialvolumeconsolidationNZDJPY;
+        bool _initialvolumeconsolidationEURJPY;
+        bool _initialvolumeconsolidationGBPJPY;
+        bool _initialvolumeconsolidationCHFJPY;
+        bool _initialvolumeconsolidationEURCHF;
+        bool _initialvolumeconsolidationGBPCHF;
+        bool _initialvolumeconsolidationEURGBP;
+
+        //bool _initialvolumeconsolidationbuy;
         bool _initialvolumeconsolidationbuyEURUSD;
         bool _initialvolumeconsolidationbuyUSDJPY;
         bool _initialvolumeconsolidationbuyGBPUSD;
@@ -124,65 +152,36 @@ namespace cAlgo.Robots
         bool _initialvolumeconsolidationbuyEURCHF;
         bool _initialvolumeconsolidationbuyGBPCHF;
         bool _initialvolumeconsolidationbuyEURGBP;
-        
-        EURUSD;
-        USDJPY;
-        GBPUSD;
-        USDCHF;
-        AUDUSD;
-        NZDUSD;
-        USDCAD;
-        EURCAD;
-        GBPCAD;
-        CADJPY;
-        CADCHF;
-        AUDCAD;
-        NZDCAD;
-        EURAUD;
-        GBPAUD;
-        AUDJPY;
-        AUDCHF;
-        AUDNZD;
-        EURNZD;
-        GBPNZD;
-        NZDCHF;
-        NZDJPY;
-        EURJPY;
-        GBPJPY;
-        CHFJPY;
-        EURCHF;
-        GBPCHF;
-        EURGBP;
-        
-        EURUSD;
-        USDJPY;
-        GBPUSD;
-        USDCHF;
-        AUDUSD;
-        NZDUSD;
-        USDCAD;
-        EURCAD;
-        GBPCAD;
-        CADJPY;
-        CADCHF;
-        AUDCAD;
-        NZDCAD;
-        EURAUD;
-        GBPAUD;
-        AUDJPY;
-        AUDCHF;
-        AUDNZD;
-        EURNZD;
-        GBPNZD;
-        NZDCHF;
-        NZDJPY;
-        EURJPY;
-        GBPJPY;
-        CHFJPY;
-        EURCHF;
-        GBPCHF;
-        EURGBP;
 
+        //bool _initialvolumeconsolidationsell;
+        bool _initialvolumeconsolidationsellEURUSD;
+        bool _initialvolumeconsolidationsellUSDJPY;
+        bool _initialvolumeconsolidationsellGBPUSD;
+        bool _initialvolumeconsolidationsellUSDCHF;
+        bool _initialvolumeconsolidationsellAUDUSD;
+        bool _initialvolumeconsolidationsellNZDUSD;
+        bool _initialvolumeconsolidationsellUSDCAD;
+        bool _initialvolumeconsolidationsellEURCAD;
+        bool _initialvolumeconsolidationsellGBPCAD;
+        bool _initialvolumeconsolidationsellCADJPY;
+        bool _initialvolumeconsolidationsellCADCHF;
+        bool _initialvolumeconsolidationsellAUDCAD;
+        bool _initialvolumeconsolidationsellNZDCAD;
+        bool _initialvolumeconsolidationsellEURAUD;
+        bool _initialvolumeconsolidationsellGBPAUD;
+        bool _initialvolumeconsolidationsellAUDJPY;
+        bool _initialvolumeconsolidationsellAUDCHF;
+        bool _initialvolumeconsolidationsellAUDNZD;
+        bool _initialvolumeconsolidationsellEURNZD;
+        bool _initialvolumeconsolidationsellGBPNZD;
+        bool _initialvolumeconsolidationsellNZDCHF;
+        bool _initialvolumeconsolidationsellNZDJPY;
+        bool _initialvolumeconsolidationsellEURJPY;
+        bool _initialvolumeconsolidationsellGBPJPY;
+        bool _initialvolumeconsolidationsellCHFJPY;
+        bool _initialvolumeconsolidationsellEURCHF;
+        bool _initialvolumeconsolidationsellGBPCHF;
+        bool _initialvolumeconsolidationsellEURGBP;
         //end of flags
 
         //Market Series, ATR, RSI and ADX Declarations
@@ -836,10 +835,7 @@ namespace cAlgo.Robots
 
         protected override void OnStart()
         {
-            MySymbols = Symbols.GetSymbols("EURUSD", "USDJPY", "GBPUSD", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "EURCAD", "GBPCAD", "CADJPY",
-            "CADCHF", "AUDCAD", "NZDCAD", "EURAUD", "GBPAUD", "AUDJPY", "AUDCHF", "AUDNZD", "EURNZD", "GBPNZD",
-            "NZDJPY", "NZDCHF", "EURJPY", "GBPJPY", "CHFJPY", "EURCHF", "GBPCHF", "EURGBP");
-
+            MySymbols = Symbols.GetSymbols("EURUSD", "USDJPY", "GBPUSD", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "EURCAD", "GBPCAD", "CADJPY", "CADCHF", "AUDCAD", "NZDCAD", "EURAUD", "GBPAUD", "AUDJPY", "AUDCHF", "AUDNZD", "EURNZD", "GBPNZD", "NZDJPY", "NZDCHF", "EURJPY", "GBPJPY", "CHFJPY", "EURCHF", "GBPCHF", "EURGBP");
             foreach (var symbol in MySymbols)
             {
                 symbol.Tick += Symbol_Tick;
@@ -1808,7 +1804,7 @@ namespace cAlgo.Robots
                 Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
                 foreach (var position in Positions)
                 {
-                    if (position.SymbolName == Symbol.Name)
+                    if (position.SymbolName == SymbolName.Name)
                     {
                         ClosePositionAsync(position);
                         Print("Close All Positions due to Profit " + SymbolName);
@@ -1820,7 +1816,7 @@ namespace cAlgo.Robots
                 Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
                 foreach (var position in Positions)
                 {
-                    if (position.SymbolName == Symbol.Name)
+                    if (position.SymbolName == SymbolName.Name)
                     {
                         ClosePositionAsync(position);
                         Print("Close All Positions due to Loss " + SymbolName);
@@ -1836,151 +1832,92 @@ namespace cAlgo.Robots
                 switch (symbol.Name)
                 {
                     case "EURUSD":
-                        SymbolTrade(symbol, dmstrendEURUSD, dmsrangeEURUSD, dmsnukelimiterEURUSD, rsispikeEURUSD, stochasticsEURUSD, ATRoriginaltpEURUSD, ATRnukedistanceEURUSD, ATRnuketpEURUSD, ATRm1EURUSD,
-                        ATRw1EURUSD, ATRd1EURUSD, ATRh12EURUSD, ATRh4EURUSD, ATRh1EURUSD, ATRm15EURUSD, m15EURUSD, h1EURUSD, h4EURUSD, h12EURUSD,
-                        d1EURUSD, w1EURUSD, m1EURUSD);
+                        SymbolTrade(symbol, dmstrendEURUSD, dmsrangeEURUSD, dmsnukelimiterEURUSD, rsispikeEURUSD, stochasticsEURUSD, ATRoriginaltpEURUSD, ATRnukedistanceEURUSD, ATRnuketpEURUSD, ATRm1EURUSD, ATRw1EURUSD, ATRd1EURUSD, ATRh12EURUSD, ATRh4EURUSD, ATRh1EURUSD, ATRm15EURUSD, m15EURUSD, h1EURUSD, h4EURUSD, h12EURUSD, d1EURUSD, w1EURUSD, m1EURUSD, _initialvolumeconsolidationEURUSD, _initialvolumeconsolidationbuyEURUSD, _initialvolumeconsolidationsellEURUSD);
                         break;
                     case "USDJPY":
-                        SymbolTrade(symbol, dmstrendUSDJPY, dmsrangeUSDJPY, dmsnukelimiterUSDJPY, rsispikeUSDJPY, stochasticsUSDJPY, ATRoriginaltpUSDJPY, ATRnukedistanceUSDJPY, ATRnuketpUSDJPY, ATRm1USDJPY,
-                        ATRw1USDJPY, ATRd1USDJPY, ATRh12USDJPY, ATRh4USDJPY, ATRh1USDJPY, ATRm15USDJPY, m15USDJPY, h1USDJPY, h4USDJPY, h12USDJPY,
-                        d1USDJPY, w1USDJPY, m1USDJPY);
+                        SymbolTrade(symbol, dmstrendUSDJPY, dmsrangeUSDJPY, dmsnukelimiterUSDJPY, rsispikeUSDJPY, stochasticsUSDJPY, ATRoriginaltpUSDJPY, ATRnukedistanceUSDJPY, ATRnuketpUSDJPY, ATRm1USDJPY, ATRw1USDJPY, ATRd1USDJPY, ATRh12USDJPY, ATRh4USDJPY, ATRh1USDJPY, ATRm15USDJPY, m15USDJPY, h1USDJPY, h4USDJPY, h12USDJPY, d1USDJPY, w1USDJPY, m1USDJPY, _initialvolumeconsolidationUSDJPY, _initialvolumeconsolidationbuyUSDJPY, _initialvolumeconsolidationsellUSDJPY);
                         break;
                     case "GBPUSD":
-                        SymbolTrade(symbol, dmstrendGBPUSD, dmsrangeGBPUSD, dmsnukelimiterGBPUSD, rsispikeGBPUSD, stochasticsGBPUSD, ATRoriginaltpGBPUSD, ATRnukedistanceGBPUSD, ATRnuketpGBPUSD, ATRm1GBPUSD,
-                        ATRw1GBPUSD, ATRd1GBPUSD, ATRh12GBPUSD, ATRh4GBPUSD, ATRh1GBPUSD, ATRm15GBPUSD, m15GBPUSD, h1GBPUSD, h4GBPUSD, h12GBPUSD,
-                        d1GBPUSD, w1GBPUSD, m1GBPUSD);
+                        SymbolTrade(symbol, dmstrendGBPUSD, dmsrangeGBPUSD, dmsnukelimiterGBPUSD, rsispikeGBPUSD, stochasticsGBPUSD, ATRoriginaltpGBPUSD, ATRnukedistanceGBPUSD, ATRnuketpGBPUSD, ATRm1GBPUSD, ATRw1GBPUSD, ATRd1GBPUSD, ATRh12GBPUSD, ATRh4GBPUSD, ATRh1GBPUSD, ATRm15GBPUSD, m15GBPUSD, h1GBPUSD, h4GBPUSD, h12GBPUSD, d1GBPUSD, w1GBPUSD, m1GBPUSD, _initialvolumeconsolidationGBPUSD, _initialvolumeconsolidationbuyGBPUSD, _initialvolumeconsolidationsellGBPUSD);
                         break;
                     case "USDCHF":
-                        SymbolTrade(symbol, dmstrendUSDCHF, dmsrangeUSDCHF, dmsnukelimiterUSDCHF, rsispikeUSDCHF, stochasticsUSDCHF, ATRoriginaltpUSDCHF, ATRnukedistanceUSDCHF, ATRnuketpUSDCHF, ATRm1USDCHF,
-                        ATRw1USDCHF, ATRd1USDCHF, ATRh12USDCHF, ATRh4USDCHF, ATRh1USDCHF, ATRm15USDCHF, m15USDCHF, h1USDCHF, h4USDCHF, h12USDCHF,
-                        d1USDCHF, w1USDCHF, m1USDCHF);
-                        break;
+                        SymbolTrade(symbol, dmstrendUSDCHF, dmsrangeUSDCHF, dmsnukelimiterUSDCHF, rsispikeUSDCHF, stochasticsUSDCHF, ATRoriginaltpUSDCHF, ATRnukedistanceUSDCHF, ATRnuketpUSDCHF, ATRm1USDCHF, ATRw1USDCHF, ATRd1USDCHF, ATRh12USDCHF, ATRh4USDCHF, ATRh1USDCHF, ATRm15USDCHF, m15USDCHF, h1USDCHF, h4USDCHF, h12USDCHF, d1USDCHF, w1USDCHF, m1USDCHF, _initialvolumeconsolidationUSDCHF, _initialvolumeconsolidationbuyUSDCHF, _initialvolumeconsolidationsellUSDCHF);
                     case "AUDUSD":
-                        SymbolTrade(symbol, dmstrendAUDUSD, dmsrangeAUDUSD, dmsnukelimiterAUDUSD, rsispikeAUDUSD, stochasticsAUDUSD, ATRoriginaltpAUDUSD, ATRnukedistanceAUDUSD, ATRnuketpAUDUSD, ATRm1AUDUSD,
-                        ATRw1AUDUSD, ATRd1AUDUSD, ATRh12AUDUSD, ATRh4AUDUSD, ATRh1AUDUSD, ATRm15AUDUSD, m15AUDUSD, h1AUDUSD, h4AUDUSD, h12AUDUSD,
-                        d1AUDUSD, w1AUDUSD, m1AUDUSD);
+                        SymbolTrade(symbol, dmstrendAUDUSD, dmsrangeAUDUSD, dmsnukelimiterAUDUSD, rsispikeAUDUSD, stochasticsAUDUSD, ATRoriginaltpAUDUSD, ATRnukedistanceAUDUSD, ATRnuketpAUDUSD, ATRm1AUDUSD, ATRw1AUDUSD, ATRd1AUDUSD, ATRh12AUDUSD, ATRh4AUDUSD, ATRh1AUDUSD, ATRm15AUDUSD, m15AUDUSD, h1AUDUSD, h4AUDUSD, h12AUDUSD, d1AUDUSD, w1AUDUSD, m1AUDUSD, _initialvolumeconsolidationAUDUSD, _initialvolumeconsolidationbuyAUDUSD, _initialvolumeconsolidationsellAUDUSD);
                         break;
                     case "NZDUSD":
-                        SymbolTrade(symbol, dmstrendNZDUSD, dmsrangeNZDUSD, dmsnukelimiterNZDUSD, rsispikeNZDUSD, stochasticsNZDUSD, ATRoriginaltpNZDUSD, ATRnukedistanceNZDUSD, ATRnuketpNZDUSD, ATRm1NZDUSD,
-                        ATRw1NZDUSD, ATRd1NZDUSD, ATRh12NZDUSD, ATRh4NZDUSD, ATRh1NZDUSD, ATRm15NZDUSD, m15NZDUSD, h1NZDUSD, h4NZDUSD, h12NZDUSD,
-                        d1NZDUSD, w1NZDUSD, m1NZDUSD);
+                        SymbolTrade(symbol, dmstrendNZDUSD, dmsrangeNZDUSD, dmsnukelimiterNZDUSD, rsispikeNZDUSD, stochasticsNZDUSD, ATRoriginaltpNZDUSD, ATRnukedistanceNZDUSD, ATRnuketpNZDUSD, ATRm1NZDUSD, ATRw1NZDUSD, ATRd1NZDUSD, ATRh12NZDUSD, ATRh4NZDUSD, ATRh1NZDUSD, ATRm15NZDUSD, m15NZDUSD, h1NZDUSD, h4NZDUSD, h12NZDUSD, d1NZDUSD, w1NZDUSD, m1NZDUSD), _initialvolumeconsolidationNZDUSD, _initialvolumeconsolidationbuyNZDUSD, _initialvolumeconsolidationsellNZDUSD);
                         break;
                     case "USDCAD":
-                        SymbolTrade(symbol, dmstrendUSDCAD, dmsrangeUSDCAD, dmsnukelimiterUSDCAD, rsispikeUSDCAD, stochasticsUSDCAD, ATRoriginaltpUSDCAD, ATRnukedistanceUSDCAD, ATRnuketpUSDCAD, ATRm1USDCAD,
-                        ATRw1USDCAD, ATRd1USDCAD, ATRh12USDCAD, ATRh4USDCAD, ATRh1USDCAD, ATRm15USDCAD, m15USDCAD, h1USDCAD, h4USDCAD, h12USDCAD,
-                        d1USDCAD, w1USDCAD, m1USDCAD);
+                        SymbolTrade(symbol, dmstrendUSDCAD, dmsrangeUSDCAD, dmsnukelimiterUSDCAD, rsispikeUSDCAD, stochasticsUSDCAD, ATRoriginaltpUSDCAD, ATRnukedistanceUSDCAD, ATRnuketpUSDCAD, ATRm1USDCAD, ATRw1USDCAD, ATRd1USDCAD, ATRh12USDCAD, ATRh4USDCAD, ATRh1USDCAD, ATRm15USDCAD, m15USDCAD, h1USDCAD, h4USDCAD, h12USDCAD, d1USDCAD, w1USDCAD, m1USDCAD, _initialvolumeconsolidationUSDCAD, _initialvolumeconsolidationbuyUSDCAD, _initialvolumeconsolidationsellUSDCAD);
                         break;
                     case "EURCAD":
-                        SymbolTrade(symbol, dmstrendEURCAD, dmsrangeEURCAD, dmsnukelimiterEURCAD, rsispikeEURCAD, stochasticsEURCAD, ATRoriginaltpEURCAD, ATRnukedistanceEURCAD, ATRnuketpEURCAD, ATRm1EURCAD,
-                        ATRw1EURCAD, ATRd1EURCAD, ATRh12EURCAD, ATRh4EURCAD, ATRh1EURCAD, ATRm15EURCAD, m15EURCAD, h1EURCAD, h4EURCAD, h12EURCAD,
-                        d1EURCAD, w1EURCAD, m1EURCAD);
+                        SymbolTrade(symbol, dmstrendEURCAD, dmsrangeEURCAD, dmsnukelimiterEURCAD, rsispikeEURCAD, stochasticsEURCAD, ATRoriginaltpEURCAD, ATRnukedistanceEURCAD, ATRnuketpEURCAD, ATRm1EURCAD, ATRw1EURCAD, ATRd1EURCAD, ATRh12EURCAD, ATRh4EURCAD, ATRh1EURCAD, ATRm15EURCAD, m15EURCAD, h1EURCAD, h4EURCAD, h12EURCAD, d1EURCAD, w1EURCAD, m1EURCAD, _initialvolumeconsolidationEURCAD, _initialvolumeconsolidationbuyEURCAD, _initialvolumeconsolidationsellEURCAD);
                         break;
                     case "GBPCAD":
-                        SymbolTrade(symbol, dmstrendGBPCAD, dmsrangeGBPCAD, dmsnukelimiterGBPCAD, rsispikeGBPCAD, stochasticsGBPCAD, ATRoriginaltpGBPCAD, ATRnukedistanceGBPCAD, ATRnuketpGBPCAD, ATRm1GBPCAD,
-                        ATRw1GBPCAD, ATRd1GBPCAD, ATRh12GBPCAD, ATRh4GBPCAD, ATRh1GBPCAD, ATRm15GBPCAD, m15GBPCAD, h1GBPCAD, h4GBPCAD, h12GBPCAD,
-                        d1GBPCAD, w1GBPCAD, m1GBPCAD);
+                        SymbolTrade(symbol, dmstrendGBPCAD, dmsrangeGBPCAD, dmsnukelimiterGBPCAD, rsispikeGBPCAD, stochasticsGBPCAD, ATRoriginaltpGBPCAD, ATRnukedistanceGBPCAD, ATRnuketpGBPCAD, ATRm1GBPCAD, ATRw1GBPCAD, ATRd1GBPCAD, ATRh12GBPCAD, ATRh4GBPCAD, ATRh1GBPCAD, ATRm15GBPCAD, m15GBPCAD, h1GBPCAD, h4GBPCAD, h12GBPCAD, d1GBPCAD, w1GBPCAD, m1GBPCAD, _initialvolumeconsolidationGBPCAD, _initialvolumeconsolidationbuyGBPCAD, _initialvolumeconsolidationsellGBPCAD);
                         break;
                     case "CADJPY":
-                        SymbolTrade(symbol, dmstrendCADJPY, dmsrangeCADJPY, dmsnukelimiterCADJPY, rsispikeCADJPY, stochasticsCADJPY, ATRoriginaltpCADJPY, ATRnukedistanceCADJPY, ATRnuketpCADJPY, ATRm1CADJPY,
-                        ATRw1CADJPY, ATRd1CADJPY, ATRh12CADJPY, ATRh4CADJPY, ATRh1CADJPY, ATRm15CADJPY, m15CADJPY, h1CADJPY, h4CADJPY, h12CADJPY,
-                        d1CADJPY, w1CADJPY, m1CADJPY);
+                        SymbolTrade(symbol, dmstrendCADJPY, dmsrangeCADJPY, dmsnukelimiterCADJPY, rsispikeCADJPY, stochasticsCADJPY, ATRoriginaltpCADJPY, ATRnukedistanceCADJPY, ATRnuketpCADJPY, ATRm1CADJPY, ATRw1CADJPY, ATRd1CADJPY, ATRh12CADJPY, ATRh4CADJPY, ATRh1CADJPY, ATRm15CADJPY, m15CADJPY, h1CADJPY, h4CADJPY, h12CADJPY, d1CADJPY, w1CADJPY, m1CADJPY, _initialvolumeconsolidationCADJPY, _initialvolumeconsolidationbuyCADJPY, _initialvolumeconsolidationsellCADJPY);
                         break;
                     case "CADCHF":
-                        SymbolTrade(symbol, dmstrendCADCHF, dmsrangeCADCHF, dmsnukelimiterCADCHF, rsispikeCADCHF, stochasticsCADCHF, ATRoriginaltpCADCHF, ATRnukedistanceCADCHF, ATRnuketpCADCHF, ATRm1CADCHF,
-                        ATRw1CADCHF, ATRd1CADCHF, ATRh12CADCHF, ATRh4CADCHF, ATRh1CADCHF, ATRm15CADCHF, m15CADCHF, h1CADCHF, h4CADCHF, h12CADCHF,
-                        d1CADCHF, w1CADCHF, m1CADCHF);
+                        SymbolTrade(symbol, dmstrendCADCHF, dmsrangeCADCHF, dmsnukelimiterCADCHF, rsispikeCADCHF, stochasticsCADCHF, ATRoriginaltpCADCHF, ATRnukedistanceCADCHF, ATRnuketpCADCHF, ATRm1CADCHF, ATRw1CADCHF, ATRd1CADCHF, ATRh12CADCHF, ATRh4CADCHF, ATRh1CADCHF, ATRm15CADCHF, m15CADCHF, h1CADCHF, h4CADCHF, h12CADCHF, d1CADCHF, w1CADCHF, m1CADCHF, _initialvolumeconsolidationCADCHF, _initialvolumeconsolidationbuyCADCHF, _initialvolumeconsolidationsellCADCHF);
                         break;
                     case "AUDCAD":
-                        SymbolTrade(symbol, dmstrendAUDCAD, dmsrangeAUDCAD, dmsnukelimiterAUDCAD, rsispikeAUDCAD, stochasticsAUDCAD, ATRoriginaltpAUDCAD, ATRnukedistanceAUDCAD, ATRnuketpAUDCAD, ATRm1AUDCAD,
-                        ATRw1AUDCAD, ATRd1AUDCAD, ATRh12AUDCAD, ATRh4AUDCAD, ATRh1AUDCAD, ATRm15AUDCAD, m15AUDCAD, h1AUDCAD, h4AUDCAD, h12AUDCAD,
-                        d1AUDCAD, w1AUDCAD, m1AUDCAD);
+                        SymbolTrade(symbol, dmstrendAUDCAD, dmsrangeAUDCAD, dmsnukelimiterAUDCAD, rsispikeAUDCAD, stochasticsAUDCAD, ATRoriginaltpAUDCAD, ATRnukedistanceAUDCAD, ATRnuketpAUDCAD, ATRm1AUDCAD, ATRw1AUDCAD, ATRd1AUDCAD, ATRh12AUDCAD, ATRh4AUDCAD, ATRh1AUDCAD, ATRm15AUDCAD, m15AUDCAD, h1AUDCAD, h4AUDCAD, h12AUDCAD, d1AUDCAD, w1AUDCAD, m1AUDCAD, _initialvolumeconsolidationAUDCAD, _initialvolumeconsolidationbuyAUDCAD, _initialvolumeconsolidationsellAUDCAD);
                         break;
                     case "NZDCAD":
-                        SymbolTrade(symbol, dmstrendNZDCAD, dmsrangeNZDCAD, dmsnukelimiterNZDCAD, rsispikeNZDCAD, stochasticsNZDCAD, ATRoriginaltpNZDCAD, ATRnukedistanceNZDCAD, ATRnuketpNZDCAD, ATRm1NZDCAD,
-                        ATRw1NZDCAD, ATRd1NZDCAD, ATRh12NZDCAD, ATRh4NZDCAD, ATRh1NZDCAD, ATRm15NZDCAD, m15NZDCAD, h1NZDCAD, h4NZDCAD, h12NZDCAD,
-                        d1NZDCAD, w1NZDCAD, m1NZDCAD);
+                        SymbolTrade(symbol, dmstrendNZDCAD, dmsrangeNZDCAD, dmsnukelimiterNZDCAD, rsispikeNZDCAD, stochasticsNZDCAD, ATRoriginaltpNZDCAD, ATRnukedistanceNZDCAD, ATRnuketpNZDCAD, ATRm1NZDCAD, ATRw1NZDCAD, ATRd1NZDCAD, ATRh12NZDCAD, ATRh4NZDCAD, ATRh1NZDCAD, ATRm15NZDCAD, m15NZDCAD, h1NZDCAD, h4NZDCAD, h12NZDCAD, d1NZDCAD, w1NZDCAD, m1NZDCAD, _initialvolumeconsolidationNZDCAD, _initialvolumeconsolidationbuyNZDCAD, _initialvolumeconsolidationsellNZDCAD);
                         break;
                     case "EURAUD":
-                        SymbolTrade(symbol, dmstrendEURAUD, dmsrangeEURAUD, dmsnukelimiterEURAUD, rsispikeEURAUD, stochasticsEURAUD, ATRoriginaltpEURAUD, ATRnukedistanceEURAUD, ATRnuketpEURAUD, ATRm1EURAUD,
-                        ATRw1EURAUD, ATRd1EURAUD, ATRh12EURAUD, ATRh4EURAUD, ATRh1EURAUD, ATRm15EURAUD, m15EURAUD, h1EURAUD, h4EURAUD, h12EURAUD,
-                        d1EURAUD, w1EURAUD, m1EURAUD);
+                        SymbolTrade(symbol, dmstrendEURAUD, dmsrangeEURAUD, dmsnukelimiterEURAUD, rsispikeEURAUD, stochasticsEURAUD, ATRoriginaltpEURAUD, ATRnukedistanceEURAUD, ATRnuketpEURAUD, ATRm1EURAUD, ATRw1EURAUD, ATRd1EURAUD, ATRh12EURAUD, ATRh4EURAUD, ATRh1EURAUD, ATRm15EURAUD, m15EURAUD, h1EURAUD, h4EURAUD, h12EURAUD, d1EURAUD, w1EURAUD, m1EURAUD, _initialvolumeconsolidationEURAUD, _initialvolumeconsolidationbuyEURAUD, _initialvolumeconsolidationsellEURAUD);
                         break;
                     case "GBPAUD":
-                        SymbolTrade(symbol, dmstrendGBPAUD, dmsrangeGBPAUD, dmsnukelimiterGBPAUD, rsispikeGBPAUD, stochasticsGBPAUD, ATRoriginaltpGBPAUD, ATRnukedistanceGBPAUD, ATRnuketpGBPAUD, ATRm1GBPAUD,
-                        ATRw1GBPAUD, ATRd1GBPAUD, ATRh12GBPAUD, ATRh4GBPAUD, ATRh1GBPAUD, ATRm15GBPAUD, m15GBPAUD, h1GBPAUD, h4GBPAUD, h12GBPAUD,
-                        d1GBPAUD, w1GBPAUD, m1GBPAUD);
+                        SymbolTrade(symbol, dmstrendGBPAUD, dmsrangeGBPAUD, dmsnukelimiterGBPAUD, rsispikeGBPAUD, stochasticsGBPAUD, ATRoriginaltpGBPAUD, ATRnukedistanceGBPAUD, ATRnuketpGBPAUD, ATRm1GBPAUD, ATRw1GBPAUD, ATRd1GBPAUD, ATRh12GBPAUD, ATRh4GBPAUD, ATRh1GBPAUD, ATRm15GBPAUD, m15GBPAUD, h1GBPAUD, h4GBPAUD, h12GBPAUD, d1GBPAUD, w1GBPAUD, m1GBPAUD, _initialvolumeconsolidationGBPAUD, _initialvolumeconsolidationbuyGBPAUD, _initialvolumeconsolidationsellGBPAUD);
                         break;
                     case "AUDJPY":
-                        SymbolTrade(symbol, dmstrendAUDJPY, dmsrangeAUDJPY, dmsnukelimiterAUDJPY, rsispikeAUDJPY, stochasticsAUDJPY, ATRoriginaltpAUDJPY, ATRnukedistanceAUDJPY, ATRnuketpAUDJPY, ATRm1AUDJPY,
-                        ATRw1AUDJPY, ATRd1AUDJPY, ATRh12AUDJPY, ATRh4AUDJPY, ATRh1AUDJPY, ATRm15AUDJPY, m15AUDJPY, h1AUDJPY, h4AUDJPY, h12AUDJPY,
-                        d1AUDJPY, w1AUDJPY, m1AUDJPY);
+                        SymbolTrade(symbol, dmstrendAUDJPY, dmsrangeAUDJPY, dmsnukelimiterAUDJPY, rsispikeAUDJPY, stochasticsAUDJPY, ATRoriginaltpAUDJPY, ATRnukedistanceAUDJPY, ATRnuketpAUDJPY, ATRm1AUDJPY, ATRw1AUDJPY, ATRd1AUDJPY, ATRh12AUDJPY, ATRh4AUDJPY, ATRh1AUDJPY, ATRm15AUDJPY, m15AUDJPY, h1AUDJPY, h4AUDJPY, h12AUDJPY, d1AUDJPY, w1AUDJPY, m1AUDJPY, _initialvolumeconsolidationAUDJPY, _initialvolumeconsolidationbuyAUDJPY, _initialvolumeconsolidationsellAUDJPY);
                         break;
                     case "AUDCHF":
-                        SymbolTrade(symbol, dmstrendAUDCHF, dmsrangeAUDCHF, dmsnukelimiterAUDCHF, rsispikeAUDCHF, stochasticsAUDCHF, ATRoriginaltpAUDCHF, ATRnukedistanceAUDCHF, ATRnuketpAUDCHF, ATRm1AUDCHF,
-                        ATRw1AUDCHF, ATRd1AUDCHF, ATRh12AUDCHF, ATRh4AUDCHF, ATRh1AUDCHF, ATRm15AUDCHF, m15AUDCHF, h1AUDCHF, h4AUDCHF, h12AUDCHF,
-                        d1AUDCHF, w1AUDCHF, m1AUDCHF);
+                        SymbolTrade(symbol, dmstrendAUDCHF, dmsrangeAUDCHF, dmsnukelimiterAUDCHF, rsispikeAUDCHF, stochasticsAUDCHF, ATRoriginaltpAUDCHF, ATRnukedistanceAUDCHF, ATRnuketpAUDCHF, ATRm1AUDCHF, ATRw1AUDCHF, ATRd1AUDCHF, ATRh12AUDCHF, ATRh4AUDCHF, ATRh1AUDCHF, ATRm15AUDCHF, m15AUDCHF, h1AUDCHF, h4AUDCHF, h12AUDCHF, d1AUDCHF, w1AUDCHF, m1AUDCHF, _initialvolumeconsolidationAUDCHF, _initialvolumeconsolidationbuyAUDCHF, _initialvolumeconsolidationsellAUDCHF);
                         break;
                     case "AUDNZD":
-                        SymbolTrade(symbol, dmstrendAUDNZD, dmsrangeAUDNZD, dmsnukelimiterAUDNZD, rsispikeAUDNZD, stochasticsAUDNZD, ATRoriginaltpAUDNZD, ATRnukedistanceAUDNZD, ATRnuketpAUDNZD, ATRm1AUDNZD,
-                        ATRw1AUDNZD, ATRd1AUDNZD, ATRh12AUDNZD, ATRh4AUDNZD, ATRh1AUDNZD, ATRm15AUDNZD, m15AUDNZD, h1AUDNZD, h4AUDNZD, h12AUDNZD,
-                        d1AUDNZD, w1AUDNZD, m1AUDNZD);
+                        SymbolTrade(symbol, dmstrendAUDNZD, dmsrangeAUDNZD, dmsnukelimiterAUDNZD, rsispikeAUDNZD, stochasticsAUDNZD, ATRoriginaltpAUDNZD, ATRnukedistanceAUDNZD, ATRnuketpAUDNZD, ATRm1AUDNZD, ATRw1AUDNZD, ATRd1AUDNZD, ATRh12AUDNZD, ATRh4AUDNZD, ATRh1AUDNZD, ATRm15AUDNZD, m15AUDNZD, h1AUDNZD, h4AUDNZD, h12AUDNZD, d1AUDNZD, w1AUDNZD, m1AUDNZD, _initialvolumeconsolidationAUDNZD, _initialvolumeconsolidationbuyAUDNZD, _initialvolumeconsolidationsellAUDNZD);
                         break;
                     case "EURNZD":
-                        SymbolTrade(symbol, dmstrendEURNZD, dmsrangeEURNZD, dmsnukelimiterEURNZD, rsispikeEURNZD, stochasticsEURNZD, ATRoriginaltpEURNZD, ATRnukedistanceEURNZD, ATRnuketpEURNZD, ATRm1EURNZD,
-                        ATRw1EURNZD, ATRd1EURNZD, ATRh12EURNZD, ATRh4EURNZD, ATRh1EURNZD, ATRm15EURNZD, m15EURNZD, h1EURNZD, h4EURNZD, h12EURNZD,
-                        d1EURNZD, w1EURNZD, m1EURNZD);
+                        SymbolTrade(symbol, dmstrendEURNZD, dmsrangeEURNZD, dmsnukelimiterEURNZD, rsispikeEURNZD, stochasticsEURNZD, ATRoriginaltpEURNZD, ATRnukedistanceEURNZD, ATRnuketpEURNZD, ATRm1EURNZD, ATRw1EURNZD, ATRd1EURNZD, ATRh12EURNZD, ATRh4EURNZD, ATRh1EURNZD, ATRm15EURNZD, m15EURNZD, h1EURNZD, h4EURNZD, h12EURNZD, d1EURNZD, w1EURNZD, m1EURNZD, _initialvolumeconsolidationEURNZD, _initialvolumeconsolidationbuyEURNZD, _initialvolumeconsolidationsellEURNZD);
                         break;
                     case "GBPNZD":
-                        SymbolTrade(symbol, dmstrendGBPNZD, dmsrangeGBPNZD, dmsnukelimiterGBPNZD, rsispikeGBPNZD, stochasticsGBPNZD, ATRoriginaltpGBPNZD, ATRnukedistanceGBPNZD, ATRnuketpGBPNZD, ATRm1GBPNZD,
-                        ATRw1GBPNZD, ATRd1GBPNZD, ATRh12GBPNZD, ATRh4GBPNZD, ATRh1GBPNZD, ATRm15GBPNZD, m15GBPNZD, h1GBPNZD, h4GBPNZD, h12GBPNZD,
-                        d1GBPNZD, w1GBPNZD, m1GBPNZD);
+                        SymbolTrade(symbol, dmstrendGBPNZD, dmsrangeGBPNZD, dmsnukelimiterGBPNZD, rsispikeGBPNZD, stochasticsGBPNZD, ATRoriginaltpGBPNZD, ATRnukedistanceGBPNZD, ATRnuketpGBPNZD, ATRm1GBPNZD, ATRw1GBPNZD, ATRd1GBPNZD, ATRh12GBPNZD, ATRh4GBPNZD, ATRh1GBPNZD, ATRm15GBPNZD, m15GBPNZD, h1GBPNZD, h4GBPNZD, h12GBPNZD, d1GBPNZD, w1GBPNZD, m1GBPNZD, _initialvolumeconsolidationGBPNZD, _initialvolumeconsolidationbuyGBPNZD, _initialvolumeconsolidationsellGBPNZD);
                         break;
                     case "NZDCHF":
-                        SymbolTrade(symbol, dmstrendNZDCHF, dmsrangeNZDCHF, dmsnukelimiterNZDCHF, rsispikeNZDCHF, stochasticsNZDCHF, ATRoriginaltpNZDCHF, ATRnukedistanceNZDCHF, ATRnuketpNZDCHF, ATRm1NZDCHF,
-                        ATRw1NZDCHF, ATRd1NZDCHF, ATRh12NZDCHF, ATRh4NZDCHF, ATRh1NZDCHF, ATRm15NZDCHF, m15NZDCHF, h1NZDCHF, h4NZDCHF, h12NZDCHF,
-                        d1NZDCHF, w1NZDCHF, m1NZDCHF);
+                        SymbolTrade(symbol, dmstrendNZDCHF, dmsrangeNZDCHF, dmsnukelimiterNZDCHF, rsispikeNZDCHF, stochasticsNZDCHF, ATRoriginaltpNZDCHF, ATRnukedistanceNZDCHF, ATRnuketpNZDCHF, ATRm1NZDCHF, ATRw1NZDCHF, ATRd1NZDCHF, ATRh12NZDCHF, ATRh4NZDCHF, ATRh1NZDCHF, ATRm15NZDCHF, m15NZDCHF, h1NZDCHF, h4NZDCHF, h12NZDCHF, d1NZDCHF, w1NZDCHF, m1NZDCHF, _initialvolumeconsolidationNZDCHF, _initialvolumeconsolidationbuyNZDCHF, _initialvolumeconsolidationsellNZDCHF);
                         break;
                     case "NZDJPY":
-                        SymbolTrade(symbol, dmstrendNZDJPY, dmsrangeNZDJPY, dmsnukelimiterNZDJPY, rsispikeNZDJPY, stochasticsNZDJPY, ATRoriginaltpNZDJPY, ATRnukedistanceNZDJPY, ATRnuketpNZDJPY, ATRm1NZDJPY,
-                        ATRw1NZDJPY, ATRd1NZDJPY, ATRh12NZDJPY, ATRh4NZDJPY, ATRh1NZDJPY, ATRm15NZDJPY, m15NZDJPY, h1NZDJPY, h4NZDJPY, h12NZDJPY,
-                        d1NZDJPY, w1NZDJPY, m1NZDJPY);
+                        SymbolTrade(symbol, dmstrendNZDJPY, dmsrangeNZDJPY, dmsnukelimiterNZDJPY, rsispikeNZDJPY, stochasticsNZDJPY, ATRoriginaltpNZDJPY, ATRnukedistanceNZDJPY, ATRnuketpNZDJPY, ATRm1NZDJPY, ATRw1NZDJPY, ATRd1NZDJPY, ATRh12NZDJPY, ATRh4NZDJPY, ATRh1NZDJPY, ATRm15NZDJPY, m15NZDJPY, h1NZDJPY, h4NZDJPY, h12NZDJPY, d1NZDJPY, w1NZDJPY, m1NZDJPY, _initialvolumeconsolidationNZDJPY, _initialvolumeconsolidationbuyNZDJPY, _initialvolumeconsolidationsellNZDJPY);
                         break;
                     case "EURJPY":
-                        SymbolTrade(symbol, dmstrendEURJPY, dmsrangeEURJPY, dmsnukelimiterEURJPY, rsispikeEURJPY, stochasticsEURJPY, ATRoriginaltpEURJPY, ATRnukedistanceEURJPY, ATRnuketpEURJPY, ATRm1EURJPY,
-                        ATRw1EURJPY, ATRd1EURJPY, ATRh12EURJPY, ATRh4EURJPY, ATRh1EURJPY, ATRm15EURJPY, m15EURJPY, h1EURJPY, h4EURJPY, h12EURJPY,
-                        d1EURJPY, w1EURJPY, m1EURJPY);
+                        SymbolTrade(symbol, dmstrendEURJPY, dmsrangeEURJPY, dmsnukelimiterEURJPY, rsispikeEURJPY, stochasticsEURJPY, ATRoriginaltpEURJPY, ATRnukedistanceEURJPY, ATRnuketpEURJPY, ATRm1EURJPY, ATRw1EURJPY, ATRd1EURJPY, ATRh12EURJPY, ATRh4EURJPY, ATRh1EURJPY, ATRm15EURJPY, m15EURJPY, h1EURJPY, h4EURJPY, h12EURJPY, d1EURJPY, w1EURJPY, m1EURJPY, _initialvolumeconsolidationEURJPY, _initialvolumeconsolidationbuyEURJPY, _initialvolumeconsolidationsellEURJPY);
                         break;
                     case "GBPJPY":
-                        SymbolTrade(symbol, dmstrendGBPJPY, dmsrangeGBPJPY, dmsnukelimiterGBPJPY, rsispikeGBPJPY, stochasticsGBPJPY, ATRoriginaltpGBPJPY, ATRnukedistanceGBPJPY, ATRnuketpGBPJPY, ATRm1GBPJPY,
-                        ATRw1GBPJPY, ATRd1GBPJPY, ATRh12GBPJPY, ATRh4GBPJPY, ATRh1GBPJPY, ATRm15GBPJPY, m15GBPJPY, h1GBPJPY, h4GBPJPY, h12GBPJPY,
-                        d1GBPJPY, w1GBPJPY, m1GBPJPY);
+                        SymbolTrade(symbol, dmstrendGBPJPY, dmsrangeGBPJPY, dmsnukelimiterGBPJPY, rsispikeGBPJPY, stochasticsGBPJPY, ATRoriginaltpGBPJPY, ATRnukedistanceGBPJPY, ATRnuketpGBPJPY, ATRm1GBPJPY, ATRw1GBPJPY, ATRd1GBPJPY, ATRh12GBPJPY, ATRh4GBPJPY, ATRh1GBPJPY, ATRm15GBPJPY, m15GBPJPY, h1GBPJPY, h4GBPJPY, h12GBPJPY, d1GBPJPY, w1GBPJPY, m1GBPJPY, _initialvolumeconsolidationGBPJPY, _initialvolumeconsolidationbuyGBPJPY, _initialvolumeconsolidationsellGBPJPY);
                         break;
                     case "CHFJPY":
-                        SymbolTrade(symbol, dmstrendCHFJPY, dmsrangeCHFJPY, dmsnukelimiterCHFJPY, rsispikeCHFJPY, stochasticsCHFJPY, ATRoriginaltpCHFJPY, ATRnukedistanceCHFJPY, ATRnuketpCHFJPY, ATRm1CHFJPY,
-                        ATRw1CHFJPY, ATRd1CHFJPY, ATRh12CHFJPY, ATRh4CHFJPY, ATRh1CHFJPY, ATRm15CHFJPY, m15CHFJPY, h1CHFJPY, h4CHFJPY, h12CHFJPY,
-                        d1CHFJPY, w1CHFJPY, m1CHFJPY);
+                        SymbolTrade(symbol, dmstrendCHFJPY, dmsrangeCHFJPY, dmsnukelimiterCHFJPY, rsispikeCHFJPY, stochasticsCHFJPY, ATRoriginaltpCHFJPY, ATRnukedistanceCHFJPY, ATRnuketpCHFJPY, ATRm1CHFJPY, ATRw1CHFJPY, ATRd1CHFJPY, ATRh12CHFJPY, ATRh4CHFJPY, ATRh1CHFJPY, ATRm15CHFJPY, m15CHFJPY, h1CHFJPY, h4CHFJPY, h12CHFJPY, d1CHFJPY, w1CHFJPY, m1CHFJPY, _initialvolumeconsolidationCHFJPY, _initialvolumeconsolidationbuyCHFJPY, _initialvolumeconsolidationsellCHFJPY);
                         break;
                     case "EURCHF":
-                        SymbolTrade(symbol, dmstrendEURCHF, dmsrangeEURCHF, dmsnukelimiterEURCHF, rsispikeEURCHF, stochasticsEURCHF, ATRoriginaltpEURCHF, ATRnukedistanceEURCHF, ATRnuketpEURCHF, ATRm1EURCHF,
-                        ATRw1EURCHF, ATRd1EURCHF, ATRh12EURCHF, ATRh4EURCHF, ATRh1EURCHF, ATRm15EURCHF, m15EURCHF, h1EURCHF, h4EURCHF, h12EURCHF,
-                        d1EURCHF, w1EURCHF, m1EURCHF);
+                        SymbolTrade(symbol, dmstrendEURCHF, dmsrangeEURCHF, dmsnukelimiterEURCHF, rsispikeEURCHF, stochasticsEURCHF, ATRoriginaltpEURCHF, ATRnukedistanceEURCHF, ATRnuketpEURCHF, ATRm1EURCHF, ATRw1EURCHF, ATRd1EURCHF, ATRh12EURCHF, ATRh4EURCHF, ATRh1EURCHF, ATRm15EURCHF, m15EURCHF, h1EURCHF, h4EURCHF, h12EURCHF, d1EURCHF, w1EURCHF, m1EURCHF, _initialvolumeconsolidationEURCHF, _initialvolumeconsolidationbuyEURCHF, _initialvolumeconsolidationsellEURCHF);
                         break;
                     case "GBPCHF":
-                        SymbolTrade(symbol, dmstrendGBPCHF, dmsrangeGBPCHF, dmsnukelimiterGBPCHF, rsispikeGBPCHF, stochasticsGBPCHF, ATRoriginaltpGBPCHF, ATRnukedistanceGBPCHF, ATRnuketpGBPCHF, ATRm1GBPCHF,
-                        ATRw1GBPCHF, ATRd1GBPCHF, ATRh12GBPCHF, ATRh4GBPCHF, ATRh1GBPCHF, ATRm15GBPCHF, m15GBPCHF, h1GBPCHF, h4GBPCHF, h12GBPCHF,
-                        d1GBPCHF, w1GBPCHF, m1GBPCHF);
+                        SymbolTrade(symbol, dmstrendGBPCHF, dmsrangeGBPCHF, dmsnukelimiterGBPCHF, rsispikeGBPCHF, stochasticsGBPCHF, ATRoriginaltpGBPCHF, ATRnukedistanceGBPCHF, ATRnuketpGBPCHF, ATRm1GBPCHF, ATRw1GBPCHF, ATRd1GBPCHF, ATRh12GBPCHF, ATRh4GBPCHF, ATRh1GBPCHF, ATRm15GBPCHF, m15GBPCHF, h1GBPCHF, h4GBPCHF, h12GBPCHF, d1GBPCHF, w1GBPCHF, m1GBPCHF), _initialvolumeconsolidationGBPCHF, _initialvolumeconsolidationbuyGBPCHF, _initialvolumeconsolidationsellGBPCHF);
                         break;
                     case "EURGBP":
-                        SymbolTrade(symbol, dmstrendEURGBP, dmsrangeEURGBP, dmsnukelimiterEURGBP, rsispikeEURGBP, stochasticsEURGBP, ATRoriginaltpEURGBP, ATRnukedistanceEURGBP, ATRnuketpEURGBP, ATRm1EURGBP,
-                        ATRw1EURGBP, ATRd1EURGBP, ATRh12EURGBP, ATRh4EURGBP, ATRh1EURGBP, ATRm15EURGBP, m15EURGBP, h1EURGBP, h4EURGBP, h12EURGBP,
-                        d1EURGBP, w1EURGBP, m1EURGBP);
+                        SymbolTrade(symbol, dmstrendEURGBP, dmsrangeEURGBP, dmsnukelimiterEURGBP, rsispikeEURGBP, stochasticsEURGBP, ATRoriginaltpEURGBP, ATRnukedistanceEURGBP, ATRnuketpEURGBP, ATRm1EURGBP, ATRw1EURGBP, ATRd1EURGBP, ATRh12EURGBP, ATRh4EURGBP, ATRh1EURGBP, ATRm15EURGBP, m15EURGBP, h1EURGBP, h4EURGBP, h12EURGBP, d1EURGBP, w1EURGBP, m1EURGBP, _initialvolumeconsolidationEURGBP, _initialvolumeconsolidationbuyEURGBP, _initialvolumeconsolidationsellEURGBP);
                         break;
                 }
             }
         }
-        private void SymbolTrade(Symbol SymbolName, DirectionalMovementSystem DMSTREND, DirectionalMovementSystem DMSRANGE, DirectionalMovementSystem DMSNUKELIMITER, RelativeStrengthIndex RSISPIKE, StochasticOscillator STOCHASTICS, AverageTrueRange ATRORIGINALTP, AverageTrueRange ATRNUKEDISTANCE, AverageTrueRange ATRNUKETP, AverageTrueRange ATRM1,
-        AverageTrueRange ATRW1, AverageTrueRange ATRD1, AverageTrueRange ATRH12, AverageTrueRange ATRH4, AverageTrueRange ATRH1, AverageTrueRange ATRM15, Bars M15, Bars H1, Bars H4, Bars H12,
-        Bars D1, Bars W1, Bars M1)
+        private void SymbolTrade(Symbol SymbolName, DirectionalMovementSystem DMSTREND, DirectionalMovementSystem DMSRANGE, DirectionalMovementSystem DMSNUKELIMITER, RelativeStrengthIndex RSISPIKE, StochasticOscillator STOCHASTICS, AverageTrueRange ATRORIGINALTP, AverageTrueRange ATRNUKEDISTANCE, AverageTrueRange ATRNUKETP, AverageTrueRange ATRM1, AverageTrueRange ATRW1, AverageTrueRange ATRD1, AverageTrueRange ATRH12, AverageTrueRange ATRH4, AverageTrueRange ATRH1, AverageTrueRange ATRM15, Bars M15, Bars H1, Bars H4, Bars H12, Bars D1, Bars W1, Bars M1, bool _INITIALVOLUMECONSOLIDATION, bool _INITIALVOLUMECONSOLIDATIONBUY, bool _INITIALVOLUMECONSOLIDATIONSELL)
         {
             //variables
             var price = (SymbolName.Bid + SymbolName.Ask) / 2;
@@ -1990,41 +1927,44 @@ namespace cAlgo.Robots
             var dmsplus = DMSTREND.DIPlus.LastValue;
             var dmsminus = DMSTREND.DIMinus.LastValue;
             var adxrangelimit = DMSRANGE.ADX.LastValue;
-            var sldistance = ATRW1.Result.LastValue / Symbol.PipSize * 10;
+            var sldistance = ATRW1.Result.LastValue / SymbolName.PipSize * 10;
             var rawsldistance = ATRW1.Result.LastValue * 10;
-            var tpdistance = ATRORIGINALTP.Result.LastValue / Symbol.PipSize;
+            var tpdistance = ATRORIGINALTP.Result.LastValue / SymbolName.PipSize;
             var rawtpdistance = ATRORIGINALTP.Result.LastValue;
-            var nukedistance = ATRNUKEDISTANCE.Result.LastValue / Symbol.PipSize;
-            var nuketpdistance = ATRNUKETP.Result.LastValue / Symbol.PipSize;
+            var nukedistance = ATRNUKEDISTANCE.Result.LastValue / SymbolName.PipSize;
+            var nuketpdistance = ATRNUKETP.Result.LastValue / SymbolName.PipSize;
             var rawnuketpdistance = ATRNUKETP.Result.LastValue;
             var nukespike = RSISPIKE.Result.LastValue;
             var stochspike = STOCHASTICS.PercentK.LastValue;
             var adxnukelimiter = DMSNUKELIMITER.ADX.LastValue;
+            var _consolidation = _INITIALVOLUMECONSOLIDATION;
+            var _consolidationbuy = _INITIALVOLUMECONSOLIDATIONBUY;
+            var _consolidationsell = _INITIALVOLUMECONSOLIDATIONSELL;
             var nukerounderallowance = 0.5;
             //end of variables
 
             //entry logic
             //consolidation modification
-            if (!_initialvolumeconsolidation && (adxnukelimiter < ADXRangeLimiter))
+            if (!_consolidation && (adxnukelimiter < ADXRangeLimiter))
             {
-                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation " + " Symbol " + SymbolName.Name);
-                _initialvolumeconsolidation = true;
+                _consolidation = true;
+                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
             }
             //end of consolidation modification
             //buy after consolidation hitting S/R
-            if (_initialvolumeconsolidation && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            if (_consolidation && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
             {
-                Print(" Open at Support = " + stochspike + " Symbol " + SymbolName.Name);
                 ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
-                _initialvolumeconsolidation = false;
+                _consolidation = false;
+                Print(" Open at Support = " + stochspike);
             }
             //end of buy after hitting S/R
             //sell after hitting S/R
-            if (_initialvolumeconsolidation && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            if (_consolidation && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
             {
-                Print(" Open at Resistance = " + stochspike + " Symbol " + SymbolName.Name);
                 ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
-                _initialvolumeconsolidation = false;
+                _consolidation = false;
+                Print(" Open at Resistance = " + stochspike);
             }
             //end of sell after hitting S/R
             //end of entry logic
@@ -2034,38 +1974,38 @@ namespace cAlgo.Robots
             {
                 //buy nuke 
                 //consolidation modification
-                if (!_initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                if (!_consolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy " + " Symbol " + SymbolName.Name);
-                    _initialvolumeconsolidationbuy = true;
+                    _consolidationbuy = true;
+                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
-                if (_initialvolumeconsolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                if (_consolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
-                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Symbol " + SymbolName.Name);
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
-                    _initialvolumeconsolidationbuy = false;
+                    _consolidationbuy = false;
+                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of buy nuke
 
                 //sell nuke
                 //consolidation modification 
-                if (!_initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                if (!_consolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell " + " Symbol " + SymbolName.Name);
-                    _initialvolumeconsolidationsell = true;
+                    _consolidationsell = true;
+                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
-                if (_initialvolumeconsolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                if (_consolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
                 {
-                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Symbol " + SymbolName.Name);
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
-                    _initialvolumeconsolidationsell = false;
+                    _consolidationsell = false;
+                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of sell nuke

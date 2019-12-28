@@ -1,0 +1,2078 @@
+using System;
+using System.Linq;
+using cAlgo.API;
+using cAlgo.API.Indicators;
+using cAlgo.API.Internals;
+using cAlgo.Indicators;
+using System.Collections;
+using System.IO;
+
+namespace cAlgo.Robots
+{
+    [Robot(TimeZone = TimeZones.SingaporeStandardTime, AccessRights = AccessRights.FullAccess)]
+    public class VilmaStochastics : Robot
+    {
+        //expiration code
+        bool timeprotected = true;
+        // if true ;Expiry YEAR MM DD
+        DateTime expirytime = new DateTime(2019, 12, 30);
+        //end of expiration code
+
+        public Symbol[] MySymbols;
+
+        [Parameter("Limit Range", DefaultValue = 2, Group = "Anti-Slippage")]
+        public double LimitRange { get; set; }
+
+        //risk management, 0.01 lot for every 100 USD is the calculation. 400 net loss close assumes we are playing with 4 pairs on backtest
+        [Parameter("Volume", DefaultValue = 1000, Group = "Risk Management")]
+        public int Volume { get; set; }
+
+        [Parameter("Net Loss Close", DefaultValue = -150, Group = "Risk Management")]
+        public double NetLossClose { get; set; }
+
+        [Parameter("Net Profit Close", DefaultValue = 10000, Group = "Risk Management")]
+        public double NetProfitClose { get; set; }
+
+        [Parameter("Add Nuke TP", DefaultValue = 0.5, Group = "Targets")]
+        public double NukeTP { get; set; }
+
+        [Parameter("Nuke TP Multiplier", DefaultValue = 0.1, Group = "Targets")]
+        public double NukeTPMultiplier { get; set; }
+        //end of risk management
+
+        //determining market condition
+        [Parameter("Spike Periods", DefaultValue = 8, Group = "Reversal")]
+        public int RSIPeriods { get; set; }
+
+        [Parameter("Spike TF", DefaultValue = "Minute15", Group = "Reversal")]
+        public TimeFrame RSISpikeTF { get; set; }
+
+        [Parameter("Spike Upper Limit, set to 0 to disable", DefaultValue = 80, Group = "Reversal")]
+        public double RSIUpperLimit { get; set; }
+
+        [Parameter("Spike Lower Limit, set to 100 to disable", DefaultValue = 20, Group = "Reversal")]
+        public double RSILowerLimit { get; set; }
+
+        [Parameter("S/R TF", DefaultValue = "Daily", Group = "Reversal")]
+        public TimeFrame StochTF { get; set; }
+
+        [Parameter("S/R Periods", DefaultValue = 3, Group = "Reversal")]
+        public int StochPeriods { get; set; }
+
+        [Parameter("Resistance", DefaultValue = 97, Group = "Reversal")]
+        public double StochUpperLimit { get; set; }
+
+        [Parameter("Support", DefaultValue = 3, Group = "Reversal")]
+        public double StochLowerLimit { get; set; }
+
+        [Parameter("Ranging Periods", DefaultValue = 12, Group = "Reversal")]
+        public int ADXSpikePeriods { get; set; }
+
+        [Parameter("Nuke Limiter TF", DefaultValue = "Minute15", Group = "Reversal")]
+        public TimeFrame ADXNukeLimiterTF { get; set; }
+
+        [Parameter("Nuke Limiter", DefaultValue = 30, Group = "Reversal")]
+        public double ADXNukeLimiter { get; set; }
+
+        [Parameter("Nuke Limiter (Range)", DefaultValue = 20, Group = "Reversal")]
+        public double ADXRangeLimiter { get; set; }
+        //end of determining market condition
+
+        //TP Targets and Nuke Distance
+        [Parameter("Nuke Distance ATR TF", DefaultValue = "Daily", Group = "Take Profit Targets and Nuke Distance")]
+        public TimeFrame NukeDistanceATRTF { get; set; }
+
+        [Parameter("ATR NUKE DISTANCE PERIOD", DefaultValue = 14, Group = "Take Profit Targets and Nuke Distance")]
+        public int ATRNUKEDISTANCEPERIOD { get; set; }
+
+        [Parameter("Nuke Position ATR TF", DefaultValue = "Hour12", Group = "Take Profit Targets and Nuke Distance")]
+        public TimeFrame NukePositionATRTF { get; set; }
+
+        [Parameter("ATR NUKE TP PERIOD", DefaultValue = 28, Group = "Take Profit Targets and Nuke Distance")]
+        public int ATRNUKETPPERIOD { get; set; }
+        //end of TP Targets and Nuke Distance
+
+        //flags
+        //bool _initialvolumeconsolidation;
+        bool _initialvolumeconsolidationEURUSD;
+        bool _initialvolumeconsolidationUSDJPY;
+        bool _initialvolumeconsolidationGBPUSD;
+        bool _initialvolumeconsolidationUSDCHF;
+        bool _initialvolumeconsolidationAUDUSD;
+        bool _initialvolumeconsolidationNZDUSD;
+        bool _initialvolumeconsolidationUSDCAD;
+        bool _initialvolumeconsolidationEURCAD;
+        bool _initialvolumeconsolidationGBPCAD;
+        bool _initialvolumeconsolidationCADJPY;
+        bool _initialvolumeconsolidationCADCHF;
+        bool _initialvolumeconsolidationAUDCAD;
+        bool _initialvolumeconsolidationNZDCAD;
+        bool _initialvolumeconsolidationEURAUD;
+        bool _initialvolumeconsolidationGBPAUD;
+        bool _initialvolumeconsolidationAUDJPY;
+        bool _initialvolumeconsolidationAUDCHF;
+        bool _initialvolumeconsolidationAUDNZD;
+        bool _initialvolumeconsolidationEURNZD;
+        bool _initialvolumeconsolidationGBPNZD;
+        bool _initialvolumeconsolidationNZDCHF;
+        bool _initialvolumeconsolidationNZDJPY;
+        bool _initialvolumeconsolidationEURJPY;
+        bool _initialvolumeconsolidationGBPJPY;
+        bool _initialvolumeconsolidationCHFJPY;
+        bool _initialvolumeconsolidationEURCHF;
+        bool _initialvolumeconsolidationGBPCHF;
+        bool _initialvolumeconsolidationEURGBP;
+
+        //bool _initialvolumeconsolidationbuy;
+        bool _initialvolumeconsolidationbuyEURUSD;
+        bool _initialvolumeconsolidationbuyUSDJPY;
+        bool _initialvolumeconsolidationbuyGBPUSD;
+        bool _initialvolumeconsolidationbuyUSDCHF;
+        bool _initialvolumeconsolidationbuyAUDUSD;
+        bool _initialvolumeconsolidationbuyNZDUSD;
+        bool _initialvolumeconsolidationbuyUSDCAD;
+        bool _initialvolumeconsolidationbuyEURCAD;
+        bool _initialvolumeconsolidationbuyGBPCAD;
+        bool _initialvolumeconsolidationbuyCADJPY;
+        bool _initialvolumeconsolidationbuyCADCHF;
+        bool _initialvolumeconsolidationbuyAUDCAD;
+        bool _initialvolumeconsolidationbuyNZDCAD;
+        bool _initialvolumeconsolidationbuyEURAUD;
+        bool _initialvolumeconsolidationbuyGBPAUD;
+        bool _initialvolumeconsolidationbuyAUDJPY;
+        bool _initialvolumeconsolidationbuyAUDCHF;
+        bool _initialvolumeconsolidationbuyAUDNZD;
+        bool _initialvolumeconsolidationbuyEURNZD;
+        bool _initialvolumeconsolidationbuyGBPNZD;
+        bool _initialvolumeconsolidationbuyNZDCHF;
+        bool _initialvolumeconsolidationbuyNZDJPY;
+        bool _initialvolumeconsolidationbuyEURJPY;
+        bool _initialvolumeconsolidationbuyGBPJPY;
+        bool _initialvolumeconsolidationbuyCHFJPY;
+        bool _initialvolumeconsolidationbuyEURCHF;
+        bool _initialvolumeconsolidationbuyGBPCHF;
+        bool _initialvolumeconsolidationbuyEURGBP;
+
+        //bool _initialvolumeconsolidationsell;
+        bool _initialvolumeconsolidationsellEURUSD;
+        bool _initialvolumeconsolidationsellUSDJPY;
+        bool _initialvolumeconsolidationsellGBPUSD;
+        bool _initialvolumeconsolidationsellUSDCHF;
+        bool _initialvolumeconsolidationsellAUDUSD;
+        bool _initialvolumeconsolidationsellNZDUSD;
+        bool _initialvolumeconsolidationsellUSDCAD;
+        bool _initialvolumeconsolidationsellEURCAD;
+        bool _initialvolumeconsolidationsellGBPCAD;
+        bool _initialvolumeconsolidationsellCADJPY;
+        bool _initialvolumeconsolidationsellCADCHF;
+        bool _initialvolumeconsolidationsellAUDCAD;
+        bool _initialvolumeconsolidationsellNZDCAD;
+        bool _initialvolumeconsolidationsellEURAUD;
+        bool _initialvolumeconsolidationsellGBPAUD;
+        bool _initialvolumeconsolidationsellAUDJPY;
+        bool _initialvolumeconsolidationsellAUDCHF;
+        bool _initialvolumeconsolidationsellAUDNZD;
+        bool _initialvolumeconsolidationsellEURNZD;
+        bool _initialvolumeconsolidationsellGBPNZD;
+        bool _initialvolumeconsolidationsellNZDCHF;
+        bool _initialvolumeconsolidationsellNZDJPY;
+        bool _initialvolumeconsolidationsellEURJPY;
+        bool _initialvolumeconsolidationsellGBPJPY;
+        bool _initialvolumeconsolidationsellCHFJPY;
+        bool _initialvolumeconsolidationsellEURCHF;
+        bool _initialvolumeconsolidationsellGBPCHF;
+        bool _initialvolumeconsolidationsellEURGBP;
+        //end of flags
+
+        //Market Series, ATR, RSI and ADX Declarations
+        private Bars m15EURUSD;
+        private Bars h1EURUSD;
+        private Bars h4EURUSD;
+        private Bars h12EURUSD;
+        private Bars d1EURUSD;
+        private Bars w1EURUSD;
+        private Bars m1EURUSD;
+        private DirectionalMovementSystem dmstrendEURUSD;
+        private DirectionalMovementSystem dmsnukelimiterEURUSD;
+        private DirectionalMovementSystem dmsrangeEURUSD;
+        private RelativeStrengthIndex rsispikeEURUSD;
+        private StochasticOscillator stochasticsEURUSD;
+        private AverageTrueRange ATRoriginaltpEURUSD;
+        private AverageTrueRange ATRnukedistanceEURUSD;
+        private AverageTrueRange ATRnuketpEURUSD;
+        private AverageTrueRange ATRm15EURUSD;
+        private AverageTrueRange ATRh1EURUSD;
+        private AverageTrueRange ATRh4EURUSD;
+        private AverageTrueRange ATRh12EURUSD;
+        private AverageTrueRange ATRd1EURUSD;
+        private AverageTrueRange ATRw1EURUSD;
+        private AverageTrueRange ATRm1EURUSD;
+
+        private Bars m15GBPUSD;
+        private Bars h1GBPUSD;
+        private Bars h4GBPUSD;
+        private Bars h12GBPUSD;
+        private Bars d1GBPUSD;
+        private Bars w1GBPUSD;
+        private Bars m1GBPUSD;
+        private DirectionalMovementSystem dmstrendGBPUSD;
+        private DirectionalMovementSystem dmsnukelimiterGBPUSD;
+        private DirectionalMovementSystem dmsrangeGBPUSD;
+        private RelativeStrengthIndex rsispikeGBPUSD;
+        private StochasticOscillator stochasticsGBPUSD;
+        private AverageTrueRange ATRoriginaltpGBPUSD;
+        private AverageTrueRange ATRnukedistanceGBPUSD;
+        private AverageTrueRange ATRnuketpGBPUSD;
+        private AverageTrueRange ATRm15GBPUSD;
+        private AverageTrueRange ATRh1GBPUSD;
+        private AverageTrueRange ATRh4GBPUSD;
+        private AverageTrueRange ATRh12GBPUSD;
+        private AverageTrueRange ATRd1GBPUSD;
+        private AverageTrueRange ATRw1GBPUSD;
+        private AverageTrueRange ATRm1GBPUSD;
+
+        private Bars m15USDJPY;
+        private Bars h1USDJPY;
+        private Bars h4USDJPY;
+        private Bars h12USDJPY;
+        private Bars d1USDJPY;
+        private Bars w1USDJPY;
+        private Bars m1USDJPY;
+        private DirectionalMovementSystem dmstrendUSDJPY;
+        private DirectionalMovementSystem dmsnukelimiterUSDJPY;
+        private DirectionalMovementSystem dmsrangeUSDJPY;
+        private RelativeStrengthIndex rsispikeUSDJPY;
+        private StochasticOscillator stochasticsUSDJPY;
+        private AverageTrueRange ATRoriginaltpUSDJPY;
+        private AverageTrueRange ATRnukedistanceUSDJPY;
+        private AverageTrueRange ATRnuketpUSDJPY;
+        private AverageTrueRange ATRm15USDJPY;
+        private AverageTrueRange ATRh1USDJPY;
+        private AverageTrueRange ATRh4USDJPY;
+        private AverageTrueRange ATRh12USDJPY;
+        private AverageTrueRange ATRd1USDJPY;
+        private AverageTrueRange ATRw1USDJPY;
+        private AverageTrueRange ATRm1USDJPY;
+
+
+        private Bars m15USDCHF;
+        private Bars h1USDCHF;
+        private Bars h4USDCHF;
+        private Bars h12USDCHF;
+        private Bars d1USDCHF;
+        private Bars w1USDCHF;
+        private Bars m1USDCHF;
+        private DirectionalMovementSystem dmstrendUSDCHF;
+        private DirectionalMovementSystem dmsnukelimiterUSDCHF;
+        private DirectionalMovementSystem dmsrangeUSDCHF;
+        private RelativeStrengthIndex rsispikeUSDCHF;
+        private StochasticOscillator stochasticsUSDCHF;
+        private AverageTrueRange ATRoriginaltpUSDCHF;
+        private AverageTrueRange ATRnukedistanceUSDCHF;
+        private AverageTrueRange ATRnuketpUSDCHF;
+        private AverageTrueRange ATRm15USDCHF;
+        private AverageTrueRange ATRh1USDCHF;
+        private AverageTrueRange ATRh4USDCHF;
+        private AverageTrueRange ATRh12USDCHF;
+        private AverageTrueRange ATRd1USDCHF;
+        private AverageTrueRange ATRm1USDCHF;
+        private AverageTrueRange ATRw1USDCHF;
+
+        private Bars m15AUDUSD;
+        private Bars h1AUDUSD;
+        private Bars h4AUDUSD;
+        private Bars h12AUDUSD;
+        private Bars d1AUDUSD;
+        private Bars w1AUDUSD;
+        private Bars m1AUDUSD;
+        private DirectionalMovementSystem dmstrendAUDUSD;
+        private DirectionalMovementSystem dmsnukelimiterAUDUSD;
+        private DirectionalMovementSystem dmsrangeAUDUSD;
+        private RelativeStrengthIndex rsispikeAUDUSD;
+        private StochasticOscillator stochasticsAUDUSD;
+        private AverageTrueRange ATRoriginaltpAUDUSD;
+        private AverageTrueRange ATRnukedistanceAUDUSD;
+        private AverageTrueRange ATRnuketpAUDUSD;
+        private AverageTrueRange ATRm15AUDUSD;
+        private AverageTrueRange ATRh1AUDUSD;
+        private AverageTrueRange ATRh4AUDUSD;
+        private AverageTrueRange ATRh12AUDUSD;
+        private AverageTrueRange ATRd1AUDUSD;
+        private AverageTrueRange ATRm1AUDUSD;
+        private AverageTrueRange ATRw1AUDUSD;
+
+        private Bars m15NZDUSD;
+        private Bars h1NZDUSD;
+        private Bars h4NZDUSD;
+        private Bars h12NZDUSD;
+        private Bars d1NZDUSD;
+        private Bars w1NZDUSD;
+        private Bars m1NZDUSD;
+        private DirectionalMovementSystem dmstrendNZDUSD;
+        private DirectionalMovementSystem dmsnukelimiterNZDUSD;
+        private DirectionalMovementSystem dmsrangeNZDUSD;
+        private RelativeStrengthIndex rsispikeNZDUSD;
+        private StochasticOscillator stochasticsNZDUSD;
+        private AverageTrueRange ATRoriginaltpNZDUSD;
+        private AverageTrueRange ATRnukedistanceNZDUSD;
+        private AverageTrueRange ATRnuketpNZDUSD;
+        private AverageTrueRange ATRm15NZDUSD;
+        private AverageTrueRange ATRh1NZDUSD;
+        private AverageTrueRange ATRh4NZDUSD;
+        private AverageTrueRange ATRh12NZDUSD;
+        private AverageTrueRange ATRd1NZDUSD;
+        private AverageTrueRange ATRw1NZDUSD;
+        private AverageTrueRange ATRm1NZDUSD;
+
+        private Bars m15USDCAD;
+        private Bars h1USDCAD;
+        private Bars h4USDCAD;
+        private Bars h12USDCAD;
+        private Bars d1USDCAD;
+        private Bars w1USDCAD;
+        private Bars m1USDCAD;
+        private DirectionalMovementSystem dmstrendUSDCAD;
+        private DirectionalMovementSystem dmsnukelimiterUSDCAD;
+        private DirectionalMovementSystem dmsrangeUSDCAD;
+        private RelativeStrengthIndex rsispikeUSDCAD;
+        private StochasticOscillator stochasticsUSDCAD;
+        private AverageTrueRange ATRoriginaltpUSDCAD;
+        private AverageTrueRange ATRnukedistanceUSDCAD;
+        private AverageTrueRange ATRnuketpUSDCAD;
+        private AverageTrueRange ATRm15USDCAD;
+        private AverageTrueRange ATRh1USDCAD;
+        private AverageTrueRange ATRh4USDCAD;
+        private AverageTrueRange ATRh12USDCAD;
+        private AverageTrueRange ATRd1USDCAD;
+        private AverageTrueRange ATRw1USDCAD;
+        private AverageTrueRange ATRm1USDCAD;
+
+        private Bars m15EURCAD;
+        private Bars h1EURCAD;
+        private Bars h4EURCAD;
+        private Bars h12EURCAD;
+        private Bars d1EURCAD;
+        private Bars w1EURCAD;
+        private Bars m1EURCAD;
+        private DirectionalMovementSystem dmstrendEURCAD;
+        private DirectionalMovementSystem dmsnukelimiterEURCAD;
+        private DirectionalMovementSystem dmsrangeEURCAD;
+        private RelativeStrengthIndex rsispikeEURCAD;
+        private StochasticOscillator stochasticsEURCAD;
+        private AverageTrueRange ATRoriginaltpEURCAD;
+        private AverageTrueRange ATRnukedistanceEURCAD;
+        private AverageTrueRange ATRnuketpEURCAD;
+        private AverageTrueRange ATRm15EURCAD;
+        private AverageTrueRange ATRh1EURCAD;
+        private AverageTrueRange ATRh4EURCAD;
+        private AverageTrueRange ATRh12EURCAD;
+        private AverageTrueRange ATRd1EURCAD;
+        private AverageTrueRange ATRw1EURCAD;
+        private AverageTrueRange ATRm1EURCAD;
+
+        private Bars m15GBPCAD;
+        private Bars h1GBPCAD;
+        private Bars h4GBPCAD;
+        private Bars h12GBPCAD;
+        private Bars d1GBPCAD;
+        private Bars w1GBPCAD;
+        private Bars m1GBPCAD;
+        private DirectionalMovementSystem dmstrendGBPCAD;
+        private DirectionalMovementSystem dmsnukelimiterGBPCAD;
+        private DirectionalMovementSystem dmsrangeGBPCAD;
+        private RelativeStrengthIndex rsispikeGBPCAD;
+        private StochasticOscillator stochasticsGBPCAD;
+        private AverageTrueRange ATRoriginaltpGBPCAD;
+        private AverageTrueRange ATRnukedistanceGBPCAD;
+        private AverageTrueRange ATRnuketpGBPCAD;
+        private AverageTrueRange ATRm15GBPCAD;
+        private AverageTrueRange ATRh1GBPCAD;
+        private AverageTrueRange ATRh4GBPCAD;
+        private AverageTrueRange ATRh12GBPCAD;
+        private AverageTrueRange ATRd1GBPCAD;
+        private AverageTrueRange ATRw1GBPCAD;
+        private AverageTrueRange ATRm1GBPCAD;
+
+        private Bars m15CADJPY;
+        private Bars h1CADJPY;
+        private Bars h4CADJPY;
+        private Bars h12CADJPY;
+        private Bars d1CADJPY;
+        private Bars w1CADJPY;
+        private Bars m1CADJPY;
+        private DirectionalMovementSystem dmstrendCADJPY;
+        private DirectionalMovementSystem dmsnukelimiterCADJPY;
+        private DirectionalMovementSystem dmsrangeCADJPY;
+        private RelativeStrengthIndex rsispikeCADJPY;
+        private StochasticOscillator stochasticsCADJPY;
+        private AverageTrueRange ATRoriginaltpCADJPY;
+        private AverageTrueRange ATRnukedistanceCADJPY;
+        private AverageTrueRange ATRnuketpCADJPY;
+        private AverageTrueRange ATRm15CADJPY;
+        private AverageTrueRange ATRh1CADJPY;
+        private AverageTrueRange ATRh4CADJPY;
+        private AverageTrueRange ATRh12CADJPY;
+        private AverageTrueRange ATRd1CADJPY;
+        private AverageTrueRange ATRw1CADJPY;
+        private AverageTrueRange ATRm1CADJPY;
+
+        private Bars m15CADCHF;
+        private Bars h1CADCHF;
+        private Bars h4CADCHF;
+        private Bars h12CADCHF;
+        private Bars d1CADCHF;
+        private Bars w1CADCHF;
+        private Bars m1CADCHF;
+        private DirectionalMovementSystem dmstrendCADCHF;
+        private DirectionalMovementSystem dmsnukelimiterCADCHF;
+        private DirectionalMovementSystem dmsrangeCADCHF;
+        private RelativeStrengthIndex rsispikeCADCHF;
+        private StochasticOscillator stochasticsCADCHF;
+        private AverageTrueRange ATRoriginaltpCADCHF;
+        private AverageTrueRange ATRnukedistanceCADCHF;
+        private AverageTrueRange ATRnuketpCADCHF;
+        private AverageTrueRange ATRm15CADCHF;
+        private AverageTrueRange ATRh1CADCHF;
+        private AverageTrueRange ATRh4CADCHF;
+        private AverageTrueRange ATRh12CADCHF;
+        private AverageTrueRange ATRd1CADCHF;
+        private AverageTrueRange ATRw1CADCHF;
+        private AverageTrueRange ATRm1CADCHF;
+
+        private Bars m15AUDCAD;
+        private Bars h1AUDCAD;
+        private Bars h4AUDCAD;
+        private Bars h12AUDCAD;
+        private Bars d1AUDCAD;
+        private Bars w1AUDCAD;
+        private Bars m1AUDCAD;
+        private DirectionalMovementSystem dmstrendAUDCAD;
+        private DirectionalMovementSystem dmsnukelimiterAUDCAD;
+        private DirectionalMovementSystem dmsrangeAUDCAD;
+        private RelativeStrengthIndex rsispikeAUDCAD;
+        private StochasticOscillator stochasticsAUDCAD;
+        private AverageTrueRange ATRoriginaltpAUDCAD;
+        private AverageTrueRange ATRnukedistanceAUDCAD;
+        private AverageTrueRange ATRnuketpAUDCAD;
+        private AverageTrueRange ATRm15AUDCAD;
+        private AverageTrueRange ATRh1AUDCAD;
+        private AverageTrueRange ATRh4AUDCAD;
+        private AverageTrueRange ATRh12AUDCAD;
+        private AverageTrueRange ATRd1AUDCAD;
+        private AverageTrueRange ATRw1AUDCAD;
+        private AverageTrueRange ATRm1AUDCAD;
+
+        private Bars m15NZDCAD;
+        private Bars h1NZDCAD;
+        private Bars h4NZDCAD;
+        private Bars h12NZDCAD;
+        private Bars d1NZDCAD;
+        private Bars w1NZDCAD;
+        private Bars m1NZDCAD;
+        private DirectionalMovementSystem dmstrendNZDCAD;
+        private DirectionalMovementSystem dmsnukelimiterNZDCAD;
+        private DirectionalMovementSystem dmsrangeNZDCAD;
+        private RelativeStrengthIndex rsispikeNZDCAD;
+        private StochasticOscillator stochasticsNZDCAD;
+        private AverageTrueRange ATRoriginaltpNZDCAD;
+        private AverageTrueRange ATRnukedistanceNZDCAD;
+        private AverageTrueRange ATRnuketpNZDCAD;
+        private AverageTrueRange ATRm15NZDCAD;
+        private AverageTrueRange ATRh1NZDCAD;
+        private AverageTrueRange ATRh4NZDCAD;
+        private AverageTrueRange ATRh12NZDCAD;
+        private AverageTrueRange ATRd1NZDCAD;
+        private AverageTrueRange ATRw1NZDCAD;
+        private AverageTrueRange ATRm1NZDCAD;
+
+        private Bars m15EURNZD;
+        private Bars h1EURNZD;
+        private Bars h4EURNZD;
+        private Bars h12EURNZD;
+        private Bars d1EURNZD;
+        private Bars w1EURNZD;
+        private Bars m1EURNZD;
+        private DirectionalMovementSystem dmstrendEURNZD;
+        private DirectionalMovementSystem dmsnukelimiterEURNZD;
+        private DirectionalMovementSystem dmsrangeEURNZD;
+        private RelativeStrengthIndex rsispikeEURNZD;
+        private StochasticOscillator stochasticsEURNZD;
+        private AverageTrueRange ATRoriginaltpEURNZD;
+        private AverageTrueRange ATRnukedistanceEURNZD;
+        private AverageTrueRange ATRnuketpEURNZD;
+        private AverageTrueRange ATRm15EURNZD;
+        private AverageTrueRange ATRh1EURNZD;
+        private AverageTrueRange ATRh4EURNZD;
+        private AverageTrueRange ATRh12EURNZD;
+        private AverageTrueRange ATRd1EURNZD;
+        private AverageTrueRange ATRw1EURNZD;
+        private AverageTrueRange ATRm1EURNZD;
+
+        private Bars m15GBPNZD;
+        private Bars h1GBPNZD;
+        private Bars h4GBPNZD;
+        private Bars h12GBPNZD;
+        private Bars d1GBPNZD;
+        private Bars w1GBPNZD;
+        private Bars m1GBPNZD;
+        private DirectionalMovementSystem dmstrendGBPNZD;
+        private DirectionalMovementSystem dmsnukelimiterGBPNZD;
+        private DirectionalMovementSystem dmsrangeGBPNZD;
+        private RelativeStrengthIndex rsispikeGBPNZD;
+        private StochasticOscillator stochasticsGBPNZD;
+        private AverageTrueRange ATRoriginaltpGBPNZD;
+        private AverageTrueRange ATRnukedistanceGBPNZD;
+        private AverageTrueRange ATRnuketpGBPNZD;
+        private AverageTrueRange ATRm15GBPNZD;
+        private AverageTrueRange ATRh1GBPNZD;
+        private AverageTrueRange ATRh4GBPNZD;
+        private AverageTrueRange ATRh12GBPNZD;
+        private AverageTrueRange ATRd1GBPNZD;
+        private AverageTrueRange ATRw1GBPNZD;
+        private AverageTrueRange ATRm1GBPNZD;
+
+        private Bars m15NZDCHF;
+        private Bars h1NZDCHF;
+        private Bars h4NZDCHF;
+        private Bars h12NZDCHF;
+        private Bars d1NZDCHF;
+        private Bars w1NZDCHF;
+        private Bars m1NZDCHF;
+        private DirectionalMovementSystem dmstrendNZDCHF;
+        private DirectionalMovementSystem dmsnukelimiterNZDCHF;
+        private DirectionalMovementSystem dmsrangeNZDCHF;
+        private RelativeStrengthIndex rsispikeNZDCHF;
+        private StochasticOscillator stochasticsNZDCHF;
+        private AverageTrueRange ATRoriginaltpNZDCHF;
+        private AverageTrueRange ATRnukedistanceNZDCHF;
+        private AverageTrueRange ATRnuketpNZDCHF;
+        private AverageTrueRange ATRm15NZDCHF;
+        private AverageTrueRange ATRh1NZDCHF;
+        private AverageTrueRange ATRh4NZDCHF;
+        private AverageTrueRange ATRh12NZDCHF;
+        private AverageTrueRange ATRd1NZDCHF;
+        private AverageTrueRange ATRw1NZDCHF;
+        private AverageTrueRange ATRm1NZDCHF;
+
+        private Bars m15NZDJPY;
+        private Bars h1NZDJPY;
+        private Bars h4NZDJPY;
+        private Bars h12NZDJPY;
+        private Bars d1NZDJPY;
+        private Bars w1NZDJPY;
+        private Bars m1NZDJPY;
+        private DirectionalMovementSystem dmstrendNZDJPY;
+        private DirectionalMovementSystem dmsnukelimiterNZDJPY;
+        private DirectionalMovementSystem dmsrangeNZDJPY;
+        private RelativeStrengthIndex rsispikeNZDJPY;
+        private StochasticOscillator stochasticsNZDJPY;
+        private AverageTrueRange ATRoriginaltpNZDJPY;
+        private AverageTrueRange ATRnukedistanceNZDJPY;
+        private AverageTrueRange ATRnuketpNZDJPY;
+        private AverageTrueRange ATRm15NZDJPY;
+        private AverageTrueRange ATRh1NZDJPY;
+        private AverageTrueRange ATRh4NZDJPY;
+        private AverageTrueRange ATRh12NZDJPY;
+        private AverageTrueRange ATRd1NZDJPY;
+        private AverageTrueRange ATRw1NZDJPY;
+        private AverageTrueRange ATRm1NZDJPY;
+
+        private Bars m15AUDNZD;
+        private Bars h1AUDNZD;
+        private Bars h4AUDNZD;
+        private Bars h12AUDNZD;
+        private Bars d1AUDNZD;
+        private Bars w1AUDNZD;
+        private Bars m1AUDNZD;
+        private DirectionalMovementSystem dmstrendAUDNZD;
+        private DirectionalMovementSystem dmsnukelimiterAUDNZD;
+        private DirectionalMovementSystem dmsrangeAUDNZD;
+        private RelativeStrengthIndex rsispikeAUDNZD;
+        private StochasticOscillator stochasticsAUDNZD;
+        private AverageTrueRange ATRoriginaltpAUDNZD;
+        private AverageTrueRange ATRnukedistanceAUDNZD;
+        private AverageTrueRange ATRnuketpAUDNZD;
+        private AverageTrueRange ATRm15AUDNZD;
+        private AverageTrueRange ATRh1AUDNZD;
+        private AverageTrueRange ATRh4AUDNZD;
+        private AverageTrueRange ATRh12AUDNZD;
+        private AverageTrueRange ATRd1AUDNZD;
+        private AverageTrueRange ATRw1AUDNZD;
+        private AverageTrueRange ATRm1AUDNZD;
+
+        private Bars m15EURAUD;
+        private Bars h1EURAUD;
+        private Bars h4EURAUD;
+        private Bars h12EURAUD;
+        private Bars d1EURAUD;
+        private Bars w1EURAUD;
+        private Bars m1EURAUD;
+        private DirectionalMovementSystem dmstrendEURAUD;
+        private DirectionalMovementSystem dmsnukelimiterEURAUD;
+        private DirectionalMovementSystem dmsrangeEURAUD;
+        private RelativeStrengthIndex rsispikeEURAUD;
+        private StochasticOscillator stochasticsEURAUD;
+        private AverageTrueRange ATRoriginaltpEURAUD;
+        private AverageTrueRange ATRnukedistanceEURAUD;
+        private AverageTrueRange ATRnuketpEURAUD;
+        private AverageTrueRange ATRm15EURAUD;
+        private AverageTrueRange ATRh1EURAUD;
+        private AverageTrueRange ATRh4EURAUD;
+        private AverageTrueRange ATRh12EURAUD;
+        private AverageTrueRange ATRd1EURAUD;
+        private AverageTrueRange ATRw1EURAUD;
+        private AverageTrueRange ATRm1EURAUD;
+
+        private Bars m15GBPAUD;
+        private Bars h1GBPAUD;
+        private Bars h4GBPAUD;
+        private Bars h12GBPAUD;
+        private Bars d1GBPAUD;
+        private Bars w1GBPAUD;
+        private Bars m1GBPAUD;
+        private DirectionalMovementSystem dmstrendGBPAUD;
+        private DirectionalMovementSystem dmsnukelimiterGBPAUD;
+        private DirectionalMovementSystem dmsrangeGBPAUD;
+        private RelativeStrengthIndex rsispikeGBPAUD;
+        private StochasticOscillator stochasticsGBPAUD;
+        private AverageTrueRange ATRoriginaltpGBPAUD;
+        private AverageTrueRange ATRnukedistanceGBPAUD;
+        private AverageTrueRange ATRnuketpGBPAUD;
+        private AverageTrueRange ATRm15GBPAUD;
+        private AverageTrueRange ATRh1GBPAUD;
+        private AverageTrueRange ATRh4GBPAUD;
+        private AverageTrueRange ATRh12GBPAUD;
+        private AverageTrueRange ATRd1GBPAUD;
+        private AverageTrueRange ATRw1GBPAUD;
+        private AverageTrueRange ATRm1GBPAUD;
+
+        private Bars m15AUDCHF;
+        private Bars h1AUDCHF;
+        private Bars h4AUDCHF;
+        private Bars h12AUDCHF;
+        private Bars d1AUDCHF;
+        private Bars w1AUDCHF;
+        private Bars m1AUDCHF;
+        private DirectionalMovementSystem dmstrendAUDCHF;
+        private DirectionalMovementSystem dmsnukelimiterAUDCHF;
+        private DirectionalMovementSystem dmsrangeAUDCHF;
+        private RelativeStrengthIndex rsispikeAUDCHF;
+        private StochasticOscillator stochasticsAUDCHF;
+        private AverageTrueRange ATRoriginaltpAUDCHF;
+        private AverageTrueRange ATRnukedistanceAUDCHF;
+        private AverageTrueRange ATRnuketpAUDCHF;
+        private AverageTrueRange ATRm15AUDCHF;
+        private AverageTrueRange ATRh1AUDCHF;
+        private AverageTrueRange ATRh4AUDCHF;
+        private AverageTrueRange ATRh12AUDCHF;
+        private AverageTrueRange ATRd1AUDCHF;
+        private AverageTrueRange ATRw1AUDCHF;
+        private AverageTrueRange ATRm1AUDCHF;
+
+        private Bars m15AUDJPY;
+        private Bars h1AUDJPY;
+        private Bars h4AUDJPY;
+        private Bars h12AUDJPY;
+        private Bars d1AUDJPY;
+        private Bars w1AUDJPY;
+        private Bars m1AUDJPY;
+        private DirectionalMovementSystem dmstrendAUDJPY;
+        private DirectionalMovementSystem dmsnukelimiterAUDJPY;
+        private DirectionalMovementSystem dmsrangeAUDJPY;
+        private RelativeStrengthIndex rsispikeAUDJPY;
+        private StochasticOscillator stochasticsAUDJPY;
+        private AverageTrueRange ATRoriginaltpAUDJPY;
+        private AverageTrueRange ATRnukedistanceAUDJPY;
+        private AverageTrueRange ATRnuketpAUDJPY;
+        private AverageTrueRange ATRm15AUDJPY;
+        private AverageTrueRange ATRh1AUDJPY;
+        private AverageTrueRange ATRh4AUDJPY;
+        private AverageTrueRange ATRh12AUDJPY;
+        private AverageTrueRange ATRd1AUDJPY;
+        private AverageTrueRange ATRw1AUDJPY;
+        private AverageTrueRange ATRm1AUDJPY;
+
+        private Bars m15EURJPY;
+        private Bars h1EURJPY;
+        private Bars h4EURJPY;
+        private Bars h12EURJPY;
+        private Bars d1EURJPY;
+        private Bars w1EURJPY;
+        private Bars m1EURJPY;
+        private DirectionalMovementSystem dmstrendEURJPY;
+        private DirectionalMovementSystem dmsnukelimiterEURJPY;
+        private DirectionalMovementSystem dmsrangeEURJPY;
+        private RelativeStrengthIndex rsispikeEURJPY;
+        private StochasticOscillator stochasticsEURJPY;
+        private AverageTrueRange ATRoriginaltpEURJPY;
+        private AverageTrueRange ATRnukedistanceEURJPY;
+        private AverageTrueRange ATRnuketpEURJPY;
+        private AverageTrueRange ATRm15EURJPY;
+        private AverageTrueRange ATRh1EURJPY;
+        private AverageTrueRange ATRh4EURJPY;
+        private AverageTrueRange ATRh12EURJPY;
+        private AverageTrueRange ATRd1EURJPY;
+        private AverageTrueRange ATRw1EURJPY;
+        private AverageTrueRange ATRm1EURJPY;
+
+        private Bars m15GBPJPY;
+        private Bars h1GBPJPY;
+        private Bars h4GBPJPY;
+        private Bars h12GBPJPY;
+        private Bars d1GBPJPY;
+        private Bars w1GBPJPY;
+        private Bars m1GBPJPY;
+        private DirectionalMovementSystem dmstrendGBPJPY;
+        private DirectionalMovementSystem dmsnukelimiterGBPJPY;
+        private DirectionalMovementSystem dmsrangeGBPJPY;
+        private RelativeStrengthIndex rsispikeGBPJPY;
+        private StochasticOscillator stochasticsGBPJPY;
+        private AverageTrueRange ATRoriginaltpGBPJPY;
+        private AverageTrueRange ATRnukedistanceGBPJPY;
+        private AverageTrueRange ATRnuketpGBPJPY;
+        private AverageTrueRange ATRm15GBPJPY;
+        private AverageTrueRange ATRh1GBPJPY;
+        private AverageTrueRange ATRh4GBPJPY;
+        private AverageTrueRange ATRh12GBPJPY;
+        private AverageTrueRange ATRd1GBPJPY;
+        private AverageTrueRange ATRw1GBPJPY;
+        private AverageTrueRange ATRm1GBPJPY;
+
+        private Bars m15CHFJPY;
+        private Bars h1CHFJPY;
+        private Bars h4CHFJPY;
+        private Bars h12CHFJPY;
+        private Bars d1CHFJPY;
+        private Bars w1CHFJPY;
+        private Bars m1CHFJPY;
+        private DirectionalMovementSystem dmstrendCHFJPY;
+        private DirectionalMovementSystem dmsnukelimiterCHFJPY;
+        private DirectionalMovementSystem dmsrangeCHFJPY;
+        private RelativeStrengthIndex rsispikeCHFJPY;
+        private StochasticOscillator stochasticsCHFJPY;
+        private AverageTrueRange ATRoriginaltpCHFJPY;
+        private AverageTrueRange ATRnukedistanceCHFJPY;
+        private AverageTrueRange ATRnuketpCHFJPY;
+        private AverageTrueRange ATRm15CHFJPY;
+        private AverageTrueRange ATRh1CHFJPY;
+        private AverageTrueRange ATRh4CHFJPY;
+        private AverageTrueRange ATRh12CHFJPY;
+        private AverageTrueRange ATRd1CHFJPY;
+        private AverageTrueRange ATRw1CHFJPY;
+        private AverageTrueRange ATRm1CHFJPY;
+
+        private Bars m15EURCHF;
+        private Bars h1EURCHF;
+        private Bars h4EURCHF;
+        private Bars h12EURCHF;
+        private Bars d1EURCHF;
+        private Bars w1EURCHF;
+        private Bars m1EURCHF;
+        private DirectionalMovementSystem dmstrendEURCHF;
+        private DirectionalMovementSystem dmsnukelimiterEURCHF;
+        private DirectionalMovementSystem dmsrangeEURCHF;
+        private RelativeStrengthIndex rsispikeEURCHF;
+        private StochasticOscillator stochasticsEURCHF;
+        private AverageTrueRange ATRoriginaltpEURCHF;
+        private AverageTrueRange ATRnukedistanceEURCHF;
+        private AverageTrueRange ATRnuketpEURCHF;
+        private AverageTrueRange ATRm15EURCHF;
+        private AverageTrueRange ATRh1EURCHF;
+        private AverageTrueRange ATRh4EURCHF;
+        private AverageTrueRange ATRh12EURCHF;
+        private AverageTrueRange ATRd1EURCHF;
+        private AverageTrueRange ATRw1EURCHF;
+        private AverageTrueRange ATRm1EURCHF;
+
+        private Bars m15GBPCHF;
+        private Bars h1GBPCHF;
+        private Bars h4GBPCHF;
+        private Bars h12GBPCHF;
+        private Bars d1GBPCHF;
+        private Bars w1GBPCHF;
+        private Bars m1GBPCHF;
+        private DirectionalMovementSystem dmstrendGBPCHF;
+        private DirectionalMovementSystem dmsnukelimiterGBPCHF;
+        private DirectionalMovementSystem dmsrangeGBPCHF;
+        private RelativeStrengthIndex rsispikeGBPCHF;
+        private StochasticOscillator stochasticsGBPCHF;
+        private AverageTrueRange ATRoriginaltpGBPCHF;
+        private AverageTrueRange ATRnukedistanceGBPCHF;
+        private AverageTrueRange ATRnuketpGBPCHF;
+        private AverageTrueRange ATRm15GBPCHF;
+        private AverageTrueRange ATRh1GBPCHF;
+        private AverageTrueRange ATRh4GBPCHF;
+        private AverageTrueRange ATRh12GBPCHF;
+        private AverageTrueRange ATRd1GBPCHF;
+        private AverageTrueRange ATRw1GBPCHF;
+        private AverageTrueRange ATRm1GBPCHF;
+
+        private Bars m15EURGBP;
+        private Bars h1EURGBP;
+        private Bars h4EURGBP;
+        private Bars h12EURGBP;
+        private Bars d1EURGBP;
+        private Bars w1EURGBP;
+        private Bars m1EURGBP;
+        private DirectionalMovementSystem dmstrendEURGBP;
+        private DirectionalMovementSystem dmsnukelimiterEURGBP;
+        private DirectionalMovementSystem dmsrangeEURGBP;
+        private RelativeStrengthIndex rsispikeEURGBP;
+        private StochasticOscillator stochasticsEURGBP;
+        private AverageTrueRange ATRoriginaltpEURGBP;
+        private AverageTrueRange ATRnukedistanceEURGBP;
+        private AverageTrueRange ATRnuketpEURGBP;
+        private AverageTrueRange ATRm15EURGBP;
+        private AverageTrueRange ATRh1EURGBP;
+        private AverageTrueRange ATRh4EURGBP;
+        private AverageTrueRange ATRh12EURGBP;
+        private AverageTrueRange ATRd1EURGBP;
+        private AverageTrueRange ATRw1EURGBP;
+        private AverageTrueRange ATRm1EURGBP;
+        //end of Market Series, ATR, RSI and ADX Declarations
+
+        //private const string label = "MultSymbolcBot";
+
+        protected override void OnStart()
+        {
+            MySymbols = Symbols.GetSymbols("EURUSD", "USDJPY", "GBPUSD", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "EURCAD", "GBPCAD", "CADJPY",
+            "CADCHF", "AUDCAD", "NZDCAD", "EURAUD", "GBPAUD", "AUDJPY", "AUDCHF", "AUDNZD", "EURNZD", "GBPNZD",
+            "NZDJPY", "NZDCHF", "EURJPY", "GBPJPY", "CHFJPY", "EURCHF", "GBPCHF", "EURGBP");
+            foreach (var symbol in MySymbols)
+            {
+                symbol.Tick += Symbol_Tick;
+            }
+
+            Bars seriesEURUSD = MarketData.GetBars(TimeFrame, "EURUSD");
+            Bars seriesUSDJPY = MarketData.GetBars(TimeFrame, "USDJPY");
+            Bars seriesGBPUSD = MarketData.GetBars(TimeFrame, "GBPUSD");
+            Bars seriesUSDCHF = MarketData.GetBars(TimeFrame, "USDCHF");
+
+            Bars seriesAUDUSD = MarketData.GetBars(TimeFrame, "AUDUSD");
+            Bars seriesNZDUSD = MarketData.GetBars(TimeFrame, "NZDUSD");
+            Bars seriesUSDCAD = MarketData.GetBars(TimeFrame, "USDCAD");
+            Bars seriesEURCAD = MarketData.GetBars(TimeFrame, "EURCAD");
+
+            Bars seriesGBPCAD = MarketData.GetBars(TimeFrame, "GBPCAD");
+            Bars seriesCADJPY = MarketData.GetBars(TimeFrame, "CADJPY");
+            Bars seriesCADCHF = MarketData.GetBars(TimeFrame, "CADCHF");
+            Bars seriesAUDCAD = MarketData.GetBars(TimeFrame, "AUDCAD");
+
+            Bars seriesNZDCAD = MarketData.GetBars(TimeFrame, "NZDCAD");
+            Bars seriesEURAUD = MarketData.GetBars(TimeFrame, "EURAUD");
+            Bars seriesGBPAUD = MarketData.GetBars(TimeFrame, "GBPAUD");
+            Bars seriesAUDJPY = MarketData.GetBars(TimeFrame, "AUDJPY");
+
+            Bars seriesAUDCHF = MarketData.GetBars(TimeFrame, "AUDCHF");
+            Bars seriesAUDNZD = MarketData.GetBars(TimeFrame, "AUDNZD");
+            Bars seriesEURNZD = MarketData.GetBars(TimeFrame, "EURNZD");
+            Bars seriesGBPNZD = MarketData.GetBars(TimeFrame, "GBPNZD");
+
+            Bars seriesNZDCHF = MarketData.GetBars(TimeFrame, "NZDCHF");
+            Bars seriesNZDJPY = MarketData.GetBars(TimeFrame, "NZDJPY");
+            Bars seriesEURJPY = MarketData.GetBars(TimeFrame, "EURJPY");
+            Bars seriesGBPJPY = MarketData.GetBars(TimeFrame, "GBPJPY");
+
+            Bars seriesCHFJPY = MarketData.GetBars(TimeFrame, "CHFJPY");
+            Bars seriesEURCHF = MarketData.GetBars(TimeFrame, "EURCHF");
+            Bars seriesGBPCHF = MarketData.GetBars(TimeFrame, "GBPCHF");
+            Bars seriesEURGBP = MarketData.GetBars(TimeFrame, "EURGBP");
+
+            //Timeframes and Indicators
+            m15EURUSD = MarketData.GetBars(TimeFrame.Minute15, "EURUSD");
+            h1EURUSD = MarketData.GetBars(TimeFrame.Hour, "EURUSD");
+            h4EURUSD = MarketData.GetBars(TimeFrame.Hour4, "EURUSD");
+            h12EURUSD = MarketData.GetBars(TimeFrame.Hour12, "EURUSD");
+            d1EURUSD = MarketData.GetBars(TimeFrame.Daily, "EURUSD");
+            w1EURUSD = MarketData.GetBars(TimeFrame.Weekly, "EURUSD");
+            m1EURUSD = MarketData.GetBars(TimeFrame.Monthly, "EURUSD");
+            var adxtrendseriesEURUSD = MarketData.GetBars(TimeFrame.Hour4, "EURUSD");
+            var adxrangeseriesEURUSD = MarketData.GetBars(TimeFrame.Hour4, "EURUSD");
+            var adxnukelimiterseriesEURUSD = MarketData.GetBars(ADXNukeLimiterTF, "EURUSD");
+            var rsispikeseriesEURUSD = MarketData.GetBars(RSISpikeTF, "EURUSD");
+            var stochasticsseriesEURUSD = MarketData.GetBars(StochTF, "EURUSD");
+            var atroriginaltpseriesEURUSD = MarketData.GetBars(TimeFrame.Hour, "EURUSD");
+            var atrnukedistanceseriesEURUSD = MarketData.GetBars(NukeDistanceATRTF, "EURUSD");
+            var atrnuketpseriesEURUSD = MarketData.GetBars(NukePositionATRTF, "EURUSD");
+
+            ATRm15EURUSD = Indicators.AverageTrueRange(m15EURUSD, 60, MovingAverageType.Simple);
+            ATRh1EURUSD = Indicators.AverageTrueRange(h1EURUSD, 60, MovingAverageType.Simple);
+            ATRh4EURUSD = Indicators.AverageTrueRange(h4EURUSD, 60, MovingAverageType.Simple);
+            ATRh12EURUSD = Indicators.AverageTrueRange(h12EURUSD, 60, MovingAverageType.Simple);
+            ATRd1EURUSD = Indicators.AverageTrueRange(d1EURUSD, 30, MovingAverageType.Simple);
+            ATRw1EURUSD = Indicators.AverageTrueRange(w1EURUSD, 12, MovingAverageType.Simple);
+            ATRm1EURUSD = Indicators.AverageTrueRange(m1EURUSD, 3, MovingAverageType.Simple);
+            dmstrendEURUSD = Indicators.DirectionalMovementSystem(adxtrendseriesEURUSD, 14);
+            dmsrangeEURUSD = Indicators.DirectionalMovementSystem(adxrangeseriesEURUSD, 14);
+            dmsnukelimiterEURUSD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesEURUSD, ADXSpikePeriods);
+            rsispikeEURUSD = Indicators.RelativeStrengthIndex(rsispikeseriesEURUSD.ClosePrices, RSIPeriods);
+            stochasticsEURUSD = Indicators.StochasticOscillator(stochasticsseriesEURUSD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpEURUSD = Indicators.AverageTrueRange(atroriginaltpseriesEURUSD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceEURUSD = Indicators.AverageTrueRange(atrnukedistanceseriesEURUSD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpEURUSD = Indicators.AverageTrueRange(atrnuketpseriesEURUSD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15USDJPY = MarketData.GetBars(TimeFrame.Minute15, "USDJPY");
+            h1USDJPY = MarketData.GetBars(TimeFrame.Hour, "USDJPY");
+            h4USDJPY = MarketData.GetBars(TimeFrame.Hour4, "USDJPY");
+            h12USDJPY = MarketData.GetBars(TimeFrame.Hour12, "USDJPY");
+            d1USDJPY = MarketData.GetBars(TimeFrame.Daily, "USDJPY");
+            w1USDJPY = MarketData.GetBars(TimeFrame.Weekly, "USDJPY");
+            m1USDJPY = MarketData.GetBars(TimeFrame.Monthly, "USDJPY");
+            var adxtrendseriesUSDJPY = MarketData.GetBars(TimeFrame.Hour4, "USDJPY");
+            var adxrangeseriesUSDJPY = MarketData.GetBars(TimeFrame.Hour4, "USDJPY");
+            var adxnukelimiterseriesUSDJPY = MarketData.GetBars(ADXNukeLimiterTF, "USDJPY");
+            var rsispikeseriesUSDJPY = MarketData.GetBars(RSISpikeTF, "USDJPY");
+            var stochasticsseriesUSDJPY = MarketData.GetBars(StochTF, "USDJPY");
+            var atroriginaltpseriesUSDJPY = MarketData.GetBars(TimeFrame.Hour, "USDJPY");
+            var atrnukedistanceseriesUSDJPY = MarketData.GetBars(NukeDistanceATRTF, "USDJPY");
+            var atrnuketpseriesUSDJPY = MarketData.GetBars(NukePositionATRTF, "USDJPY");
+
+            ATRm15USDJPY = Indicators.AverageTrueRange(m15USDJPY, 60, MovingAverageType.Simple);
+            ATRh1USDJPY = Indicators.AverageTrueRange(h1USDJPY, 60, MovingAverageType.Simple);
+            ATRh4USDJPY = Indicators.AverageTrueRange(h4USDJPY, 60, MovingAverageType.Simple);
+            ATRh12USDJPY = Indicators.AverageTrueRange(h12USDJPY, 60, MovingAverageType.Simple);
+            ATRd1USDJPY = Indicators.AverageTrueRange(d1USDJPY, 30, MovingAverageType.Simple);
+            ATRw1USDJPY = Indicators.AverageTrueRange(w1USDJPY, 12, MovingAverageType.Simple);
+            ATRm1USDJPY = Indicators.AverageTrueRange(m1USDJPY, 3, MovingAverageType.Simple);
+            dmstrendUSDJPY = Indicators.DirectionalMovementSystem(adxtrendseriesUSDJPY, 14);
+            dmsrangeUSDJPY = Indicators.DirectionalMovementSystem(adxrangeseriesUSDJPY, 14);
+            dmsnukelimiterUSDJPY = Indicators.DirectionalMovementSystem(adxnukelimiterseriesUSDJPY, ADXSpikePeriods);
+            rsispikeUSDJPY = Indicators.RelativeStrengthIndex(rsispikeseriesUSDJPY.ClosePrices, RSIPeriods);
+            stochasticsUSDJPY = Indicators.StochasticOscillator(stochasticsseriesUSDJPY, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpUSDJPY = Indicators.AverageTrueRange(atroriginaltpseriesUSDJPY, 12, MovingAverageType.Exponential);
+            ATRnukedistanceUSDJPY = Indicators.AverageTrueRange(atrnukedistanceseriesUSDJPY, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpUSDJPY = Indicators.AverageTrueRange(atrnuketpseriesUSDJPY, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15GBPUSD = MarketData.GetBars(TimeFrame.Minute15, "GBPUSD");
+            h1GBPUSD = MarketData.GetBars(TimeFrame.Hour, "GBPUSD");
+            h4GBPUSD = MarketData.GetBars(TimeFrame.Hour4, "GBPUSD");
+            h12GBPUSD = MarketData.GetBars(TimeFrame.Hour12, "GBPUSD");
+            d1GBPUSD = MarketData.GetBars(TimeFrame.Daily, "GBPUSD");
+            w1GBPUSD = MarketData.GetBars(TimeFrame.Weekly, "GBPUSD");
+            m1GBPUSD = MarketData.GetBars(TimeFrame.Monthly, "GBPUSD");
+            var adxtrendseriesGBPUSD = MarketData.GetBars(TimeFrame.Hour4, "GBPUSD");
+            var adxrangeseriesGBPUSD = MarketData.GetBars(TimeFrame.Hour4, "GBPUSD");
+            var adxnukelimiterseriesGBPUSD = MarketData.GetBars(ADXNukeLimiterTF, "GBPUSD");
+            var rsispikeseriesGBPUSD = MarketData.GetBars(RSISpikeTF, "GBPUSD");
+            var stochasticsseriesGBPUSD = MarketData.GetBars(StochTF, "GBPUSD");
+            var atroriginaltpseriesGBPUSD = MarketData.GetBars(TimeFrame.Hour, "GBPUSD");
+            var atrnukedistanceseriesGBPUSD = MarketData.GetBars(NukeDistanceATRTF, "GBPUSD");
+            var atrnuketpseriesGBPUSD = MarketData.GetBars(NukePositionATRTF, "GBPUSD");
+
+            ATRm15GBPUSD = Indicators.AverageTrueRange(m15GBPUSD, 60, MovingAverageType.Simple);
+            ATRh1GBPUSD = Indicators.AverageTrueRange(h1GBPUSD, 60, MovingAverageType.Simple);
+            ATRh4GBPUSD = Indicators.AverageTrueRange(h4GBPUSD, 60, MovingAverageType.Simple);
+            ATRh12GBPUSD = Indicators.AverageTrueRange(h12GBPUSD, 60, MovingAverageType.Simple);
+            ATRd1GBPUSD = Indicators.AverageTrueRange(d1GBPUSD, 30, MovingAverageType.Simple);
+            ATRw1GBPUSD = Indicators.AverageTrueRange(w1GBPUSD, 12, MovingAverageType.Simple);
+            ATRm1GBPUSD = Indicators.AverageTrueRange(m1GBPUSD, 3, MovingAverageType.Simple);
+            dmstrendGBPUSD = Indicators.DirectionalMovementSystem(adxtrendseriesGBPUSD, 14);
+            dmsrangeGBPUSD = Indicators.DirectionalMovementSystem(adxrangeseriesGBPUSD, 14);
+            dmsnukelimiterGBPUSD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesGBPUSD, ADXSpikePeriods);
+            rsispikeGBPUSD = Indicators.RelativeStrengthIndex(rsispikeseriesGBPUSD.ClosePrices, RSIPeriods);
+            stochasticsGBPUSD = Indicators.StochasticOscillator(stochasticsseriesGBPUSD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpGBPUSD = Indicators.AverageTrueRange(atroriginaltpseriesGBPUSD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceGBPUSD = Indicators.AverageTrueRange(atrnukedistanceseriesGBPUSD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpGBPUSD = Indicators.AverageTrueRange(atrnuketpseriesGBPUSD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15USDCHF = MarketData.GetBars(TimeFrame.Minute15, "USDCHF");
+            h1USDCHF = MarketData.GetBars(TimeFrame.Hour, "USDCHF");
+            h4USDCHF = MarketData.GetBars(TimeFrame.Hour4, "USDCHF");
+            h12USDCHF = MarketData.GetBars(TimeFrame.Hour12, "USDCHF");
+            d1USDCHF = MarketData.GetBars(TimeFrame.Daily, "USDCHF");
+            w1USDCHF = MarketData.GetBars(TimeFrame.Weekly, "USDCHF");
+            m1USDCHF = MarketData.GetBars(TimeFrame.Monthly, "USDCHF");
+            var adxtrendseriesUSDCHF = MarketData.GetBars(TimeFrame.Hour4, "USDCHF");
+            var adxrangeseriesUSDCHF = MarketData.GetBars(TimeFrame.Hour4, "USDCHF");
+            var adxnukelimiterseriesUSDCHF = MarketData.GetBars(ADXNukeLimiterTF, "USDCHF");
+            var rsispikeseriesUSDCHF = MarketData.GetBars(RSISpikeTF, "USDCHF");
+            var stochasticsseriesUSDCHF = MarketData.GetBars(StochTF, "USDCHF");
+            var atroriginaltpseriesUSDCHF = MarketData.GetBars(TimeFrame.Hour, "USDCHF");
+            var atrnukedistanceseriesUSDCHF = MarketData.GetBars(NukeDistanceATRTF, "USDCHF");
+            var atrnuketpseriesUSDCHF = MarketData.GetBars(NukePositionATRTF, "USDCHF");
+
+            ATRm15USDCHF = Indicators.AverageTrueRange(m15USDCHF, 60, MovingAverageType.Simple);
+            ATRh1USDCHF = Indicators.AverageTrueRange(h1USDCHF, 60, MovingAverageType.Simple);
+            ATRh4USDCHF = Indicators.AverageTrueRange(h4USDCHF, 60, MovingAverageType.Simple);
+            ATRh12USDCHF = Indicators.AverageTrueRange(h12USDCHF, 60, MovingAverageType.Simple);
+            ATRd1USDCHF = Indicators.AverageTrueRange(d1USDCHF, 30, MovingAverageType.Simple);
+            ATRw1USDCHF = Indicators.AverageTrueRange(w1USDCHF, 12, MovingAverageType.Simple);
+            ATRm1USDCHF = Indicators.AverageTrueRange(m1USDCHF, 3, MovingAverageType.Simple);
+            dmstrendUSDCHF = Indicators.DirectionalMovementSystem(adxtrendseriesUSDCHF, 14);
+            dmsrangeUSDCHF = Indicators.DirectionalMovementSystem(adxrangeseriesUSDCHF, 14);
+            dmsnukelimiterUSDCHF = Indicators.DirectionalMovementSystem(adxnukelimiterseriesUSDCHF, ADXSpikePeriods);
+            rsispikeUSDCHF = Indicators.RelativeStrengthIndex(rsispikeseriesUSDCHF.ClosePrices, RSIPeriods);
+            stochasticsUSDCHF = Indicators.StochasticOscillator(stochasticsseriesUSDCHF, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpUSDCHF = Indicators.AverageTrueRange(atroriginaltpseriesUSDCHF, 12, MovingAverageType.Exponential);
+            ATRnukedistanceUSDCHF = Indicators.AverageTrueRange(atrnukedistanceseriesUSDCHF, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpUSDCHF = Indicators.AverageTrueRange(atrnuketpseriesUSDCHF, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15AUDUSD = MarketData.GetBars(TimeFrame.Minute15, "AUDUSD");
+            h1AUDUSD = MarketData.GetBars(TimeFrame.Hour, "AUDUSD");
+            h4AUDUSD = MarketData.GetBars(TimeFrame.Hour4, "AUDUSD");
+            h12AUDUSD = MarketData.GetBars(TimeFrame.Hour12, "AUDUSD");
+            d1AUDUSD = MarketData.GetBars(TimeFrame.Daily, "AUDUSD");
+            w1AUDUSD = MarketData.GetBars(TimeFrame.Weekly, "AUDUSD");
+            m1AUDUSD = MarketData.GetBars(TimeFrame.Monthly, "AUDUSD");
+            var adxtrendseriesAUDUSD = MarketData.GetBars(TimeFrame.Hour4, "AUDUSD");
+            var adxrangeseriesAUDUSD = MarketData.GetBars(TimeFrame.Hour4, "AUDUSD");
+            var adxnukelimiterseriesAUDUSD = MarketData.GetBars(ADXNukeLimiterTF, "AUDUSD");
+            var rsispikeseriesAUDUSD = MarketData.GetBars(RSISpikeTF, "AUDUSD");
+            var stochasticsseriesAUDUSD = MarketData.GetBars(StochTF, "AUDUSD");
+            var atroriginaltpseriesAUDUSD = MarketData.GetBars(TimeFrame.Hour, "AUDUSD");
+            var atrnukedistanceseriesAUDUSD = MarketData.GetBars(NukeDistanceATRTF, "AUDUSD");
+            var atrnuketpseriesAUDUSD = MarketData.GetBars(NukePositionATRTF, "AUDUSD");
+
+            ATRm15AUDUSD = Indicators.AverageTrueRange(m15AUDUSD, 60, MovingAverageType.Simple);
+            ATRh1AUDUSD = Indicators.AverageTrueRange(h1AUDUSD, 60, MovingAverageType.Simple);
+            ATRh4AUDUSD = Indicators.AverageTrueRange(h4AUDUSD, 60, MovingAverageType.Simple);
+            ATRh12AUDUSD = Indicators.AverageTrueRange(h12AUDUSD, 60, MovingAverageType.Simple);
+            ATRd1AUDUSD = Indicators.AverageTrueRange(d1AUDUSD, 30, MovingAverageType.Simple);
+            ATRw1AUDUSD = Indicators.AverageTrueRange(w1AUDUSD, 12, MovingAverageType.Simple);
+            ATRm1AUDUSD = Indicators.AverageTrueRange(m1AUDUSD, 3, MovingAverageType.Simple);
+            dmstrendAUDUSD = Indicators.DirectionalMovementSystem(adxtrendseriesAUDUSD, 14);
+            dmsrangeAUDUSD = Indicators.DirectionalMovementSystem(adxrangeseriesAUDUSD, 14);
+            dmsnukelimiterAUDUSD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesAUDUSD, ADXSpikePeriods);
+            rsispikeAUDUSD = Indicators.RelativeStrengthIndex(rsispikeseriesAUDUSD.ClosePrices, RSIPeriods);
+            stochasticsAUDUSD = Indicators.StochasticOscillator(stochasticsseriesAUDUSD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpAUDUSD = Indicators.AverageTrueRange(atroriginaltpseriesAUDUSD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceAUDUSD = Indicators.AverageTrueRange(atrnukedistanceseriesAUDUSD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpAUDUSD = Indicators.AverageTrueRange(atrnuketpseriesAUDUSD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15NZDUSD = MarketData.GetBars(TimeFrame.Minute15, "NZDUSD");
+            h1NZDUSD = MarketData.GetBars(TimeFrame.Hour, "NZDUSD");
+            h4NZDUSD = MarketData.GetBars(TimeFrame.Hour4, "NZDUSD");
+            h12NZDUSD = MarketData.GetBars(TimeFrame.Hour12, "NZDUSD");
+            d1NZDUSD = MarketData.GetBars(TimeFrame.Daily, "NZDUSD");
+            w1NZDUSD = MarketData.GetBars(TimeFrame.Weekly, "NZDUSD");
+            m1NZDUSD = MarketData.GetBars(TimeFrame.Monthly, "NZDUSD");
+            var adxtrendseriesNZDUSD = MarketData.GetBars(TimeFrame.Hour4, "NZDUSD");
+            var adxrangeseriesNZDUSD = MarketData.GetBars(TimeFrame.Hour4, "NZDUSD");
+            var adxnukelimiterseriesNZDUSD = MarketData.GetBars(ADXNukeLimiterTF, "NZDUSD");
+            var rsispikeseriesNZDUSD = MarketData.GetBars(RSISpikeTF, "NZDUSD");
+            var stochasticsseriesNZDUSD = MarketData.GetBars(StochTF, "NZDUSD");
+            var atroriginaltpseriesNZDUSD = MarketData.GetBars(TimeFrame.Hour, "NZDUSD");
+            var atrnukedistanceseriesNZDUSD = MarketData.GetBars(NukeDistanceATRTF, "NZDUSD");
+            var atrnuketpseriesNZDUSD = MarketData.GetBars(NukePositionATRTF, "NZDUSD");
+
+            ATRm15NZDUSD = Indicators.AverageTrueRange(m15NZDUSD, 60, MovingAverageType.Simple);
+            ATRh1NZDUSD = Indicators.AverageTrueRange(h1NZDUSD, 60, MovingAverageType.Simple);
+            ATRh4NZDUSD = Indicators.AverageTrueRange(h4NZDUSD, 60, MovingAverageType.Simple);
+            ATRh12NZDUSD = Indicators.AverageTrueRange(h12NZDUSD, 60, MovingAverageType.Simple);
+            ATRd1NZDUSD = Indicators.AverageTrueRange(d1NZDUSD, 30, MovingAverageType.Simple);
+            ATRw1NZDUSD = Indicators.AverageTrueRange(w1NZDUSD, 12, MovingAverageType.Simple);
+            ATRm1NZDUSD = Indicators.AverageTrueRange(m1NZDUSD, 3, MovingAverageType.Simple);
+            dmstrendNZDUSD = Indicators.DirectionalMovementSystem(adxtrendseriesNZDUSD, 14);
+            dmsrangeNZDUSD = Indicators.DirectionalMovementSystem(adxrangeseriesNZDUSD, 14);
+            dmsnukelimiterNZDUSD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesNZDUSD, ADXSpikePeriods);
+            rsispikeNZDUSD = Indicators.RelativeStrengthIndex(rsispikeseriesNZDUSD.ClosePrices, RSIPeriods);
+            stochasticsNZDUSD = Indicators.StochasticOscillator(stochasticsseriesNZDUSD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpNZDUSD = Indicators.AverageTrueRange(atroriginaltpseriesNZDUSD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceNZDUSD = Indicators.AverageTrueRange(atrnukedistanceseriesNZDUSD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpNZDUSD = Indicators.AverageTrueRange(atrnuketpseriesNZDUSD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15USDCAD = MarketData.GetBars(TimeFrame.Minute15, "USDCAD");
+            h1USDCAD = MarketData.GetBars(TimeFrame.Hour, "USDCAD");
+            h4USDCAD = MarketData.GetBars(TimeFrame.Hour4, "USDCAD");
+            h12USDCAD = MarketData.GetBars(TimeFrame.Hour12, "USDCAD");
+            d1USDCAD = MarketData.GetBars(TimeFrame.Daily, "USDCAD");
+            w1USDCAD = MarketData.GetBars(TimeFrame.Weekly, "USDCAD");
+            m1USDCAD = MarketData.GetBars(TimeFrame.Monthly, "USDCAD");
+            var adxtrendseriesUSDCAD = MarketData.GetBars(TimeFrame.Hour4, "USDCAD");
+            var adxrangeseriesUSDCAD = MarketData.GetBars(TimeFrame.Hour4, "USDCAD");
+            var adxnukelimiterseriesUSDCAD = MarketData.GetBars(ADXNukeLimiterTF, "USDCAD");
+            var rsispikeseriesUSDCAD = MarketData.GetBars(RSISpikeTF, "USDCAD");
+            var stochasticsseriesUSDCAD = MarketData.GetBars(StochTF, "USDCAD");
+            var atroriginaltpseriesUSDCAD = MarketData.GetBars(TimeFrame.Hour, "USDCAD");
+            var atrnukedistanceseriesUSDCAD = MarketData.GetBars(NukeDistanceATRTF, "USDCAD");
+            var atrnuketpseriesUSDCAD = MarketData.GetBars(NukePositionATRTF, "USDCAD");
+
+            ATRm15USDCAD = Indicators.AverageTrueRange(m15USDCAD, 60, MovingAverageType.Simple);
+            ATRh1USDCAD = Indicators.AverageTrueRange(h1USDCAD, 60, MovingAverageType.Simple);
+            ATRh4USDCAD = Indicators.AverageTrueRange(h4USDCAD, 60, MovingAverageType.Simple);
+            ATRh12USDCAD = Indicators.AverageTrueRange(h12USDCAD, 60, MovingAverageType.Simple);
+            ATRd1USDCAD = Indicators.AverageTrueRange(d1USDCAD, 30, MovingAverageType.Simple);
+            ATRw1USDCAD = Indicators.AverageTrueRange(w1USDCAD, 12, MovingAverageType.Simple);
+            ATRm1USDCAD = Indicators.AverageTrueRange(m1USDCAD, 3, MovingAverageType.Simple);
+            dmstrendUSDCAD = Indicators.DirectionalMovementSystem(adxtrendseriesUSDCAD, 14);
+            dmsrangeUSDCAD = Indicators.DirectionalMovementSystem(adxrangeseriesUSDCAD, 14);
+            dmsnukelimiterUSDCAD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesUSDCAD, ADXSpikePeriods);
+            rsispikeUSDCAD = Indicators.RelativeStrengthIndex(rsispikeseriesUSDCAD.ClosePrices, RSIPeriods);
+            stochasticsUSDCAD = Indicators.StochasticOscillator(stochasticsseriesUSDCAD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpUSDCAD = Indicators.AverageTrueRange(atroriginaltpseriesUSDCAD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceUSDCAD = Indicators.AverageTrueRange(atrnukedistanceseriesUSDCAD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpUSDCAD = Indicators.AverageTrueRange(atrnuketpseriesUSDCAD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15EURCAD = MarketData.GetBars(TimeFrame.Minute15, "EURCAD");
+            h1EURCAD = MarketData.GetBars(TimeFrame.Hour, "EURCAD");
+            h4EURCAD = MarketData.GetBars(TimeFrame.Hour4, "EURCAD");
+            h12EURCAD = MarketData.GetBars(TimeFrame.Hour12, "EURCAD");
+            d1EURCAD = MarketData.GetBars(TimeFrame.Daily, "EURCAD");
+            w1EURCAD = MarketData.GetBars(TimeFrame.Weekly, "EURCAD");
+            m1EURCAD = MarketData.GetBars(TimeFrame.Monthly, "EURCAD");
+            var adxtrendseriesEURCAD = MarketData.GetBars(TimeFrame.Hour4, "EURCAD");
+            var adxrangeseriesEURCAD = MarketData.GetBars(TimeFrame.Hour4, "EURCAD");
+            var adxnukelimiterseriesEURCAD = MarketData.GetBars(ADXNukeLimiterTF, "EURCAD");
+            var rsispikeseriesEURCAD = MarketData.GetBars(RSISpikeTF, "EURCAD");
+            var stochasticsseriesEURCAD = MarketData.GetBars(StochTF, "EURCAD");
+            var atroriginaltpseriesEURCAD = MarketData.GetBars(TimeFrame.Hour, "EURCAD");
+            var atrnukedistanceseriesEURCAD = MarketData.GetBars(NukeDistanceATRTF, "EURCAD");
+            var atrnuketpseriesEURCAD = MarketData.GetBars(NukePositionATRTF, "EURCAD");
+
+            ATRm15EURCAD = Indicators.AverageTrueRange(m15EURCAD, 60, MovingAverageType.Simple);
+            ATRh1EURCAD = Indicators.AverageTrueRange(h1EURCAD, 60, MovingAverageType.Simple);
+            ATRh4EURCAD = Indicators.AverageTrueRange(h4EURCAD, 60, MovingAverageType.Simple);
+            ATRh12EURCAD = Indicators.AverageTrueRange(h12EURCAD, 60, MovingAverageType.Simple);
+            ATRd1EURCAD = Indicators.AverageTrueRange(d1EURCAD, 30, MovingAverageType.Simple);
+            ATRw1EURCAD = Indicators.AverageTrueRange(w1EURCAD, 12, MovingAverageType.Simple);
+            ATRm1EURCAD = Indicators.AverageTrueRange(m1EURCAD, 3, MovingAverageType.Simple);
+            dmstrendEURCAD = Indicators.DirectionalMovementSystem(adxtrendseriesEURCAD, 14);
+            dmsrangeEURCAD = Indicators.DirectionalMovementSystem(adxrangeseriesEURCAD, 14);
+            dmsnukelimiterEURCAD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesEURCAD, ADXSpikePeriods);
+            rsispikeEURCAD = Indicators.RelativeStrengthIndex(rsispikeseriesEURCAD.ClosePrices, RSIPeriods);
+            stochasticsEURCAD = Indicators.StochasticOscillator(stochasticsseriesEURCAD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpEURCAD = Indicators.AverageTrueRange(atroriginaltpseriesEURCAD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceEURCAD = Indicators.AverageTrueRange(atrnukedistanceseriesEURCAD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpEURCAD = Indicators.AverageTrueRange(atrnuketpseriesEURCAD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15GBPCAD = MarketData.GetBars(TimeFrame.Minute15, "GBPCAD");
+            h1GBPCAD = MarketData.GetBars(TimeFrame.Hour, "GBPCAD");
+            h4GBPCAD = MarketData.GetBars(TimeFrame.Hour4, "GBPCAD");
+            h12GBPCAD = MarketData.GetBars(TimeFrame.Hour12, "GBPCAD");
+            d1GBPCAD = MarketData.GetBars(TimeFrame.Daily, "GBPCAD");
+            w1GBPCAD = MarketData.GetBars(TimeFrame.Weekly, "GBPCAD");
+            m1GBPCAD = MarketData.GetBars(TimeFrame.Monthly, "GBPCAD");
+            var adxtrendseriesGBPCAD = MarketData.GetBars(TimeFrame.Hour4, "GBPCAD");
+            var adxrangeseriesGBPCAD = MarketData.GetBars(TimeFrame.Hour4, "GBPCAD");
+            var adxnukelimiterseriesGBPCAD = MarketData.GetBars(ADXNukeLimiterTF, "GBPCAD");
+            var rsispikeseriesGBPCAD = MarketData.GetBars(RSISpikeTF, "GBPCAD");
+            var stochasticsseriesGBPCAD = MarketData.GetBars(StochTF, "GBPCAD");
+            var atroriginaltpseriesGBPCAD = MarketData.GetBars(TimeFrame.Hour, "GBPCAD");
+            var atrnukedistanceseriesGBPCAD = MarketData.GetBars(NukeDistanceATRTF, "GBPCAD");
+            var atrnuketpseriesGBPCAD = MarketData.GetBars(NukePositionATRTF, "GBPCAD");
+
+            ATRm15GBPCAD = Indicators.AverageTrueRange(m15GBPCAD, 60, MovingAverageType.Simple);
+            ATRh1GBPCAD = Indicators.AverageTrueRange(h1GBPCAD, 60, MovingAverageType.Simple);
+            ATRh4GBPCAD = Indicators.AverageTrueRange(h4GBPCAD, 60, MovingAverageType.Simple);
+            ATRh12GBPCAD = Indicators.AverageTrueRange(h12GBPCAD, 60, MovingAverageType.Simple);
+            ATRd1GBPCAD = Indicators.AverageTrueRange(d1GBPCAD, 30, MovingAverageType.Simple);
+            ATRw1GBPCAD = Indicators.AverageTrueRange(w1GBPCAD, 12, MovingAverageType.Simple);
+            ATRm1GBPCAD = Indicators.AverageTrueRange(m1GBPCAD, 3, MovingAverageType.Simple);
+            dmstrendGBPCAD = Indicators.DirectionalMovementSystem(adxtrendseriesGBPCAD, 14);
+            dmsrangeGBPCAD = Indicators.DirectionalMovementSystem(adxrangeseriesGBPCAD, 14);
+            dmsnukelimiterGBPCAD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesGBPCAD, ADXSpikePeriods);
+            rsispikeGBPCAD = Indicators.RelativeStrengthIndex(rsispikeseriesGBPCAD.ClosePrices, RSIPeriods);
+            stochasticsGBPCAD = Indicators.StochasticOscillator(stochasticsseriesGBPCAD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpGBPCAD = Indicators.AverageTrueRange(atroriginaltpseriesGBPCAD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceGBPCAD = Indicators.AverageTrueRange(atrnukedistanceseriesGBPCAD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpGBPCAD = Indicators.AverageTrueRange(atrnuketpseriesGBPCAD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15CADJPY = MarketData.GetBars(TimeFrame.Minute15, "CADJPY");
+            h1CADJPY = MarketData.GetBars(TimeFrame.Hour, "CADJPY");
+            h4CADJPY = MarketData.GetBars(TimeFrame.Hour4, "CADJPY");
+            h12CADJPY = MarketData.GetBars(TimeFrame.Hour12, "CADJPY");
+            d1CADJPY = MarketData.GetBars(TimeFrame.Daily, "CADJPY");
+            w1CADJPY = MarketData.GetBars(TimeFrame.Weekly, "CADJPY");
+            m1CADJPY = MarketData.GetBars(TimeFrame.Monthly, "CADJPY");
+            var adxtrendseriesCADJPY = MarketData.GetBars(TimeFrame.Hour4, "CADJPY");
+            var adxrangeseriesCADJPY = MarketData.GetBars(TimeFrame.Hour4, "CADJPY");
+            var adxnukelimiterseriesCADJPY = MarketData.GetBars(ADXNukeLimiterTF, "CADJPY");
+            var rsispikeseriesCADJPY = MarketData.GetBars(RSISpikeTF, "CADJPY");
+            var stochasticsseriesCADJPY = MarketData.GetBars(StochTF, "CADJPY");
+            var atroriginaltpseriesCADJPY = MarketData.GetBars(TimeFrame.Hour, "CADJPY");
+            var atrnukedistanceseriesCADJPY = MarketData.GetBars(NukeDistanceATRTF, "CADJPY");
+            var atrnuketpseriesCADJPY = MarketData.GetBars(NukePositionATRTF, "CADJPY");
+
+            ATRm15CADJPY = Indicators.AverageTrueRange(m15CADJPY, 60, MovingAverageType.Simple);
+            ATRh1CADJPY = Indicators.AverageTrueRange(h1CADJPY, 60, MovingAverageType.Simple);
+            ATRh4CADJPY = Indicators.AverageTrueRange(h4CADJPY, 60, MovingAverageType.Simple);
+            ATRh12CADJPY = Indicators.AverageTrueRange(h12CADJPY, 60, MovingAverageType.Simple);
+            ATRd1CADJPY = Indicators.AverageTrueRange(d1CADJPY, 30, MovingAverageType.Simple);
+            ATRw1CADJPY = Indicators.AverageTrueRange(w1CADJPY, 12, MovingAverageType.Simple);
+            ATRm1CADJPY = Indicators.AverageTrueRange(m1CADJPY, 3, MovingAverageType.Simple);
+            dmstrendCADJPY = Indicators.DirectionalMovementSystem(adxtrendseriesCADJPY, 14);
+            dmsrangeCADJPY = Indicators.DirectionalMovementSystem(adxrangeseriesCADJPY, 14);
+            dmsnukelimiterCADJPY = Indicators.DirectionalMovementSystem(adxnukelimiterseriesCADJPY, ADXSpikePeriods);
+            rsispikeCADJPY = Indicators.RelativeStrengthIndex(rsispikeseriesCADJPY.ClosePrices, RSIPeriods);
+            stochasticsCADJPY = Indicators.StochasticOscillator(stochasticsseriesCADJPY, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpCADJPY = Indicators.AverageTrueRange(atroriginaltpseriesCADJPY, 12, MovingAverageType.Exponential);
+            ATRnukedistanceCADJPY = Indicators.AverageTrueRange(atrnukedistanceseriesCADJPY, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpCADJPY = Indicators.AverageTrueRange(atrnuketpseriesCADJPY, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+            
+            m15CADCHF = MarketData.GetBars(TimeFrame.Minute15, "CADCHF");
+            h1CADCHF = MarketData.GetBars(TimeFrame.Hour, "CADCHF");
+            h4CADCHF = MarketData.GetBars(TimeFrame.Hour4, "CADCHF");
+            h12CADCHF = MarketData.GetBars(TimeFrame.Hour12, "CADCHF");
+            d1CADCHF = MarketData.GetBars(TimeFrame.Daily, "CADCHF");
+            w1CADCHF = MarketData.GetBars(TimeFrame.Weekly, "CADCHF");
+            m1CADCHF = MarketData.GetBars(TimeFrame.Monthly, "CADCHF");
+            var adxtrendseriesCADCHF = MarketData.GetBars(TimeFrame.Hour4, "CADCHF");
+            var adxrangeseriesCADCHF = MarketData.GetBars(TimeFrame.Hour4, "CADCHF");
+            var adxnukelimiterseriesCADCHF = MarketData.GetBars(ADXNukeLimiterTF, "CADCHF");
+            var rsispikeseriesCADCHF = MarketData.GetBars(RSISpikeTF, "CADCHF");
+            var stochasticsseriesCADCHF = MarketData.GetBars(StochTF, "CADCHF");
+            var atroriginaltpseriesCADCHF = MarketData.GetBars(TimeFrame.Hour, "CADCHF");
+            var atrnukedistanceseriesCADCHF = MarketData.GetBars(NukeDistanceATRTF, "CADCHF");
+            var atrnuketpseriesCADCHF = MarketData.GetBars(NukePositionATRTF, "CADCHF");
+
+            ATRm15CADCHF = Indicators.AverageTrueRange(m15CADCHF, 60, MovingAverageType.Simple);
+            ATRh1CADCHF = Indicators.AverageTrueRange(h1CADCHF, 60, MovingAverageType.Simple);
+            ATRh4CADCHF = Indicators.AverageTrueRange(h4CADCHF, 60, MovingAverageType.Simple);
+            ATRh12CADCHF = Indicators.AverageTrueRange(h12CADCHF, 60, MovingAverageType.Simple);
+            ATRd1CADCHF = Indicators.AverageTrueRange(d1CADCHF, 30, MovingAverageType.Simple);
+            ATRw1CADCHF = Indicators.AverageTrueRange(w1CADCHF, 12, MovingAverageType.Simple);
+            ATRm1CADCHF = Indicators.AverageTrueRange(m1CADCHF, 3, MovingAverageType.Simple);
+            dmstrendCADCHF = Indicators.DirectionalMovementSystem(adxtrendseriesCADCHF, 14);
+            dmsrangeCADCHF = Indicators.DirectionalMovementSystem(adxrangeseriesCADCHF, 14);
+            dmsnukelimiterCADCHF = Indicators.DirectionalMovementSystem(adxnukelimiterseriesCADCHF, ADXSpikePeriods);
+            rsispikeCADCHF = Indicators.RelativeStrengthIndex(rsispikeseriesCADCHF.ClosePrices, RSIPeriods);
+            stochasticsCADCHF = Indicators.StochasticOscillator(stochasticsseriesCADCHF, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpCADCHF = Indicators.AverageTrueRange(atroriginaltpseriesCADCHF, 12, MovingAverageType.Exponential);
+            ATRnukedistanceCADCHF = Indicators.AverageTrueRange(atrnukedistanceseriesCADCHF, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpCADCHF = Indicators.AverageTrueRange(atrnuketpseriesCADCHF, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15AUDCAD = MarketData.GetBars(TimeFrame.Minute15, "AUDCAD");
+            h1AUDCAD = MarketData.GetBars(TimeFrame.Hour, "AUDCAD");
+            h4AUDCAD = MarketData.GetBars(TimeFrame.Hour4, "AUDCAD");
+            h12AUDCAD = MarketData.GetBars(TimeFrame.Hour12, "AUDCAD");
+            d1AUDCAD = MarketData.GetBars(TimeFrame.Daily, "AUDCAD");
+            w1AUDCAD = MarketData.GetBars(TimeFrame.Weekly, "AUDCAD");
+            m1AUDCAD = MarketData.GetBars(TimeFrame.Monthly, "AUDCAD");
+            var adxtrendseriesAUDCAD = MarketData.GetBars(TimeFrame.Hour4, "AUDCAD");
+            var adxrangeseriesAUDCAD = MarketData.GetBars(TimeFrame.Hour4, "AUDCAD");
+            var adxnukelimiterseriesAUDCAD = MarketData.GetBars(ADXNukeLimiterTF, "AUDCAD");
+            var rsispikeseriesAUDCAD = MarketData.GetBars(RSISpikeTF, "AUDCAD");
+            var stochasticsseriesAUDCAD = MarketData.GetBars(StochTF, "AUDCAD");
+            var atroriginaltpseriesAUDCAD = MarketData.GetBars(TimeFrame.Hour, "AUDCAD");
+            var atrnukedistanceseriesAUDCAD = MarketData.GetBars(NukeDistanceATRTF, "AUDCAD");
+            var atrnuketpseriesAUDCAD = MarketData.GetBars(NukePositionATRTF, "AUDCAD");
+
+            ATRm15AUDCAD = Indicators.AverageTrueRange(m15AUDCAD, 60, MovingAverageType.Simple);
+            ATRh1AUDCAD = Indicators.AverageTrueRange(h1AUDCAD, 60, MovingAverageType.Simple);
+            ATRh4AUDCAD = Indicators.AverageTrueRange(h4AUDCAD, 60, MovingAverageType.Simple);
+            ATRh12AUDCAD = Indicators.AverageTrueRange(h12AUDCAD, 60, MovingAverageType.Simple);
+            ATRd1AUDCAD = Indicators.AverageTrueRange(d1AUDCAD, 30, MovingAverageType.Simple);
+            ATRw1AUDCAD = Indicators.AverageTrueRange(w1AUDCAD, 12, MovingAverageType.Simple);
+            ATRm1AUDCAD = Indicators.AverageTrueRange(m1AUDCAD, 3, MovingAverageType.Simple);
+            dmstrendAUDCAD = Indicators.DirectionalMovementSystem(adxtrendseriesAUDCAD, 14);
+            dmsrangeAUDCAD = Indicators.DirectionalMovementSystem(adxrangeseriesAUDCAD, 14);
+            dmsnukelimiterAUDCAD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesAUDCAD, ADXSpikePeriods);
+            rsispikeAUDCAD = Indicators.RelativeStrengthIndex(rsispikeseriesAUDCAD.ClosePrices, RSIPeriods);
+            stochasticsAUDCAD = Indicators.StochasticOscillator(stochasticsseriesAUDCAD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpAUDCAD = Indicators.AverageTrueRange(atroriginaltpseriesAUDCAD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceAUDCAD = Indicators.AverageTrueRange(atrnukedistanceseriesAUDCAD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpAUDCAD = Indicators.AverageTrueRange(atrnuketpseriesAUDCAD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15NZDCAD = MarketData.GetBars(TimeFrame.Minute15, "NZDCAD");
+            h1NZDCAD = MarketData.GetBars(TimeFrame.Hour, "NZDCAD");
+            h4NZDCAD = MarketData.GetBars(TimeFrame.Hour4, "NZDCAD");
+            h12NZDCAD = MarketData.GetBars(TimeFrame.Hour12, "NZDCAD");
+            d1NZDCAD = MarketData.GetBars(TimeFrame.Daily, "NZDCAD");
+            w1NZDCAD = MarketData.GetBars(TimeFrame.Weekly, "NZDCAD");
+            m1NZDCAD = MarketData.GetBars(TimeFrame.Monthly, "NZDCAD");
+            var adxtrendseriesNZDCAD = MarketData.GetBars(TimeFrame.Hour4, "NZDCAD");
+            var adxrangeseriesNZDCAD = MarketData.GetBars(TimeFrame.Hour4, "NZDCAD");
+            var adxnukelimiterseriesNZDCAD = MarketData.GetBars(ADXNukeLimiterTF, "NZDCAD");
+            var rsispikeseriesNZDCAD = MarketData.GetBars(RSISpikeTF, "NZDCAD");
+            var stochasticsseriesNZDCAD = MarketData.GetBars(StochTF, "NZDCAD");
+            var atroriginaltpseriesNZDCAD = MarketData.GetBars(TimeFrame.Hour, "NZDCAD");
+            var atrnukedistanceseriesNZDCAD = MarketData.GetBars(NukeDistanceATRTF, "NZDCAD");
+            var atrnuketpseriesNZDCAD = MarketData.GetBars(NukePositionATRTF, "NZDCAD");
+
+            ATRm15NZDCAD = Indicators.AverageTrueRange(m15NZDCAD, 60, MovingAverageType.Simple);
+            ATRh1NZDCAD = Indicators.AverageTrueRange(h1NZDCAD, 60, MovingAverageType.Simple);
+            ATRh4NZDCAD = Indicators.AverageTrueRange(h4NZDCAD, 60, MovingAverageType.Simple);
+            ATRh12NZDCAD = Indicators.AverageTrueRange(h12NZDCAD, 60, MovingAverageType.Simple);
+            ATRd1NZDCAD = Indicators.AverageTrueRange(d1NZDCAD, 30, MovingAverageType.Simple);
+            ATRw1NZDCAD = Indicators.AverageTrueRange(w1NZDCAD, 12, MovingAverageType.Simple);
+            ATRm1NZDCAD = Indicators.AverageTrueRange(m1NZDCAD, 3, MovingAverageType.Simple);
+            dmstrendNZDCAD = Indicators.DirectionalMovementSystem(adxtrendseriesNZDCAD, 14);
+            dmsrangeNZDCAD = Indicators.DirectionalMovementSystem(adxrangeseriesNZDCAD, 14);
+            dmsnukelimiterNZDCAD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesNZDCAD, ADXSpikePeriods);
+            rsispikeNZDCAD = Indicators.RelativeStrengthIndex(rsispikeseriesNZDCAD.ClosePrices, RSIPeriods);
+            stochasticsNZDCAD = Indicators.StochasticOscillator(stochasticsseriesNZDCAD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpNZDCAD = Indicators.AverageTrueRange(atroriginaltpseriesNZDCAD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceNZDCAD = Indicators.AverageTrueRange(atrnukedistanceseriesNZDCAD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpNZDCAD = Indicators.AverageTrueRange(atrnuketpseriesNZDCAD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15EURAUD = MarketData.GetBars(TimeFrame.Minute15, "EURAUD");
+            h1EURAUD = MarketData.GetBars(TimeFrame.Hour, "EURAUD");
+            h4EURAUD = MarketData.GetBars(TimeFrame.Hour4, "EURAUD");
+            h12EURAUD = MarketData.GetBars(TimeFrame.Hour12, "EURAUD");
+            d1EURAUD = MarketData.GetBars(TimeFrame.Daily, "EURAUD");
+            w1EURAUD = MarketData.GetBars(TimeFrame.Weekly, "EURAUD");
+            m1EURAUD = MarketData.GetBars(TimeFrame.Monthly, "EURAUD");
+            var adxtrendseriesEURAUD = MarketData.GetBars(TimeFrame.Hour4, "EURAUD");
+            var adxrangeseriesEURAUD = MarketData.GetBars(TimeFrame.Hour4, "EURAUD");
+            var adxnukelimiterseriesEURAUD = MarketData.GetBars(ADXNukeLimiterTF, "EURAUD");
+            var rsispikeseriesEURAUD = MarketData.GetBars(RSISpikeTF, "EURAUD");
+            var stochasticsseriesEURAUD = MarketData.GetBars(StochTF, "EURAUD");
+            var atroriginaltpseriesEURAUD = MarketData.GetBars(TimeFrame.Hour, "EURAUD");
+            var atrnukedistanceseriesEURAUD = MarketData.GetBars(NukeDistanceATRTF, "EURAUD");
+            var atrnuketpseriesEURAUD = MarketData.GetBars(NukePositionATRTF, "EURAUD");
+
+            ATRm15EURAUD = Indicators.AverageTrueRange(m15EURAUD, 60, MovingAverageType.Simple);
+            ATRh1EURAUD = Indicators.AverageTrueRange(h1EURAUD, 60, MovingAverageType.Simple);
+            ATRh4EURAUD = Indicators.AverageTrueRange(h4EURAUD, 60, MovingAverageType.Simple);
+            ATRh12EURAUD = Indicators.AverageTrueRange(h12EURAUD, 60, MovingAverageType.Simple);
+            ATRd1EURAUD = Indicators.AverageTrueRange(d1EURAUD, 30, MovingAverageType.Simple);
+            ATRw1EURAUD = Indicators.AverageTrueRange(w1EURAUD, 12, MovingAverageType.Simple);
+            ATRm1EURAUD = Indicators.AverageTrueRange(m1EURAUD, 3, MovingAverageType.Simple);
+            dmstrendEURAUD = Indicators.DirectionalMovementSystem(adxtrendseriesEURAUD, 14);
+            dmsrangeEURAUD = Indicators.DirectionalMovementSystem(adxrangeseriesEURAUD, 14);
+            dmsnukelimiterEURAUD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesEURAUD, ADXSpikePeriods);
+            rsispikeEURAUD = Indicators.RelativeStrengthIndex(rsispikeseriesEURAUD.ClosePrices, RSIPeriods);
+            stochasticsEURAUD = Indicators.StochasticOscillator(stochasticsseriesEURAUD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpEURAUD = Indicators.AverageTrueRange(atroriginaltpseriesEURAUD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceEURAUD = Indicators.AverageTrueRange(atrnukedistanceseriesEURAUD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpEURAUD = Indicators.AverageTrueRange(atrnuketpseriesEURAUD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15GBPAUD = MarketData.GetBars(TimeFrame.Minute15, "GBPAUD");
+            h1GBPAUD = MarketData.GetBars(TimeFrame.Hour, "GBPAUD");
+            h4GBPAUD = MarketData.GetBars(TimeFrame.Hour4, "GBPAUD");
+            h12GBPAUD = MarketData.GetBars(TimeFrame.Hour12, "GBPAUD");
+            d1GBPAUD = MarketData.GetBars(TimeFrame.Daily, "GBPAUD");
+            w1GBPAUD = MarketData.GetBars(TimeFrame.Weekly, "GBPAUD");
+            m1GBPAUD = MarketData.GetBars(TimeFrame.Monthly, "GBPAUD");
+            var adxtrendseriesGBPAUD = MarketData.GetBars(TimeFrame.Hour4, "GBPAUD");
+            var adxrangeseriesGBPAUD = MarketData.GetBars(TimeFrame.Hour4, "GBPAUD");
+            var adxnukelimiterseriesGBPAUD = MarketData.GetBars(ADXNukeLimiterTF, "GBPAUD");
+            var rsispikeseriesGBPAUD = MarketData.GetBars(RSISpikeTF, "GBPAUD");
+            var stochasticsseriesGBPAUD = MarketData.GetBars(StochTF, "GBPAUD");
+            var atroriginaltpseriesGBPAUD = MarketData.GetBars(TimeFrame.Hour, "GBPAUD");
+            var atrnukedistanceseriesGBPAUD = MarketData.GetBars(NukeDistanceATRTF, "GBPAUD");
+            var atrnuketpseriesGBPAUD = MarketData.GetBars(NukePositionATRTF, "GBPAUD");
+
+            ATRm15GBPAUD = Indicators.AverageTrueRange(m15GBPAUD, 60, MovingAverageType.Simple);
+            ATRh1GBPAUD = Indicators.AverageTrueRange(h1GBPAUD, 60, MovingAverageType.Simple);
+            ATRh4GBPAUD = Indicators.AverageTrueRange(h4GBPAUD, 60, MovingAverageType.Simple);
+            ATRh12GBPAUD = Indicators.AverageTrueRange(h12GBPAUD, 60, MovingAverageType.Simple);
+            ATRd1GBPAUD = Indicators.AverageTrueRange(d1GBPAUD, 30, MovingAverageType.Simple);
+            ATRw1GBPAUD = Indicators.AverageTrueRange(w1GBPAUD, 12, MovingAverageType.Simple);
+            ATRm1GBPAUD = Indicators.AverageTrueRange(m1GBPAUD, 3, MovingAverageType.Simple);
+            dmstrendGBPAUD = Indicators.DirectionalMovementSystem(adxtrendseriesGBPAUD, 14);
+            dmsrangeGBPAUD = Indicators.DirectionalMovementSystem(adxrangeseriesGBPAUD, 14);
+            dmsnukelimiterGBPAUD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesGBPAUD, ADXSpikePeriods);
+            rsispikeGBPAUD = Indicators.RelativeStrengthIndex(rsispikeseriesGBPAUD.ClosePrices, RSIPeriods);
+            stochasticsGBPAUD = Indicators.StochasticOscillator(stochasticsseriesGBPAUD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpGBPAUD = Indicators.AverageTrueRange(atroriginaltpseriesGBPAUD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceGBPAUD = Indicators.AverageTrueRange(atrnukedistanceseriesGBPAUD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpGBPAUD = Indicators.AverageTrueRange(atrnuketpseriesGBPAUD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15AUDJPY = MarketData.GetBars(TimeFrame.Minute15, "AUDJPY");
+            h1AUDJPY = MarketData.GetBars(TimeFrame.Hour, "AUDJPY");
+            h4AUDJPY = MarketData.GetBars(TimeFrame.Hour4, "AUDJPY");
+            h12AUDJPY = MarketData.GetBars(TimeFrame.Hour12, "AUDJPY");
+            d1AUDJPY = MarketData.GetBars(TimeFrame.Daily, "AUDJPY");
+            w1AUDJPY = MarketData.GetBars(TimeFrame.Weekly, "AUDJPY");
+            m1AUDJPY = MarketData.GetBars(TimeFrame.Monthly, "AUDJPY");
+            var adxtrendseriesAUDJPY = MarketData.GetBars(TimeFrame.Hour4, "AUDJPY");
+            var adxrangeseriesAUDJPY = MarketData.GetBars(TimeFrame.Hour4, "AUDJPY");
+            var adxnukelimiterseriesAUDJPY = MarketData.GetBars(ADXNukeLimiterTF, "AUDJPY");
+            var rsispikeseriesAUDJPY = MarketData.GetBars(RSISpikeTF, "AUDJPY");
+            var stochasticsseriesAUDJPY = MarketData.GetBars(StochTF, "AUDJPY");
+            var atroriginaltpseriesAUDJPY = MarketData.GetBars(TimeFrame.Hour, "AUDJPY");
+            var atrnukedistanceseriesAUDJPY = MarketData.GetBars(NukeDistanceATRTF, "AUDJPY");
+            var atrnuketpseriesAUDJPY = MarketData.GetBars(NukePositionATRTF, "AUDJPY");
+
+            ATRm15AUDJPY = Indicators.AverageTrueRange(m15AUDJPY, 60, MovingAverageType.Simple);
+            ATRh1AUDJPY = Indicators.AverageTrueRange(h1AUDJPY, 60, MovingAverageType.Simple);
+            ATRh4AUDJPY = Indicators.AverageTrueRange(h4AUDJPY, 60, MovingAverageType.Simple);
+            ATRh12AUDJPY = Indicators.AverageTrueRange(h12AUDJPY, 60, MovingAverageType.Simple);
+            ATRd1AUDJPY = Indicators.AverageTrueRange(d1AUDJPY, 30, MovingAverageType.Simple);
+            ATRw1AUDJPY = Indicators.AverageTrueRange(w1AUDJPY, 12, MovingAverageType.Simple);
+            ATRm1AUDJPY = Indicators.AverageTrueRange(m1AUDJPY, 3, MovingAverageType.Simple);
+            dmstrendAUDJPY = Indicators.DirectionalMovementSystem(adxtrendseriesAUDJPY, 14);
+            dmsrangeAUDJPY = Indicators.DirectionalMovementSystem(adxrangeseriesAUDJPY, 14);
+            dmsnukelimiterAUDJPY = Indicators.DirectionalMovementSystem(adxnukelimiterseriesAUDJPY, ADXSpikePeriods);
+            rsispikeAUDJPY = Indicators.RelativeStrengthIndex(rsispikeseriesAUDJPY.ClosePrices, RSIPeriods);
+            stochasticsAUDJPY = Indicators.StochasticOscillator(stochasticsseriesAUDJPY, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpAUDJPY = Indicators.AverageTrueRange(atroriginaltpseriesAUDJPY, 12, MovingAverageType.Exponential);
+            ATRnukedistanceAUDJPY = Indicators.AverageTrueRange(atrnukedistanceseriesAUDJPY, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpAUDJPY = Indicators.AverageTrueRange(atrnuketpseriesAUDJPY, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15AUDCHF = MarketData.GetBars(TimeFrame.Minute15, "AUDCHF");
+            h1AUDCHF = MarketData.GetBars(TimeFrame.Hour, "AUDCHF");
+            h4AUDCHF = MarketData.GetBars(TimeFrame.Hour4, "AUDCHF");
+            h12AUDCHF = MarketData.GetBars(TimeFrame.Hour12, "AUDCHF");
+            d1AUDCHF = MarketData.GetBars(TimeFrame.Daily, "AUDCHF");
+            w1AUDCHF = MarketData.GetBars(TimeFrame.Weekly, "AUDCHF");
+            m1AUDCHF = MarketData.GetBars(TimeFrame.Monthly, "AUDCHF");
+            var adxtrendseriesAUDCHF = MarketData.GetBars(TimeFrame.Hour4, "AUDCHF");
+            var adxrangeseriesAUDCHF = MarketData.GetBars(TimeFrame.Hour4, "AUDCHF");
+            var adxnukelimiterseriesAUDCHF = MarketData.GetBars(ADXNukeLimiterTF, "AUDCHF");
+            var rsispikeseriesAUDCHF = MarketData.GetBars(RSISpikeTF, "AUDCHF");
+            var stochasticsseriesAUDCHF = MarketData.GetBars(StochTF, "AUDCHF");
+            var atroriginaltpseriesAUDCHF = MarketData.GetBars(TimeFrame.Hour, "AUDCHF");
+            var atrnukedistanceseriesAUDCHF = MarketData.GetBars(NukeDistanceATRTF, "AUDCHF");
+            var atrnuketpseriesAUDCHF = MarketData.GetBars(NukePositionATRTF, "AUDCHF");
+
+            ATRm15AUDCHF = Indicators.AverageTrueRange(m15AUDCHF, 60, MovingAverageType.Simple);
+            ATRh1AUDCHF = Indicators.AverageTrueRange(h1AUDCHF, 60, MovingAverageType.Simple);
+            ATRh4AUDCHF = Indicators.AverageTrueRange(h4AUDCHF, 60, MovingAverageType.Simple);
+            ATRh12AUDCHF = Indicators.AverageTrueRange(h12AUDCHF, 60, MovingAverageType.Simple);
+            ATRd1AUDCHF = Indicators.AverageTrueRange(d1AUDCHF, 30, MovingAverageType.Simple);
+            ATRw1AUDCHF = Indicators.AverageTrueRange(w1AUDCHF, 12, MovingAverageType.Simple);
+            ATRm1AUDCHF = Indicators.AverageTrueRange(m1AUDCHF, 3, MovingAverageType.Simple);
+            dmstrendAUDCHF = Indicators.DirectionalMovementSystem(adxtrendseriesAUDCHF, 14);
+            dmsrangeAUDCHF = Indicators.DirectionalMovementSystem(adxrangeseriesAUDCHF, 14);
+            dmsnukelimiterAUDCHF = Indicators.DirectionalMovementSystem(adxnukelimiterseriesAUDCHF, ADXSpikePeriods);
+            rsispikeAUDCHF = Indicators.RelativeStrengthIndex(rsispikeseriesAUDCHF.ClosePrices, RSIPeriods);
+            stochasticsAUDCHF = Indicators.StochasticOscillator(stochasticsseriesAUDCHF, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpAUDCHF = Indicators.AverageTrueRange(atroriginaltpseriesAUDCHF, 12, MovingAverageType.Exponential);
+            ATRnukedistanceAUDCHF = Indicators.AverageTrueRange(atrnukedistanceseriesAUDCHF, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpAUDCHF = Indicators.AverageTrueRange(atrnuketpseriesAUDCHF, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15AUDNZD = MarketData.GetBars(TimeFrame.Minute15, "AUDNZD");
+            h1AUDNZD = MarketData.GetBars(TimeFrame.Hour, "AUDNZD");
+            h4AUDNZD = MarketData.GetBars(TimeFrame.Hour4, "AUDNZD");
+            h12AUDNZD = MarketData.GetBars(TimeFrame.Hour12, "AUDNZD");
+            d1AUDNZD = MarketData.GetBars(TimeFrame.Daily, "AUDNZD");
+            w1AUDNZD = MarketData.GetBars(TimeFrame.Weekly, "AUDNZD");
+            m1AUDNZD = MarketData.GetBars(TimeFrame.Monthly, "AUDNZD");
+            var adxtrendseriesAUDNZD = MarketData.GetBars(TimeFrame.Hour4, "AUDNZD");
+            var adxrangeseriesAUDNZD = MarketData.GetBars(TimeFrame.Hour4, "AUDNZD");
+            var adxnukelimiterseriesAUDNZD = MarketData.GetBars(ADXNukeLimiterTF, "AUDNZD");
+            var rsispikeseriesAUDNZD = MarketData.GetBars(RSISpikeTF, "AUDNZD");
+            var stochasticsseriesAUDNZD = MarketData.GetBars(StochTF, "AUDNZD");
+            var atroriginaltpseriesAUDNZD = MarketData.GetBars(TimeFrame.Hour, "AUDNZD");
+            var atrnukedistanceseriesAUDNZD = MarketData.GetBars(NukeDistanceATRTF, "AUDNZD");
+            var atrnuketpseriesAUDNZD = MarketData.GetBars(NukePositionATRTF, "AUDNZD");
+
+            ATRm15AUDNZD = Indicators.AverageTrueRange(m15AUDNZD, 60, MovingAverageType.Simple);
+            ATRh1AUDNZD = Indicators.AverageTrueRange(h1AUDNZD, 60, MovingAverageType.Simple);
+            ATRh4AUDNZD = Indicators.AverageTrueRange(h4AUDNZD, 60, MovingAverageType.Simple);
+            ATRh12AUDNZD = Indicators.AverageTrueRange(h12AUDNZD, 60, MovingAverageType.Simple);
+            ATRd1AUDNZD = Indicators.AverageTrueRange(d1AUDNZD, 30, MovingAverageType.Simple);
+            ATRw1AUDNZD = Indicators.AverageTrueRange(w1AUDNZD, 12, MovingAverageType.Simple);
+            ATRm1AUDNZD = Indicators.AverageTrueRange(m1AUDNZD, 3, MovingAverageType.Simple);
+            dmstrendAUDNZD = Indicators.DirectionalMovementSystem(adxtrendseriesAUDNZD, 14);
+            dmsrangeAUDNZD = Indicators.DirectionalMovementSystem(adxrangeseriesAUDNZD, 14);
+            dmsnukelimiterAUDNZD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesAUDNZD, ADXSpikePeriods);
+            rsispikeAUDNZD = Indicators.RelativeStrengthIndex(rsispikeseriesAUDNZD.ClosePrices, RSIPeriods);
+            stochasticsAUDNZD = Indicators.StochasticOscillator(stochasticsseriesAUDNZD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpAUDNZD = Indicators.AverageTrueRange(atroriginaltpseriesAUDNZD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceAUDNZD = Indicators.AverageTrueRange(atrnukedistanceseriesAUDNZD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpAUDNZD = Indicators.AverageTrueRange(atrnuketpseriesAUDNZD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15EURNZD = MarketData.GetBars(TimeFrame.Minute15, "EURNZD");
+            h1EURNZD = MarketData.GetBars(TimeFrame.Hour, "EURNZD");
+            h4EURNZD = MarketData.GetBars(TimeFrame.Hour4, "EURNZD");
+            h12EURNZD = MarketData.GetBars(TimeFrame.Hour12, "EURNZD");
+            d1EURNZD = MarketData.GetBars(TimeFrame.Daily, "EURNZD");
+            w1EURNZD = MarketData.GetBars(TimeFrame.Weekly, "EURNZD");
+            m1EURNZD = MarketData.GetBars(TimeFrame.Monthly, "EURNZD");
+            var adxtrendseriesEURNZD = MarketData.GetBars(TimeFrame.Hour4, "EURNZD");
+            var adxrangeseriesEURNZD = MarketData.GetBars(TimeFrame.Hour4, "EURNZD");
+            var adxnukelimiterseriesEURNZD = MarketData.GetBars(ADXNukeLimiterTF, "EURNZD");
+            var rsispikeseriesEURNZD = MarketData.GetBars(RSISpikeTF, "EURNZD");
+            var stochasticsseriesEURNZD = MarketData.GetBars(StochTF, "EURNZD");
+            var atroriginaltpseriesEURNZD = MarketData.GetBars(TimeFrame.Hour, "EURNZD");
+            var atrnukedistanceseriesEURNZD = MarketData.GetBars(NukeDistanceATRTF, "EURNZD");
+            var atrnuketpseriesEURNZD = MarketData.GetBars(NukePositionATRTF, "EURNZD");
+
+            ATRm15EURNZD = Indicators.AverageTrueRange(m15EURNZD, 60, MovingAverageType.Simple);
+            ATRh1EURNZD = Indicators.AverageTrueRange(h1EURNZD, 60, MovingAverageType.Simple);
+            ATRh4EURNZD = Indicators.AverageTrueRange(h4EURNZD, 60, MovingAverageType.Simple);
+            ATRh12EURNZD = Indicators.AverageTrueRange(h12EURNZD, 60, MovingAverageType.Simple);
+            ATRd1EURNZD = Indicators.AverageTrueRange(d1EURNZD, 30, MovingAverageType.Simple);
+            ATRw1EURNZD = Indicators.AverageTrueRange(w1EURNZD, 12, MovingAverageType.Simple);
+            ATRm1EURNZD = Indicators.AverageTrueRange(m1EURNZD, 3, MovingAverageType.Simple);
+            dmstrendEURNZD = Indicators.DirectionalMovementSystem(adxtrendseriesEURNZD, 14);
+            dmsrangeEURNZD = Indicators.DirectionalMovementSystem(adxrangeseriesEURNZD, 14);
+            dmsnukelimiterEURNZD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesEURNZD, ADXSpikePeriods);
+            rsispikeEURNZD = Indicators.RelativeStrengthIndex(rsispikeseriesEURNZD.ClosePrices, RSIPeriods);
+            stochasticsEURNZD = Indicators.StochasticOscillator(stochasticsseriesEURNZD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpEURNZD = Indicators.AverageTrueRange(atroriginaltpseriesEURNZD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceEURNZD = Indicators.AverageTrueRange(atrnukedistanceseriesEURNZD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpEURNZD = Indicators.AverageTrueRange(atrnuketpseriesEURNZD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15GBPNZD = MarketData.GetBars(TimeFrame.Minute15, "GBPNZD");
+            h1GBPNZD = MarketData.GetBars(TimeFrame.Hour, "GBPNZD");
+            h4GBPNZD = MarketData.GetBars(TimeFrame.Hour4, "GBPNZD");
+            h12GBPNZD = MarketData.GetBars(TimeFrame.Hour12, "GBPNZD");
+            d1GBPNZD = MarketData.GetBars(TimeFrame.Daily, "GBPNZD");
+            w1GBPNZD = MarketData.GetBars(TimeFrame.Weekly, "GBPNZD");
+            m1GBPNZD = MarketData.GetBars(TimeFrame.Monthly, "GBPNZD");
+            var adxtrendseriesGBPNZD = MarketData.GetBars(TimeFrame.Hour4, "GBPNZD");
+            var adxrangeseriesGBPNZD = MarketData.GetBars(TimeFrame.Hour4, "GBPNZD");
+            var adxnukelimiterseriesGBPNZD = MarketData.GetBars(ADXNukeLimiterTF, "GBPNZD");
+            var rsispikeseriesGBPNZD = MarketData.GetBars(RSISpikeTF, "GBPNZD");
+            var stochasticsseriesGBPNZD = MarketData.GetBars(StochTF, "GBPNZD");
+            var atroriginaltpseriesGBPNZD = MarketData.GetBars(TimeFrame.Hour, "GBPNZD");
+            var atrnukedistanceseriesGBPNZD = MarketData.GetBars(NukeDistanceATRTF, "GBPNZD");
+            var atrnuketpseriesGBPNZD = MarketData.GetBars(NukePositionATRTF, "GBPNZD");
+
+            ATRm15GBPNZD = Indicators.AverageTrueRange(m15GBPNZD, 60, MovingAverageType.Simple);
+            ATRh1GBPNZD = Indicators.AverageTrueRange(h1GBPNZD, 60, MovingAverageType.Simple);
+            ATRh4GBPNZD = Indicators.AverageTrueRange(h4GBPNZD, 60, MovingAverageType.Simple);
+            ATRh12GBPNZD = Indicators.AverageTrueRange(h12GBPNZD, 60, MovingAverageType.Simple);
+            ATRd1GBPNZD = Indicators.AverageTrueRange(d1GBPNZD, 30, MovingAverageType.Simple);
+            ATRw1GBPNZD = Indicators.AverageTrueRange(w1GBPNZD, 12, MovingAverageType.Simple);
+            ATRm1GBPNZD = Indicators.AverageTrueRange(m1GBPNZD, 3, MovingAverageType.Simple);
+            dmstrendGBPNZD = Indicators.DirectionalMovementSystem(adxtrendseriesGBPNZD, 14);
+            dmsrangeGBPNZD = Indicators.DirectionalMovementSystem(adxrangeseriesGBPNZD, 14);
+            dmsnukelimiterGBPNZD = Indicators.DirectionalMovementSystem(adxnukelimiterseriesGBPNZD, ADXSpikePeriods);
+            rsispikeGBPNZD = Indicators.RelativeStrengthIndex(rsispikeseriesGBPNZD.ClosePrices, RSIPeriods);
+            stochasticsGBPNZD = Indicators.StochasticOscillator(stochasticsseriesGBPNZD, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpGBPNZD = Indicators.AverageTrueRange(atroriginaltpseriesGBPNZD, 12, MovingAverageType.Exponential);
+            ATRnukedistanceGBPNZD = Indicators.AverageTrueRange(atrnukedistanceseriesGBPNZD, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpGBPNZD = Indicators.AverageTrueRange(atrnuketpseriesGBPNZD, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15NZDCHF = MarketData.GetBars(TimeFrame.Minute15, "NZDCHF");
+            h1NZDCHF = MarketData.GetBars(TimeFrame.Hour, "NZDCHF");
+            h4NZDCHF = MarketData.GetBars(TimeFrame.Hour4, "NZDCHF");
+            h12NZDCHF = MarketData.GetBars(TimeFrame.Hour12, "NZDCHF");
+            d1NZDCHF = MarketData.GetBars(TimeFrame.Daily, "NZDCHF");
+            w1NZDCHF = MarketData.GetBars(TimeFrame.Weekly, "NZDCHF");
+            m1NZDCHF = MarketData.GetBars(TimeFrame.Monthly, "NZDCHF");
+            var adxtrendseriesNZDCHF = MarketData.GetBars(TimeFrame.Hour4, "NZDCHF");
+            var adxrangeseriesNZDCHF = MarketData.GetBars(TimeFrame.Hour4, "NZDCHF");
+            var adxnukelimiterseriesNZDCHF = MarketData.GetBars(ADXNukeLimiterTF, "NZDCHF");
+            var rsispikeseriesNZDCHF = MarketData.GetBars(RSISpikeTF, "NZDCHF");
+            var stochasticsseriesNZDCHF = MarketData.GetBars(StochTF, "NZDCHF");
+            var atroriginaltpseriesNZDCHF = MarketData.GetBars(TimeFrame.Hour, "NZDCHF");
+            var atrnukedistanceseriesNZDCHF = MarketData.GetBars(NukeDistanceATRTF, "NZDCHF");
+            var atrnuketpseriesNZDCHF = MarketData.GetBars(NukePositionATRTF, "NZDCHF");
+
+            ATRm15NZDCHF = Indicators.AverageTrueRange(m15NZDCHF, 60, MovingAverageType.Simple);
+            ATRh1NZDCHF = Indicators.AverageTrueRange(h1NZDCHF, 60, MovingAverageType.Simple);
+            ATRh4NZDCHF = Indicators.AverageTrueRange(h4NZDCHF, 60, MovingAverageType.Simple);
+            ATRh12NZDCHF = Indicators.AverageTrueRange(h12NZDCHF, 60, MovingAverageType.Simple);
+            ATRd1NZDCHF = Indicators.AverageTrueRange(d1NZDCHF, 30, MovingAverageType.Simple);
+            ATRw1NZDCHF = Indicators.AverageTrueRange(w1NZDCHF, 12, MovingAverageType.Simple);
+            ATRm1NZDCHF = Indicators.AverageTrueRange(m1NZDCHF, 3, MovingAverageType.Simple);
+            dmstrendNZDCHF = Indicators.DirectionalMovementSystem(adxtrendseriesNZDCHF, 14);
+            dmsrangeNZDCHF = Indicators.DirectionalMovementSystem(adxrangeseriesNZDCHF, 14);
+            dmsnukelimiterNZDCHF = Indicators.DirectionalMovementSystem(adxnukelimiterseriesNZDCHF, ADXSpikePeriods);
+            rsispikeNZDCHF = Indicators.RelativeStrengthIndex(rsispikeseriesNZDCHF.ClosePrices, RSIPeriods);
+            stochasticsNZDCHF = Indicators.StochasticOscillator(stochasticsseriesNZDCHF, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpNZDCHF = Indicators.AverageTrueRange(atroriginaltpseriesNZDCHF, 12, MovingAverageType.Exponential);
+            ATRnukedistanceNZDCHF = Indicators.AverageTrueRange(atrnukedistanceseriesNZDCHF, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpNZDCHF = Indicators.AverageTrueRange(atrnuketpseriesNZDCHF, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15NZDJPY = MarketData.GetBars(TimeFrame.Minute15, "NZDJPY");
+            h1NZDJPY = MarketData.GetBars(TimeFrame.Hour, "NZDJPY");
+            h4NZDJPY = MarketData.GetBars(TimeFrame.Hour4, "NZDJPY");
+            h12NZDJPY = MarketData.GetBars(TimeFrame.Hour12, "NZDJPY");
+            d1NZDJPY = MarketData.GetBars(TimeFrame.Daily, "NZDJPY");
+            w1NZDJPY = MarketData.GetBars(TimeFrame.Weekly, "NZDJPY");
+            m1NZDJPY = MarketData.GetBars(TimeFrame.Monthly, "NZDJPY");
+            var adxtrendseriesNZDJPY = MarketData.GetBars(TimeFrame.Hour4, "NZDJPY");
+            var adxrangeseriesNZDJPY = MarketData.GetBars(TimeFrame.Hour4, "NZDJPY");
+            var adxnukelimiterseriesNZDJPY = MarketData.GetBars(ADXNukeLimiterTF, "NZDJPY");
+            var rsispikeseriesNZDJPY = MarketData.GetBars(RSISpikeTF, "NZDJPY");
+            var stochasticsseriesNZDJPY = MarketData.GetBars(StochTF, "NZDJPY");
+            var atroriginaltpseriesNZDJPY = MarketData.GetBars(TimeFrame.Hour, "NZDJPY");
+            var atrnukedistanceseriesNZDJPY = MarketData.GetBars(NukeDistanceATRTF, "NZDJPY");
+            var atrnuketpseriesNZDJPY = MarketData.GetBars(NukePositionATRTF, "NZDJPY");
+
+            ATRm15NZDJPY = Indicators.AverageTrueRange(m15NZDJPY, 60, MovingAverageType.Simple);
+            ATRh1NZDJPY = Indicators.AverageTrueRange(h1NZDJPY, 60, MovingAverageType.Simple);
+            ATRh4NZDJPY = Indicators.AverageTrueRange(h4NZDJPY, 60, MovingAverageType.Simple);
+            ATRh12NZDJPY = Indicators.AverageTrueRange(h12NZDJPY, 60, MovingAverageType.Simple);
+            ATRd1NZDJPY = Indicators.AverageTrueRange(d1NZDJPY, 30, MovingAverageType.Simple);
+            ATRw1NZDJPY = Indicators.AverageTrueRange(w1NZDJPY, 12, MovingAverageType.Simple);
+            ATRm1NZDJPY = Indicators.AverageTrueRange(m1NZDJPY, 3, MovingAverageType.Simple);
+            dmstrendNZDJPY = Indicators.DirectionalMovementSystem(adxtrendseriesNZDJPY, 14);
+            dmsrangeNZDJPY = Indicators.DirectionalMovementSystem(adxrangeseriesNZDJPY, 14);
+            dmsnukelimiterNZDJPY = Indicators.DirectionalMovementSystem(adxnukelimiterseriesNZDJPY, ADXSpikePeriods);
+            rsispikeNZDJPY = Indicators.RelativeStrengthIndex(rsispikeseriesNZDJPY.ClosePrices, RSIPeriods);
+            stochasticsNZDJPY = Indicators.StochasticOscillator(stochasticsseriesNZDJPY, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpNZDJPY = Indicators.AverageTrueRange(atroriginaltpseriesNZDJPY, 12, MovingAverageType.Exponential);
+            ATRnukedistanceNZDJPY = Indicators.AverageTrueRange(atrnukedistanceseriesNZDJPY, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpNZDJPY = Indicators.AverageTrueRange(atrnuketpseriesNZDJPY, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15EURJPY = MarketData.GetBars(TimeFrame.Minute15, "EURJPY");
+            h1EURJPY = MarketData.GetBars(TimeFrame.Hour, "EURJPY");
+            h4EURJPY = MarketData.GetBars(TimeFrame.Hour4, "EURJPY");
+            h12EURJPY = MarketData.GetBars(TimeFrame.Hour12, "EURJPY");
+            d1EURJPY = MarketData.GetBars(TimeFrame.Daily, "EURJPY");
+            w1EURJPY = MarketData.GetBars(TimeFrame.Weekly, "EURJPY");
+            m1EURJPY = MarketData.GetBars(TimeFrame.Monthly, "EURJPY");
+            var adxtrendseriesEURJPY = MarketData.GetBars(TimeFrame.Hour4, "EURJPY");
+            var adxrangeseriesEURJPY = MarketData.GetBars(TimeFrame.Hour4, "EURJPY");
+            var adxnukelimiterseriesEURJPY = MarketData.GetBars(ADXNukeLimiterTF, "EURJPY");
+            var rsispikeseriesEURJPY = MarketData.GetBars(RSISpikeTF, "EURJPY");
+            var stochasticsseriesEURJPY = MarketData.GetBars(StochTF, "EURJPY");
+            var atroriginaltpseriesEURJPY = MarketData.GetBars(TimeFrame.Hour, "EURJPY");
+            var atrnukedistanceseriesEURJPY = MarketData.GetBars(NukeDistanceATRTF, "EURJPY");
+            var atrnuketpseriesEURJPY = MarketData.GetBars(NukePositionATRTF, "EURJPY");
+
+            ATRm15EURJPY = Indicators.AverageTrueRange(m15EURJPY, 60, MovingAverageType.Simple);
+            ATRh1EURJPY = Indicators.AverageTrueRange(h1EURJPY, 60, MovingAverageType.Simple);
+            ATRh4EURJPY = Indicators.AverageTrueRange(h4EURJPY, 60, MovingAverageType.Simple);
+            ATRh12EURJPY = Indicators.AverageTrueRange(h12EURJPY, 60, MovingAverageType.Simple);
+            ATRd1EURJPY = Indicators.AverageTrueRange(d1EURJPY, 30, MovingAverageType.Simple);
+            ATRw1EURJPY = Indicators.AverageTrueRange(w1EURJPY, 12, MovingAverageType.Simple);
+            ATRm1EURJPY = Indicators.AverageTrueRange(m1EURJPY, 3, MovingAverageType.Simple);
+            dmstrendEURJPY = Indicators.DirectionalMovementSystem(adxtrendseriesEURJPY, 14);
+            dmsrangeEURJPY = Indicators.DirectionalMovementSystem(adxrangeseriesEURJPY, 14);
+            dmsnukelimiterEURJPY = Indicators.DirectionalMovementSystem(adxnukelimiterseriesEURJPY, ADXSpikePeriods);
+            rsispikeEURJPY = Indicators.RelativeStrengthIndex(rsispikeseriesEURJPY.ClosePrices, RSIPeriods);
+            stochasticsEURJPY = Indicators.StochasticOscillator(stochasticsseriesEURJPY, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpEURJPY = Indicators.AverageTrueRange(atroriginaltpseriesEURJPY, 12, MovingAverageType.Exponential);
+            ATRnukedistanceEURJPY = Indicators.AverageTrueRange(atrnukedistanceseriesEURJPY, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpEURJPY = Indicators.AverageTrueRange(atrnuketpseriesEURJPY, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15GBPJPY = MarketData.GetBars(TimeFrame.Minute15, "GBPJPY");
+            h1GBPJPY = MarketData.GetBars(TimeFrame.Hour, "GBPJPY");
+            h4GBPJPY = MarketData.GetBars(TimeFrame.Hour4, "GBPJPY");
+            h12GBPJPY = MarketData.GetBars(TimeFrame.Hour12, "GBPJPY");
+            d1GBPJPY = MarketData.GetBars(TimeFrame.Daily, "GBPJPY");
+            w1GBPJPY = MarketData.GetBars(TimeFrame.Weekly, "GBPJPY");
+            m1GBPJPY = MarketData.GetBars(TimeFrame.Monthly, "GBPJPY");
+            var adxtrendseriesGBPJPY = MarketData.GetBars(TimeFrame.Hour4, "GBPJPY");
+            var adxrangeseriesGBPJPY = MarketData.GetBars(TimeFrame.Hour4, "GBPJPY");
+            var adxnukelimiterseriesGBPJPY = MarketData.GetBars(ADXNukeLimiterTF, "GBPJPY");
+            var rsispikeseriesGBPJPY = MarketData.GetBars(RSISpikeTF, "GBPJPY");
+            var stochasticsseriesGBPJPY = MarketData.GetBars(StochTF, "GBPJPY");
+            var atroriginaltpseriesGBPJPY = MarketData.GetBars(TimeFrame.Hour, "GBPJPY");
+            var atrnukedistanceseriesGBPJPY = MarketData.GetBars(NukeDistanceATRTF, "GBPJPY");
+            var atrnuketpseriesGBPJPY = MarketData.GetBars(NukePositionATRTF, "GBPJPY");
+
+            ATRm15GBPJPY = Indicators.AverageTrueRange(m15GBPJPY, 60, MovingAverageType.Simple);
+            ATRh1GBPJPY = Indicators.AverageTrueRange(h1GBPJPY, 60, MovingAverageType.Simple);
+            ATRh4GBPJPY = Indicators.AverageTrueRange(h4GBPJPY, 60, MovingAverageType.Simple);
+            ATRh12GBPJPY = Indicators.AverageTrueRange(h12GBPJPY, 60, MovingAverageType.Simple);
+            ATRd1GBPJPY = Indicators.AverageTrueRange(d1GBPJPY, 30, MovingAverageType.Simple);
+            ATRw1GBPJPY = Indicators.AverageTrueRange(w1GBPJPY, 12, MovingAverageType.Simple);
+            ATRm1GBPJPY = Indicators.AverageTrueRange(m1GBPJPY, 3, MovingAverageType.Simple);
+            dmstrendGBPJPY = Indicators.DirectionalMovementSystem(adxtrendseriesGBPJPY, 14);
+            dmsrangeGBPJPY = Indicators.DirectionalMovementSystem(adxrangeseriesGBPJPY, 14);
+            dmsnukelimiterGBPJPY = Indicators.DirectionalMovementSystem(adxnukelimiterseriesGBPJPY, ADXSpikePeriods);
+            rsispikeGBPJPY = Indicators.RelativeStrengthIndex(rsispikeseriesGBPJPY.ClosePrices, RSIPeriods);
+            stochasticsGBPJPY = Indicators.StochasticOscillator(stochasticsseriesGBPJPY, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpGBPJPY = Indicators.AverageTrueRange(atroriginaltpseriesGBPJPY, 12, MovingAverageType.Exponential);
+            ATRnukedistanceGBPJPY = Indicators.AverageTrueRange(atrnukedistanceseriesGBPJPY, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpGBPJPY = Indicators.AverageTrueRange(atrnuketpseriesGBPJPY, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15CHFJPY = MarketData.GetBars(TimeFrame.Minute15, "CHFJPY");
+            h1CHFJPY = MarketData.GetBars(TimeFrame.Hour, "CHFJPY");
+            h4CHFJPY = MarketData.GetBars(TimeFrame.Hour4, "CHFJPY");
+            h12CHFJPY = MarketData.GetBars(TimeFrame.Hour12, "CHFJPY");
+            d1CHFJPY = MarketData.GetBars(TimeFrame.Daily, "CHFJPY");
+            w1CHFJPY = MarketData.GetBars(TimeFrame.Weekly, "CHFJPY");
+            m1CHFJPY = MarketData.GetBars(TimeFrame.Monthly, "CHFJPY");
+            var adxtrendseriesCHFJPY = MarketData.GetBars(TimeFrame.Hour4, "CHFJPY");
+            var adxrangeseriesCHFJPY = MarketData.GetBars(TimeFrame.Hour4, "CHFJPY");
+            var adxnukelimiterseriesCHFJPY = MarketData.GetBars(ADXNukeLimiterTF, "CHFJPY");
+            var rsispikeseriesCHFJPY = MarketData.GetBars(RSISpikeTF, "CHFJPY");
+            var stochasticsseriesCHFJPY = MarketData.GetBars(StochTF, "CHFJPY");
+            var atroriginaltpseriesCHFJPY = MarketData.GetBars(TimeFrame.Hour, "CHFJPY");
+            var atrnukedistanceseriesCHFJPY = MarketData.GetBars(NukeDistanceATRTF, "CHFJPY");
+            var atrnuketpseriesCHFJPY = MarketData.GetBars(NukePositionATRTF, "CHFJPY");
+
+            ATRm15CHFJPY = Indicators.AverageTrueRange(m15CHFJPY, 60, MovingAverageType.Simple);
+            ATRh1CHFJPY = Indicators.AverageTrueRange(h1CHFJPY, 60, MovingAverageType.Simple);
+            ATRh4CHFJPY = Indicators.AverageTrueRange(h4CHFJPY, 60, MovingAverageType.Simple);
+            ATRh12CHFJPY = Indicators.AverageTrueRange(h12CHFJPY, 60, MovingAverageType.Simple);
+            ATRd1CHFJPY = Indicators.AverageTrueRange(d1CHFJPY, 30, MovingAverageType.Simple);
+            ATRw1CHFJPY = Indicators.AverageTrueRange(w1CHFJPY, 12, MovingAverageType.Simple);
+            ATRm1CHFJPY = Indicators.AverageTrueRange(m1CHFJPY, 3, MovingAverageType.Simple);
+            dmstrendCHFJPY = Indicators.DirectionalMovementSystem(adxtrendseriesCHFJPY, 14);
+            dmsrangeCHFJPY = Indicators.DirectionalMovementSystem(adxrangeseriesCHFJPY, 14);
+            dmsnukelimiterCHFJPY = Indicators.DirectionalMovementSystem(adxnukelimiterseriesCHFJPY, ADXSpikePeriods);
+            rsispikeCHFJPY = Indicators.RelativeStrengthIndex(rsispikeseriesCHFJPY.ClosePrices, RSIPeriods);
+            stochasticsCHFJPY = Indicators.StochasticOscillator(stochasticsseriesCHFJPY, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpCHFJPY = Indicators.AverageTrueRange(atroriginaltpseriesCHFJPY, 12, MovingAverageType.Exponential);
+            ATRnukedistanceCHFJPY = Indicators.AverageTrueRange(atrnukedistanceseriesCHFJPY, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpCHFJPY = Indicators.AverageTrueRange(atrnuketpseriesCHFJPY, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15EURCHF = MarketData.GetBars(TimeFrame.Minute15, "EURCHF");
+            h1EURCHF = MarketData.GetBars(TimeFrame.Hour, "EURCHF");
+            h4EURCHF = MarketData.GetBars(TimeFrame.Hour4, "EURCHF");
+            h12EURCHF = MarketData.GetBars(TimeFrame.Hour12, "EURCHF");
+            d1EURCHF = MarketData.GetBars(TimeFrame.Daily, "EURCHF");
+            w1EURCHF = MarketData.GetBars(TimeFrame.Weekly, "EURCHF");
+            m1EURCHF = MarketData.GetBars(TimeFrame.Monthly, "EURCHF");
+            var adxtrendseriesEURCHF = MarketData.GetBars(TimeFrame.Hour4, "EURCHF");
+            var adxrangeseriesEURCHF = MarketData.GetBars(TimeFrame.Hour4, "EURCHF");
+            var adxnukelimiterseriesEURCHF = MarketData.GetBars(ADXNukeLimiterTF, "EURCHF");
+            var rsispikeseriesEURCHF = MarketData.GetBars(RSISpikeTF, "EURCHF");
+            var stochasticsseriesEURCHF = MarketData.GetBars(StochTF, "EURCHF");
+            var atroriginaltpseriesEURCHF = MarketData.GetBars(TimeFrame.Hour, "EURCHF");
+            var atrnukedistanceseriesEURCHF = MarketData.GetBars(NukeDistanceATRTF, "EURCHF");
+            var atrnuketpseriesEURCHF = MarketData.GetBars(NukePositionATRTF, "EURCHF");
+
+            ATRm15EURCHF = Indicators.AverageTrueRange(m15EURCHF, 60, MovingAverageType.Simple);
+            ATRh1EURCHF = Indicators.AverageTrueRange(h1EURCHF, 60, MovingAverageType.Simple);
+            ATRh4EURCHF = Indicators.AverageTrueRange(h4EURCHF, 60, MovingAverageType.Simple);
+            ATRh12EURCHF = Indicators.AverageTrueRange(h12EURCHF, 60, MovingAverageType.Simple);
+            ATRd1EURCHF = Indicators.AverageTrueRange(d1EURCHF, 30, MovingAverageType.Simple);
+            ATRw1EURCHF = Indicators.AverageTrueRange(w1EURCHF, 12, MovingAverageType.Simple);
+            ATRm1EURCHF = Indicators.AverageTrueRange(m1EURCHF, 3, MovingAverageType.Simple);
+            dmstrendEURCHF = Indicators.DirectionalMovementSystem(adxtrendseriesEURCHF, 14);
+            dmsrangeEURCHF = Indicators.DirectionalMovementSystem(adxrangeseriesEURCHF, 14);
+            dmsnukelimiterEURCHF = Indicators.DirectionalMovementSystem(adxnukelimiterseriesEURCHF, ADXSpikePeriods);
+            rsispikeEURCHF = Indicators.RelativeStrengthIndex(rsispikeseriesEURCHF.ClosePrices, RSIPeriods);
+            stochasticsEURCHF = Indicators.StochasticOscillator(stochasticsseriesEURCHF, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpEURCHF = Indicators.AverageTrueRange(atroriginaltpseriesEURCHF, 12, MovingAverageType.Exponential);
+            ATRnukedistanceEURCHF = Indicators.AverageTrueRange(atrnukedistanceseriesEURCHF, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpEURCHF = Indicators.AverageTrueRange(atrnuketpseriesEURCHF, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15GBPCHF = MarketData.GetBars(TimeFrame.Minute15, "GBPCHF");
+            h1GBPCHF = MarketData.GetBars(TimeFrame.Hour, "GBPCHF");
+            h4GBPCHF = MarketData.GetBars(TimeFrame.Hour4, "GBPCHF");
+            h12GBPCHF = MarketData.GetBars(TimeFrame.Hour12, "GBPCHF");
+            d1GBPCHF = MarketData.GetBars(TimeFrame.Daily, "GBPCHF");
+            w1GBPCHF = MarketData.GetBars(TimeFrame.Weekly, "GBPCHF");
+            m1GBPCHF = MarketData.GetBars(TimeFrame.Monthly, "GBPCHF");
+            var adxtrendseriesGBPCHF = MarketData.GetBars(TimeFrame.Hour4, "GBPCHF");
+            var adxrangeseriesGBPCHF = MarketData.GetBars(TimeFrame.Hour4, "GBPCHF");
+            var adxnukelimiterseriesGBPCHF = MarketData.GetBars(ADXNukeLimiterTF, "GBPCHF");
+            var rsispikeseriesGBPCHF = MarketData.GetBars(RSISpikeTF, "GBPCHF");
+            var stochasticsseriesGBPCHF = MarketData.GetBars(StochTF, "GBPCHF");
+            var atroriginaltpseriesGBPCHF = MarketData.GetBars(TimeFrame.Hour, "GBPCHF");
+            var atrnukedistanceseriesGBPCHF = MarketData.GetBars(NukeDistanceATRTF, "GBPCHF");
+            var atrnuketpseriesGBPCHF = MarketData.GetBars(NukePositionATRTF, "GBPCHF");
+
+            ATRm15GBPCHF = Indicators.AverageTrueRange(m15GBPCHF, 60, MovingAverageType.Simple);
+            ATRh1GBPCHF = Indicators.AverageTrueRange(h1GBPCHF, 60, MovingAverageType.Simple);
+            ATRh4GBPCHF = Indicators.AverageTrueRange(h4GBPCHF, 60, MovingAverageType.Simple);
+            ATRh12GBPCHF = Indicators.AverageTrueRange(h12GBPCHF, 60, MovingAverageType.Simple);
+            ATRd1GBPCHF = Indicators.AverageTrueRange(d1GBPCHF, 30, MovingAverageType.Simple);
+            ATRw1GBPCHF = Indicators.AverageTrueRange(w1GBPCHF, 12, MovingAverageType.Simple);
+            ATRm1GBPCHF = Indicators.AverageTrueRange(m1GBPCHF, 3, MovingAverageType.Simple);
+            dmstrendGBPCHF = Indicators.DirectionalMovementSystem(adxtrendseriesGBPCHF, 14);
+            dmsrangeGBPCHF = Indicators.DirectionalMovementSystem(adxrangeseriesGBPCHF, 14);
+            dmsnukelimiterGBPCHF = Indicators.DirectionalMovementSystem(adxnukelimiterseriesGBPCHF, ADXSpikePeriods);
+            rsispikeGBPCHF = Indicators.RelativeStrengthIndex(rsispikeseriesGBPCHF.ClosePrices, RSIPeriods);
+            stochasticsGBPCHF = Indicators.StochasticOscillator(stochasticsseriesGBPCHF, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpGBPCHF = Indicators.AverageTrueRange(atroriginaltpseriesGBPCHF, 12, MovingAverageType.Exponential);
+            ATRnukedistanceGBPCHF = Indicators.AverageTrueRange(atrnukedistanceseriesGBPCHF, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpGBPCHF = Indicators.AverageTrueRange(atrnuketpseriesGBPCHF, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+
+            m15EURGBP = MarketData.GetBars(TimeFrame.Minute15, "EURGBP");
+            h1EURGBP = MarketData.GetBars(TimeFrame.Hour, "EURGBP");
+            h4EURGBP = MarketData.GetBars(TimeFrame.Hour4, "EURGBP");
+            h12EURGBP = MarketData.GetBars(TimeFrame.Hour12, "EURGBP");
+            d1EURGBP = MarketData.GetBars(TimeFrame.Daily, "EURGBP");
+            w1EURGBP = MarketData.GetBars(TimeFrame.Weekly, "EURGBP");
+            m1EURGBP = MarketData.GetBars(TimeFrame.Monthly, "EURGBP");
+            var adxtrendseriesEURGBP = MarketData.GetBars(TimeFrame.Hour4, "EURGBP");
+            var adxrangeseriesEURGBP = MarketData.GetBars(TimeFrame.Hour4, "EURGBP");
+            var adxnukelimiterseriesEURGBP = MarketData.GetBars(ADXNukeLimiterTF, "EURGBP");
+            var rsispikeseriesEURGBP = MarketData.GetBars(RSISpikeTF, "EURGBP");
+            var stochasticsseriesEURGBP = MarketData.GetBars(StochTF, "EURGBP");
+            var atroriginaltpseriesEURGBP = MarketData.GetBars(TimeFrame.Hour, "EURGBP");
+            var atrnukedistanceseriesEURGBP = MarketData.GetBars(NukeDistanceATRTF, "EURGBP");
+            var atrnuketpseriesEURGBP = MarketData.GetBars(NukePositionATRTF, "EURGBP");
+
+            ATRm15EURGBP = Indicators.AverageTrueRange(m15EURGBP, 60, MovingAverageType.Simple);
+            ATRh1EURGBP = Indicators.AverageTrueRange(h1EURGBP, 60, MovingAverageType.Simple);
+            ATRh4EURGBP = Indicators.AverageTrueRange(h4EURGBP, 60, MovingAverageType.Simple);
+            ATRh12EURGBP = Indicators.AverageTrueRange(h12EURGBP, 60, MovingAverageType.Simple);
+            ATRd1EURGBP = Indicators.AverageTrueRange(d1EURGBP, 30, MovingAverageType.Simple);
+            ATRw1EURGBP = Indicators.AverageTrueRange(w1EURGBP, 12, MovingAverageType.Simple);
+            ATRm1EURGBP = Indicators.AverageTrueRange(m1EURGBP, 3, MovingAverageType.Simple);
+            dmstrendEURGBP = Indicators.DirectionalMovementSystem(adxtrendseriesEURGBP, 14);
+            dmsrangeEURGBP = Indicators.DirectionalMovementSystem(adxrangeseriesEURGBP, 14);
+            dmsnukelimiterEURGBP = Indicators.DirectionalMovementSystem(adxnukelimiterseriesEURGBP, ADXSpikePeriods);
+            rsispikeEURGBP = Indicators.RelativeStrengthIndex(rsispikeseriesEURGBP.ClosePrices, RSIPeriods);
+            stochasticsEURGBP = Indicators.StochasticOscillator(stochasticsseriesEURGBP, StochPeriods, 1, 1, MovingAverageType.Simple);
+            ATRoriginaltpEURGBP = Indicators.AverageTrueRange(atroriginaltpseriesEURGBP, 12, MovingAverageType.Exponential);
+            ATRnukedistanceEURGBP = Indicators.AverageTrueRange(atrnukedistanceseriesEURGBP, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketpEURGBP = Indicators.AverageTrueRange(atrnuketpseriesEURGBP, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+            //End of Timeframes and Indicators
+        }
+        protected override void OnBar()
+        {
+        }
+        protected override void OnTick()
+        {
+            //expiration code
+            if (timeprotected == true && DateTime.Compare(Server.Time.Date, expirytime) >= 1)
+            {
+                Chart.DrawStaticText("", "Time expired, please contact attorneyryu@gmail.com", VerticalAlignment.Top, HorizontalAlignment.Center, Color.LightBlue);
+                Stop();
+            }
+            //end of expiration code   
+
+            //informational            
+            if (Account.IsLive)
+            {
+                Chart.DrawStaticText("", "This is a live account. Blue Meth license expires on Dec. 30, 2019. To inquire, please contact attorneyryu@gmail.com", VerticalAlignment.Bottom, HorizontalAlignment.Center, Color.LightBlue);
+            }
+            else
+            {
+                Chart.DrawStaticText("", "This is a demo account. Blue Meth license expires on Dec. 30, 2019. To inquire, please contact attorneyryu@gmail.com", VerticalAlignment.Bottom, HorizontalAlignment.Center, Color.LightBlue);
+            }
+            //informational
+
+            //Risk Management
+            if (Account.UnrealizedNetProfit >= NetProfitClose)
+            {
+                Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                foreach (var position in Positions)
+                {
+                    if (position.SymbolName == SymbolName)
+                    {
+                        ClosePositionAsync(position);
+                        Print("Close All Positions due to Profit " + SymbolName);
+                    }
+                }
+            }
+            if (Account.UnrealizedNetProfit <= NetLossClose)
+            {
+                Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                foreach (var position in Positions)
+                {
+                    if (position.SymbolName == SymbolName)
+                    {
+                        ClosePositionAsync(position);
+                        Print("Close All Positions due to Loss " + SymbolName);
+                    }
+                }
+            }
+            //end of Risk Management
+        }
+        private void Symbol_Tick(SymbolTickEventArgs obj)
+        {
+            foreach (var symbol in MySymbols)
+            {
+                switch (symbol.Name)
+                {
+                    case "EURUSD":
+                        SymbolTrade(symbol, dmstrendEURUSD, dmsrangeEURUSD, dmsnukelimiterEURUSD, rsispikeEURUSD, stochasticsEURUSD, ATRoriginaltpEURUSD, ATRnukedistanceEURUSD, ATRnuketpEURUSD, ATRm1EURUSD,
+                        ATRw1EURUSD, ATRd1EURUSD, ATRh12EURUSD, ATRh4EURUSD, ATRh1EURUSD, ATRm15EURUSD, m15EURUSD, h1EURUSD, h4EURUSD, h12EURUSD,
+                        d1EURUSD, w1EURUSD, m1EURUSD);
+                        break;
+                    case "USDJPY":
+                        SymbolTrade(symbol, dmstrendUSDJPY, dmsrangeUSDJPY, dmsnukelimiterUSDJPY, rsispikeUSDJPY, stochasticsUSDJPY, ATRoriginaltpUSDJPY, ATRnukedistanceUSDJPY, ATRnuketpUSDJPY, ATRm1USDJPY,
+                        ATRw1USDJPY, ATRd1USDJPY, ATRh12USDJPY, ATRh4USDJPY, ATRh1USDJPY, ATRm15USDJPY, m15USDJPY, h1USDJPY, h4USDJPY, h12USDJPY,
+                        d1USDJPY, w1USDJPY, m1USDJPY);
+                        break;
+                    case "GBPUSD":
+                        SymbolTrade(symbol, dmstrendGBPUSD, dmsrangeGBPUSD, dmsnukelimiterGBPUSD, rsispikeGBPUSD, stochasticsGBPUSD, ATRoriginaltpGBPUSD, ATRnukedistanceGBPUSD, ATRnuketpGBPUSD, ATRm1GBPUSD,
+                        ATRw1GBPUSD, ATRd1GBPUSD, ATRh12GBPUSD, ATRh4GBPUSD, ATRh1GBPUSD, ATRm15GBPUSD, m15GBPUSD, h1GBPUSD, h4GBPUSD, h12GBPUSD,
+                        d1GBPUSD, w1GBPUSD, m1GBPUSD);
+                        break;
+                    case "USDCHF":
+                        SymbolTrade(symbol, dmstrendUSDCHF, dmsrangeUSDCHF, dmsnukelimiterUSDCHF, rsispikeUSDCHF, stochasticsUSDCHF, ATRoriginaltpUSDCHF, ATRnukedistanceUSDCHF, ATRnuketpUSDCHF, ATRm1USDCHF,
+                        ATRw1USDCHF, ATRd1USDCHF, ATRh12USDCHF, ATRh4USDCHF, ATRh1USDCHF, ATRm15USDCHF, m15USDCHF, h1USDCHF, h4USDCHF, h12USDCHF,
+                        d1USDCHF, w1USDCHF, m1USDCHF);
+                        break;
+                    case "AUDUSD":
+                        SymbolTrade(symbol, dmstrendAUDUSD, dmsrangeAUDUSD, dmsnukelimiterAUDUSD, rsispikeAUDUSD, stochasticsAUDUSD, ATRoriginaltpAUDUSD, ATRnukedistanceAUDUSD, ATRnuketpAUDUSD, ATRm1AUDUSD,
+                        ATRw1AUDUSD, ATRd1AUDUSD, ATRh12AUDUSD, ATRh4AUDUSD, ATRh1AUDUSD, ATRm15AUDUSD, m15AUDUSD, h1AUDUSD, h4AUDUSD, h12AUDUSD,
+                        d1AUDUSD, w1AUDUSD, m1AUDUSD);
+                        break;
+                    case "NZDUSD":
+                        SymbolTrade(symbol, dmstrendNZDUSD, dmsrangeNZDUSD, dmsnukelimiterNZDUSD, rsispikeNZDUSD, stochasticsNZDUSD, ATRoriginaltpNZDUSD, ATRnukedistanceNZDUSD, ATRnuketpNZDUSD, ATRm1NZDUSD,
+                        ATRw1NZDUSD, ATRd1NZDUSD, ATRh12NZDUSD, ATRh4NZDUSD, ATRh1NZDUSD, ATRm15NZDUSD, m15NZDUSD, h1NZDUSD, h4NZDUSD, h12NZDUSD,
+                        d1NZDUSD, w1NZDUSD, m1NZDUSD);
+                        break;
+                    case "USDCAD":
+                        SymbolTrade(symbol, dmstrendUSDCAD, dmsrangeUSDCAD, dmsnukelimiterUSDCAD, rsispikeUSDCAD, stochasticsUSDCAD, ATRoriginaltpUSDCAD, ATRnukedistanceUSDCAD, ATRnuketpUSDCAD, ATRm1USDCAD,
+                        ATRw1USDCAD, ATRd1USDCAD, ATRh12USDCAD, ATRh4USDCAD, ATRh1USDCAD, ATRm15USDCAD, m15USDCAD, h1USDCAD, h4USDCAD, h12USDCAD,
+                        d1USDCAD, w1USDCAD, m1USDCAD);
+                        break;
+                    case "EURCAD":
+                        SymbolTrade(symbol, dmstrendEURCAD, dmsrangeEURCAD, dmsnukelimiterEURCAD, rsispikeEURCAD, stochasticsEURCAD, ATRoriginaltpEURCAD, ATRnukedistanceEURCAD, ATRnuketpEURCAD, ATRm1EURCAD,
+                        ATRw1EURCAD, ATRd1EURCAD, ATRh12EURCAD, ATRh4EURCAD, ATRh1EURCAD, ATRm15EURCAD, m15EURCAD, h1EURCAD, h4EURCAD, h12EURCAD,
+                        d1EURCAD, w1EURCAD, m1EURCAD);
+                        break;
+                    case "GBPCAD":
+                        SymbolTrade(symbol, dmstrendGBPCAD, dmsrangeGBPCAD, dmsnukelimiterGBPCAD, rsispikeGBPCAD, stochasticsGBPCAD, ATRoriginaltpGBPCAD, ATRnukedistanceGBPCAD, ATRnuketpGBPCAD, ATRm1GBPCAD,
+                        ATRw1GBPCAD, ATRd1GBPCAD, ATRh12GBPCAD, ATRh4GBPCAD, ATRh1GBPCAD, ATRm15GBPCAD, m15GBPCAD, h1GBPCAD, h4GBPCAD, h12GBPCAD,
+                        d1GBPCAD, w1GBPCAD, m1GBPCAD);
+                        break;
+                    case "CADJPY":
+                        SymbolTrade(symbol, dmstrendCADJPY, dmsrangeCADJPY, dmsnukelimiterCADJPY, rsispikeCADJPY, stochasticsCADJPY, ATRoriginaltpCADJPY, ATRnukedistanceCADJPY, ATRnuketpCADJPY, ATRm1CADJPY,
+                        ATRw1CADJPY, ATRd1CADJPY, ATRh12CADJPY, ATRh4CADJPY, ATRh1CADJPY, ATRm15CADJPY, m15CADJPY, h1CADJPY, h4CADJPY, h12CADJPY,
+                        d1CADJPY, w1CADJPY, m1CADJPY);
+                        break;
+                    case "CADCHF":
+                        SymbolTrade(symbol, dmstrendCADCHF, dmsrangeCADCHF, dmsnukelimiterCADCHF, rsispikeCADCHF, stochasticsCADCHF, ATRoriginaltpCADCHF, ATRnukedistanceCADCHF, ATRnuketpCADCHF, ATRm1CADCHF,
+                        ATRw1CADCHF, ATRd1CADCHF, ATRh12CADCHF, ATRh4CADCHF, ATRh1CADCHF, ATRm15CADCHF, m15CADCHF, h1CADCHF, h4CADCHF, h12CADCHF,
+                        d1CADCHF, w1CADCHF, m1CADCHF);
+                        break;
+                    case "AUDCAD":
+                        SymbolTrade(symbol, dmstrendAUDCAD, dmsrangeAUDCAD, dmsnukelimiterAUDCAD, rsispikeAUDCAD, stochasticsAUDCAD, ATRoriginaltpAUDCAD, ATRnukedistanceAUDCAD, ATRnuketpAUDCAD, ATRm1AUDCAD,
+                        ATRw1AUDCAD, ATRd1AUDCAD, ATRh12AUDCAD, ATRh4AUDCAD, ATRh1AUDCAD, ATRm15AUDCAD, m15AUDCAD, h1AUDCAD, h4AUDCAD, h12AUDCAD,
+                        d1AUDCAD, w1AUDCAD, m1AUDCAD);
+                        break;
+                    case "NZDCAD":
+                        SymbolTrade(symbol, dmstrendNZDCAD, dmsrangeNZDCAD, dmsnukelimiterNZDCAD, rsispikeNZDCAD, stochasticsNZDCAD, ATRoriginaltpNZDCAD, ATRnukedistanceNZDCAD, ATRnuketpNZDCAD, ATRm1NZDCAD,
+                        ATRw1NZDCAD, ATRd1NZDCAD, ATRh12NZDCAD, ATRh4NZDCAD, ATRh1NZDCAD, ATRm15NZDCAD, m15NZDCAD, h1NZDCAD, h4NZDCAD, h12NZDCAD,
+                        d1NZDCAD, w1NZDCAD, m1NZDCAD);
+                        break;
+                    case "EURAUD":
+                        SymbolTrade(symbol, dmstrendEURAUD, dmsrangeEURAUD, dmsnukelimiterEURAUD, rsispikeEURAUD, stochasticsEURAUD, ATRoriginaltpEURAUD, ATRnukedistanceEURAUD, ATRnuketpEURAUD, ATRm1EURAUD,
+                        ATRw1EURAUD, ATRd1EURAUD, ATRh12EURAUD, ATRh4EURAUD, ATRh1EURAUD, ATRm15EURAUD, m15EURAUD, h1EURAUD, h4EURAUD, h12EURAUD,
+                        d1EURAUD, w1EURAUD, m1EURAUD);
+                        break;
+                    case "GBPAUD":
+                        SymbolTrade(symbol, dmstrendGBPAUD, dmsrangeGBPAUD, dmsnukelimiterGBPAUD, rsispikeGBPAUD, stochasticsGBPAUD, ATRoriginaltpGBPAUD, ATRnukedistanceGBPAUD, ATRnuketpGBPAUD, ATRm1GBPAUD,
+                        ATRw1GBPAUD, ATRd1GBPAUD, ATRh12GBPAUD, ATRh4GBPAUD, ATRh1GBPAUD, ATRm15GBPAUD, m15GBPAUD, h1GBPAUD, h4GBPAUD, h12GBPAUD,
+                        d1GBPAUD, w1GBPAUD, m1GBPAUD);
+                        break;
+                    case "AUDJPY":
+                        SymbolTrade(symbol, dmstrendAUDJPY, dmsrangeAUDJPY, dmsnukelimiterAUDJPY, rsispikeAUDJPY, stochasticsAUDJPY, ATRoriginaltpAUDJPY, ATRnukedistanceAUDJPY, ATRnuketpAUDJPY, ATRm1AUDJPY,
+                        ATRw1AUDJPY, ATRd1AUDJPY, ATRh12AUDJPY, ATRh4AUDJPY, ATRh1AUDJPY, ATRm15AUDJPY, m15AUDJPY, h1AUDJPY, h4AUDJPY, h12AUDJPY,
+                        d1AUDJPY, w1AUDJPY, m1AUDJPY);
+                        break;
+                    case "AUDCHF":
+                        SymbolTrade(symbol, dmstrendAUDCHF, dmsrangeAUDCHF, dmsnukelimiterAUDCHF, rsispikeAUDCHF, stochasticsAUDCHF, ATRoriginaltpAUDCHF, ATRnukedistanceAUDCHF, ATRnuketpAUDCHF, ATRm1AUDCHF,
+                        ATRw1AUDCHF, ATRd1AUDCHF, ATRh12AUDCHF, ATRh4AUDCHF, ATRh1AUDCHF, ATRm15AUDCHF, m15AUDCHF, h1AUDCHF, h4AUDCHF, h12AUDCHF,
+                        d1AUDCHF, w1AUDCHF, m1AUDCHF);
+                        break;
+                    case "AUDNZD":
+                        SymbolTrade(symbol, dmstrendAUDNZD, dmsrangeAUDNZD, dmsnukelimiterAUDNZD, rsispikeAUDNZD, stochasticsAUDNZD, ATRoriginaltpAUDNZD, ATRnukedistanceAUDNZD, ATRnuketpAUDNZD, ATRm1AUDNZD,
+                        ATRw1AUDNZD, ATRd1AUDNZD, ATRh12AUDNZD, ATRh4AUDNZD, ATRh1AUDNZD, ATRm15AUDNZD, m15AUDNZD, h1AUDNZD, h4AUDNZD, h12AUDNZD,
+                        d1AUDNZD, w1AUDNZD, m1AUDNZD);
+                        break;
+                    case "EURNZD":
+                        SymbolTrade(symbol, dmstrendEURNZD, dmsrangeEURNZD, dmsnukelimiterEURNZD, rsispikeEURNZD, stochasticsEURNZD, ATRoriginaltpEURNZD, ATRnukedistanceEURNZD, ATRnuketpEURNZD, ATRm1EURNZD,
+                        ATRw1EURNZD, ATRd1EURNZD, ATRh12EURNZD, ATRh4EURNZD, ATRh1EURNZD, ATRm15EURNZD, m15EURNZD, h1EURNZD, h4EURNZD, h12EURNZD,
+                        d1EURNZD, w1EURNZD, m1EURNZD);
+                        break;
+                    case "GBPNZD":
+                        SymbolTrade(symbol, dmstrendGBPNZD, dmsrangeGBPNZD, dmsnukelimiterGBPNZD, rsispikeGBPNZD, stochasticsGBPNZD, ATRoriginaltpGBPNZD, ATRnukedistanceGBPNZD, ATRnuketpGBPNZD, ATRm1GBPNZD,
+                        ATRw1GBPNZD, ATRd1GBPNZD, ATRh12GBPNZD, ATRh4GBPNZD, ATRh1GBPNZD, ATRm15GBPNZD, m15GBPNZD, h1GBPNZD, h4GBPNZD, h12GBPNZD,
+                        d1GBPNZD, w1GBPNZD, m1GBPNZD);
+                        break;
+                    case "NZDCHF":
+                        SymbolTrade(symbol, dmstrendNZDCHF, dmsrangeNZDCHF, dmsnukelimiterNZDCHF, rsispikeNZDCHF, stochasticsNZDCHF, ATRoriginaltpNZDCHF, ATRnukedistanceNZDCHF, ATRnuketpNZDCHF, ATRm1NZDCHF,
+                        ATRw1NZDCHF, ATRd1NZDCHF, ATRh12NZDCHF, ATRh4NZDCHF, ATRh1NZDCHF, ATRm15NZDCHF, m15NZDCHF, h1NZDCHF, h4NZDCHF, h12NZDCHF,
+                        d1NZDCHF, w1NZDCHF, m1NZDCHF);
+                        break;
+                    case "NZDJPY":
+                        SymbolTrade(symbol, dmstrendNZDJPY, dmsrangeNZDJPY, dmsnukelimiterNZDJPY, rsispikeNZDJPY, stochasticsNZDJPY, ATRoriginaltpNZDJPY, ATRnukedistanceNZDJPY, ATRnuketpNZDJPY, ATRm1NZDJPY,
+                        ATRw1NZDJPY, ATRd1NZDJPY, ATRh12NZDJPY, ATRh4NZDJPY, ATRh1NZDJPY, ATRm15NZDJPY, m15NZDJPY, h1NZDJPY, h4NZDJPY, h12NZDJPY,
+                        d1NZDJPY, w1NZDJPY, m1NZDJPY);
+                        break;
+                    case "EURJPY":
+                        SymbolTrade(symbol, dmstrendEURJPY, dmsrangeEURJPY, dmsnukelimiterEURJPY, rsispikeEURJPY, stochasticsEURJPY, ATRoriginaltpEURJPY, ATRnukedistanceEURJPY, ATRnuketpEURJPY, ATRm1EURJPY,
+                        ATRw1EURJPY, ATRd1EURJPY, ATRh12EURJPY, ATRh4EURJPY, ATRh1EURJPY, ATRm15EURJPY, m15EURJPY, h1EURJPY, h4EURJPY, h12EURJPY,
+                        d1EURJPY, w1EURJPY, m1EURJPY);
+                        break;
+                    case "GBPJPY":
+                        SymbolTrade(symbol, dmstrendGBPJPY, dmsrangeGBPJPY, dmsnukelimiterGBPJPY, rsispikeGBPJPY, stochasticsGBPJPY, ATRoriginaltpGBPJPY, ATRnukedistanceGBPJPY, ATRnuketpGBPJPY, ATRm1GBPJPY,
+                        ATRw1GBPJPY, ATRd1GBPJPY, ATRh12GBPJPY, ATRh4GBPJPY, ATRh1GBPJPY, ATRm15GBPJPY, m15GBPJPY, h1GBPJPY, h4GBPJPY, h12GBPJPY,
+                        d1GBPJPY, w1GBPJPY, m1GBPJPY);
+                        break;
+                    case "CHFJPY":
+                        SymbolTrade(symbol, dmstrendCHFJPY, dmsrangeCHFJPY, dmsnukelimiterCHFJPY, rsispikeCHFJPY, stochasticsCHFJPY, ATRoriginaltpCHFJPY, ATRnukedistanceCHFJPY, ATRnuketpCHFJPY, ATRm1CHFJPY,
+                        ATRw1CHFJPY, ATRd1CHFJPY, ATRh12CHFJPY, ATRh4CHFJPY, ATRh1CHFJPY, ATRm15CHFJPY, m15CHFJPY, h1CHFJPY, h4CHFJPY, h12CHFJPY,
+                        d1CHFJPY, w1CHFJPY, m1CHFJPY);
+                        break;
+                    case "EURCHF":
+                        SymbolTrade(symbol, dmstrendEURCHF, dmsrangeEURCHF, dmsnukelimiterEURCHF, rsispikeEURCHF, stochasticsEURCHF, ATRoriginaltpEURCHF, ATRnukedistanceEURCHF, ATRnuketpEURCHF, ATRm1EURCHF,
+                        ATRw1EURCHF, ATRd1EURCHF, ATRh12EURCHF, ATRh4EURCHF, ATRh1EURCHF, ATRm15EURCHF, m15EURCHF, h1EURCHF, h4EURCHF, h12EURCHF,
+                        d1EURCHF, w1EURCHF, m1EURCHF);
+                        break;
+                    case "GBPCHF":
+                        SymbolTrade(symbol, dmstrendGBPCHF, dmsrangeGBPCHF, dmsnukelimiterGBPCHF, rsispikeGBPCHF, stochasticsGBPCHF, ATRoriginaltpGBPCHF, ATRnukedistanceGBPCHF, ATRnuketpGBPCHF, ATRm1GBPCHF,
+                        ATRw1GBPCHF, ATRd1GBPCHF, ATRh12GBPCHF, ATRh4GBPCHF, ATRh1GBPCHF, ATRm15GBPCHF, m15GBPCHF, h1GBPCHF, h4GBPCHF, h12GBPCHF,
+                        d1GBPCHF, w1GBPCHF, m1GBPCHF);
+                        break;
+                    case "EURGBP":
+                        SymbolTrade(symbol, dmstrendEURGBP, dmsrangeEURGBP, dmsnukelimiterEURGBP, rsispikeEURGBP, stochasticsEURGBP, ATRoriginaltpEURGBP, ATRnukedistanceEURGBP, ATRnuketpEURGBP, ATRm1EURGBP,
+                        ATRw1EURGBP, ATRd1EURGBP, ATRh12EURGBP, ATRh4EURGBP, ATRh1EURGBP, ATRm15EURGBP, m15EURGBP, h1EURGBP, h4EURGBP, h12EURGBP,
+                        d1EURGBP, w1EURGBP, m1EURGBP);
+                        break;
+                }
+            }
+        }
+        private void SymbolTrade(Symbol SymbolName, DirectionalMovementSystem DMSTREND, DirectionalMovementSystem DMSRANGE, DirectionalMovementSystem DMSNUKELIMITER, RelativeStrengthIndex RSISPIKE, StochasticOscillator STOCHASTICS, AverageTrueRange ATRORIGINALTP, AverageTrueRange ATRNUKEDISTANCE, AverageTrueRange ATRNUKETP, AverageTrueRange ATRM1,
+        AverageTrueRange ATRW1, AverageTrueRange ATRD1, AverageTrueRange ATRH12, AverageTrueRange ATRH4, AverageTrueRange ATRH1, AverageTrueRange ATRM15, Bars M15, Bars H1, Bars H4, Bars H12,
+        Bars D1, Bars W1, Bars M1)
+        {
+            //variables
+            var price = (SymbolName.Bid + SymbolName.Ask) / 2;
+            var spread = SymbolName.Spread / SymbolName.PipSize;
+            var hour = Server.Time.Hour;
+            var adxtrendfilter = DMSTREND.ADX.LastValue;
+            var dmsplus = DMSTREND.DIPlus.LastValue;
+            var dmsminus = DMSTREND.DIMinus.LastValue;
+            var adxrangelimit = DMSRANGE.ADX.LastValue;
+            var sldistance = ATRW1.Result.LastValue / SymbolName.PipSize * 10;
+            var rawsldistance = ATRW1.Result.LastValue * 10;
+            var tpdistance = ATRORIGINALTP.Result.LastValue / SymbolName.PipSize;
+            var rawtpdistance = ATRORIGINALTP.Result.LastValue;
+            var nukedistance = ATRNUKEDISTANCE.Result.LastValue / SymbolName.PipSize;
+            var nuketpdistance = ATRNUKETP.Result.LastValue / SymbolName.PipSize;
+            var rawnuketpdistance = ATRNUKETP.Result.LastValue;
+            var nukespike = RSISPIKE.Result.LastValue;
+            var stochspike = STOCHASTICS.PercentK.LastValue;
+            var adxnukelimiter = DMSNUKELIMITER.ADX.LastValue;
+            bool _consolidation = false;
+            bool _consolidationbuy = false;
+            bool _consolidationsell = false;
+            var nukerounderallowance = 0.5;
+            //end of variables
+
+            //entry logic
+            //consolidation modification
+            if (!"_initialvolumeconsolidation"+SymbolName.Name && (adxnukelimiter < ADXRangeLimiter))
+            {
+                "_initialvolumeconsolidation"+SymbolName.Name = true;
+                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if ("_initialvolumeconsolidation"+SymbolName.Name && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                "_initialvolumeconsolidation"+SymbolName.Name = false;
+                Print(" Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if ("_initialvolumeconsolidation"+SymbolName.Name && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                "_initialvolumeconsolidation"+SymbolName.Name = false;
+                Print(" Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuy = true;
+                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuy && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuy = false;
+                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsell = true;
+                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsell && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsell = false;
+                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+        }
+
+    }
+}

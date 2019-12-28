@@ -27,10 +27,10 @@ namespace cAlgo.Robots
         [Parameter("Volume", DefaultValue = 1000, Group = "Risk Management")]
         public int Volume { get; set; }
 
-        [Parameter("Net Loss Close", DefaultValue = -10000, Group = "Risk Management")]
+        [Parameter("Net Loss Close", DefaultValue = -100000, Group = "Risk Management")]
         public double NetLossClose { get; set; }
 
-        [Parameter("Net Profit Close", DefaultValue = 10000, Group = "Risk Management")]
+        [Parameter("Net Profit Close", DefaultValue = 100000, Group = "Risk Management")]
         public double NetProfitClose { get; set; }
 
         [Parameter("Add Nuke TP", DefaultValue = 0.5, Group = "Targets")]
@@ -47,10 +47,10 @@ namespace cAlgo.Robots
         [Parameter("Spike TF", DefaultValue = "Minute15", Group = "Reversal")]
         public TimeFrame RSISpikeTF { get; set; }
 
-        [Parameter("Spike Upper Limit, set to 0 to disable", DefaultValue = 80, Group = "Reversal")]
+        [Parameter("Spike Upper Limit, set to 0 to disable", DefaultValue = 90, Group = "Reversal")]
         public double RSIUpperLimit { get; set; }
 
-        [Parameter("Spike Lower Limit, set to 100 to disable", DefaultValue = 20, Group = "Reversal")]
+        [Parameter("Spike Lower Limit, set to 100 to disable", DefaultValue = 10, Group = "Reversal")]
         public double RSILowerLimit { get; set; }
 
         [Parameter("S/R TF", DefaultValue = "Daily", Group = "Reversal")]
@@ -2008,7 +2008,7 @@ namespace cAlgo.Robots
             if (!_consolidationEURUSD && (adxnukelimiter < ADXRangeLimiter))
             {
                 _consolidationEURUSD = true;
-                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
             }
             //end of consolidation modification
             //buy after consolidation hitting S/R
@@ -2016,7 +2016,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
                 _consolidationEURUSD = false;
-                Print(" Open at Support = " + stochspike);
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
             }
             //end of buy after hitting S/R
             //sell after hitting S/R
@@ -2024,7 +2024,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
                 _consolidationEURUSD = false;
-                Print(" Open at Resistance = " + stochspike);
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
             }
             //end of sell after hitting S/R
             //end of entry logic
@@ -2037,7 +2037,7 @@ namespace cAlgo.Robots
                 if (!_consolidationbuyEURUSD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationbuyEURUSD = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2046,7 +2046,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
                     _consolidationbuyEURUSD = false;
-                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of buy nuke
@@ -2056,7 +2056,7 @@ namespace cAlgo.Robots
                 if (!_consolidationsellEURUSD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationsellEURUSD = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2065,7 +2065,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
                     _consolidationsellEURUSD = false;
-                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of sell nuke
@@ -2079,7 +2079,7 @@ namespace cAlgo.Robots
             if (!_consolidationUSDJPY && (adxnukelimiter < ADXRangeLimiter))
             {
                 _consolidationUSDJPY = true;
-                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
             }
             //end of consolidation modification
             //buy after consolidation hitting S/R
@@ -2087,7 +2087,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
                 _consolidationUSDJPY = false;
-                Print(" Open at Support = " + stochspike);
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
             }
             //end of buy after hitting S/R
             //sell after hitting S/R
@@ -2095,7 +2095,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
                 _consolidationUSDJPY = false;
-                Print(" Open at Resistance = " + stochspike);
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
             }
             //end of sell after hitting S/R
             //end of entry logic
@@ -2108,7 +2108,7 @@ namespace cAlgo.Robots
                 if (!_consolidationbuyUSDJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationbuyUSDJPY = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2117,7 +2117,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
                     _consolidationbuyUSDJPY = false;
-                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of buy nuke
@@ -2127,7 +2127,7 @@ namespace cAlgo.Robots
                 if (!_consolidationsellUSDJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationsellUSDJPY = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2136,7 +2136,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
                     _consolidationsellUSDJPY = false;
-                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of sell nuke
@@ -2150,7 +2150,7 @@ namespace cAlgo.Robots
             if (!_consolidationGBPUSD && (adxnukelimiter < ADXRangeLimiter))
             {
                 _consolidationGBPUSD = true;
-                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
             }
             //end of consolidation modification
             //buy after consolidation hitting S/R
@@ -2158,7 +2158,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
                 _consolidationGBPUSD = false;
-                Print(" Open at Support = " + stochspike);
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
             }
             //end of buy after hitting S/R
             //sell after hitting S/R
@@ -2166,7 +2166,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
                 _consolidationGBPUSD = false;
-                Print(" Open at Resistance = " + stochspike);
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
             }
             //end of sell after hitting S/R
             //end of entry logic
@@ -2179,7 +2179,7 @@ namespace cAlgo.Robots
                 if (!_consolidationbuyGBPUSD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationbuyGBPUSD = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2188,7 +2188,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
                     _consolidationbuyGBPUSD = false;
-                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of buy nuke
@@ -2198,7 +2198,7 @@ namespace cAlgo.Robots
                 if (!_consolidationsellGBPUSD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationsellGBPUSD = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2207,7 +2207,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
                     _consolidationsellGBPUSD = false;
-                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of sell nuke
@@ -2221,7 +2221,7 @@ namespace cAlgo.Robots
             if (!_consolidationUSDCHF && (adxnukelimiter < ADXRangeLimiter))
             {
                 _consolidationUSDCHF = true;
-                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
             }
             //end of consolidation modification
             //buy after consolidation hitting S/R
@@ -2229,7 +2229,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
                 _consolidationUSDCHF = false;
-                Print(" Open at Support = " + stochspike);
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
             }
             //end of buy after hitting S/R
             //sell after hitting S/R
@@ -2237,7 +2237,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
                 _consolidationUSDCHF = false;
-                Print(" Open at Resistance = " + stochspike);
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
             }
             //end of sell after hitting S/R
             //end of entry logic
@@ -2250,7 +2250,7 @@ namespace cAlgo.Robots
                 if (!_consolidationbuyUSDCHF && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationbuyUSDCHF = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2259,7 +2259,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
                     _consolidationbuyUSDCHF = false;
-                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of buy nuke
@@ -2269,7 +2269,7 @@ namespace cAlgo.Robots
                 if (!_consolidationsellUSDCHF && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationsellUSDCHF = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2278,7 +2278,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
                     _consolidationsellUSDCHF = false;
-                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of sell nuke
@@ -2292,7 +2292,7 @@ namespace cAlgo.Robots
             if (!_consolidationAUDUSD && (adxnukelimiter < ADXRangeLimiter))
             {
                 _consolidationAUDUSD = true;
-                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
             }
             //end of consolidation modification
             //buy after consolidation hitting S/R
@@ -2300,7 +2300,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
                 _consolidationAUDUSD = false;
-                Print(" Open at Support = " + stochspike);
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
             }
             //end of buy after hitting S/R
             //sell after hitting S/R
@@ -2308,7 +2308,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
                 _consolidationAUDUSD = false;
-                Print(" Open at Resistance = " + stochspike);
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
             }
             //end of sell after hitting S/R
             //end of entry logic
@@ -2321,7 +2321,7 @@ namespace cAlgo.Robots
                 if (!_consolidationbuyAUDUSD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationbuyAUDUSD = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2330,7 +2330,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
                     _consolidationbuyAUDUSD = false;
-                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of buy nuke
@@ -2340,7 +2340,7 @@ namespace cAlgo.Robots
                 if (!_consolidationsellAUDUSD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationsellAUDUSD = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2349,7 +2349,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
                     _consolidationsellAUDUSD = false;
-                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of sell nuke
@@ -2363,7 +2363,7 @@ namespace cAlgo.Robots
             if (!_consolidationNZDUSD && (adxnukelimiter < ADXRangeLimiter))
             {
                 _consolidationNZDUSD = true;
-                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
             }
             //end of consolidation modification
             //buy after consolidation hitting S/R
@@ -2371,7 +2371,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
                 _consolidationNZDUSD = false;
-                Print(" Open at Support = " + stochspike);
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
             }
             //end of buy after hitting S/R
             //sell after hitting S/R
@@ -2379,7 +2379,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
                 _consolidationNZDUSD = false;
-                Print(" Open at Resistance = " + stochspike);
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
             }
             //end of sell after hitting S/R
             //end of entry logic
@@ -2392,7 +2392,7 @@ namespace cAlgo.Robots
                 if (!_consolidationbuyNZDUSD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationbuyNZDUSD = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2401,7 +2401,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
                     _consolidationbuyNZDUSD = false;
-                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of buy nuke
@@ -2411,7 +2411,7 @@ namespace cAlgo.Robots
                 if (!_consolidationsellNZDUSD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationsellNZDUSD = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2420,7 +2420,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
                     _consolidationsellNZDUSD = false;
-                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of sell nuke
@@ -2434,7 +2434,7 @@ namespace cAlgo.Robots
             if (!_consolidationUSDCAD && (adxnukelimiter < ADXRangeLimiter))
             {
                 _consolidationUSDCAD = true;
-                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
             }
             //end of consolidation modification
             //buy after consolidation hitting S/R
@@ -2442,7 +2442,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
                 _consolidationUSDCAD = false;
-                Print(" Open at Support = " + stochspike);
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
             }
             //end of buy after hitting S/R
             //sell after hitting S/R
@@ -2450,7 +2450,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
                 _consolidationUSDCAD = false;
-                Print(" Open at Resistance = " + stochspike);
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
             }
             //end of sell after hitting S/R
             //end of entry logic
@@ -2463,7 +2463,7 @@ namespace cAlgo.Robots
                 if (!_consolidationbuyUSDCAD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationbuyUSDCAD = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2472,7 +2472,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
                     _consolidationbuyUSDCAD = false;
-                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of buy nuke
@@ -2482,7 +2482,7 @@ namespace cAlgo.Robots
                 if (!_consolidationsellUSDCAD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationsellUSDCAD = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2491,7 +2491,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
                     _consolidationsellUSDCAD = false;
-                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of sell nuke
@@ -2505,7 +2505,7 @@ namespace cAlgo.Robots
             if (!_consolidationEURCAD && (adxnukelimiter < ADXRangeLimiter))
             {
                 _consolidationEURCAD = true;
-                Print(" Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
             }
             //end of consolidation modification
             //buy after consolidation hitting S/R
@@ -2513,7 +2513,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
                 _consolidationEURCAD = false;
-                Print(" Open at Support = " + stochspike);
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
             }
             //end of buy after hitting S/R
             //sell after hitting S/R
@@ -2521,7 +2521,7 @@ namespace cAlgo.Robots
             {
                 ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
                 _consolidationEURCAD = false;
-                Print(" Open at Resistance = " + stochspike);
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
             }
             //end of sell after hitting S/R
             //end of entry logic
@@ -2534,7 +2534,7 @@ namespace cAlgo.Robots
                 if (!_consolidationbuyEURCAD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationbuyEURCAD = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2543,7 +2543,7 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
                     _consolidationbuyEURCAD = false;
-                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of buy nuke
@@ -2553,7 +2553,7 @@ namespace cAlgo.Robots
                 if (!_consolidationsellEURCAD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
                 {
                     _consolidationsellEURCAD = true;
-                    Print(" Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
                 }
                 //end of consolidation modification
                 //volume modification after consolidation hitting S/R
@@ -2562,7 +2562,1427 @@ namespace cAlgo.Robots
                     ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
                     ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
                     _consolidationsellEURCAD = false;
-                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "GBPCAD")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationGBPCAD && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationGBPCAD = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationGBPCAD && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationGBPCAD = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationGBPCAD && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationGBPCAD = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyGBPCAD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyGBPCAD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyGBPCAD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyGBPCAD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellGBPCAD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellGBPCAD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellGBPCAD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellGBPCAD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "CADJPY")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationCADJPY && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationCADJPY = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationCADJPY && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationCADJPY = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationCADJPY && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationCADJPY = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyCADJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyCADJPY = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyCADJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyCADJPY = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellCADJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellCADJPY = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellCADJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellCADJPY = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "CADCHF")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationCADCHF && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationCADCHF = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationCADCHF && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationCADCHF = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationCADCHF && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationCADCHF = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyCADCHF && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyCADCHF = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyCADCHF && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyCADCHF = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellCADCHF && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellCADCHF = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellCADCHF && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellCADCHF = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "AUDCAD")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationAUDCAD && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationAUDCAD = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationAUDCAD && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationAUDCAD = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationAUDCAD && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationAUDCAD = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyAUDCAD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyAUDCAD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyAUDCAD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyAUDCAD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellAUDCAD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellAUDCAD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellAUDCAD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellAUDCAD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "NZDCAD")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationNZDCAD && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationNZDCAD = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationNZDCAD && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationNZDCAD = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationNZDCAD && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationNZDCAD = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyNZDCAD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyNZDCAD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyNZDCAD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyNZDCAD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellNZDCAD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellNZDCAD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellNZDCAD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellNZDCAD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "EURAUD")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationEURAUD && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationEURAUD = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationEURAUD && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationEURAUD = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationEURAUD && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationEURAUD = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyEURAUD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyEURAUD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyEURAUD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyEURAUD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellEURAUD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellEURAUD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellEURAUD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellEURAUD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "GBPAUD")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationGBPAUD && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationGBPAUD = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationGBPAUD && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationGBPAUD = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationGBPAUD && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationGBPAUD = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyGBPAUD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyGBPAUD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyGBPAUD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyGBPAUD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellGBPAUD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellGBPAUD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellGBPAUD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellGBPAUD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "AUDJPY")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationAUDJPY && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationAUDJPY = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationAUDJPY && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationAUDJPY = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationAUDJPY && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationAUDJPY = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyAUDJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyAUDJPY = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyAUDJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyAUDJPY = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellAUDJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellAUDJPY = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellAUDJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellAUDJPY = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "AUDCHF")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationAUDCHF && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationAUDCHF = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationAUDCHF && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationAUDCHF = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationAUDCHF && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationAUDCHF = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyAUDCHF && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyAUDCHF = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyAUDCHF && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyAUDCHF = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellAUDCHF && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellAUDCHF = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellAUDCHF && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellAUDCHF = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "AUDNZD")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationAUDNZD && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationAUDNZD = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationAUDNZD && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationAUDNZD = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationAUDNZD && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationAUDNZD = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyAUDNZD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyAUDNZD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyAUDNZD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyAUDNZD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellAUDNZD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellAUDNZD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellAUDNZD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellAUDNZD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "EURNZD")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationEURNZD && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationEURNZD = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationEURNZD && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationEURNZD = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationEURNZD && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationEURNZD = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyEURNZD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyEURNZD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyEURNZD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyEURNZD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellEURNZD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellEURNZD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellEURNZD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellEURNZD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "GBPNZD")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationGBPNZD && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationGBPNZD = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationGBPNZD && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationGBPNZD = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationGBPNZD && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationGBPNZD = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyGBPNZD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyGBPNZD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyGBPNZD && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyGBPNZD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellGBPNZD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellGBPNZD = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellGBPNZD && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellGBPNZD = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "NZDCHF")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationNZDCHF && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationNZDCHF = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationNZDCHF && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationNZDCHF = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationNZDCHF && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationNZDCHF = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyNZDCHF && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyNZDCHF = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyNZDCHF && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyNZDCHF = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellNZDCHF && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellNZDCHF = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellNZDCHF && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellNZDCHF = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "NZDJPY")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationNZDJPY && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationNZDJPY = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationNZDJPY && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationNZDJPY = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationNZDJPY && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationNZDJPY = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyNZDJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyNZDJPY = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyNZDJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyNZDJPY = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellNZDJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellNZDJPY = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellNZDJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellNZDJPY = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "EURJPY")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationEURJPY && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationEURJPY = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationEURJPY && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationEURJPY = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationEURJPY && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationEURJPY = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyEURJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyEURJPY = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyEURJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyEURJPY = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellEURJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellEURJPY = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellEURJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellEURJPY = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "GBPJPY")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationGBPJPY && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationGBPJPY = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationGBPJPY && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationGBPJPY = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationGBPJPY && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationGBPJPY = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyGBPJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyGBPJPY = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyGBPJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyGBPJPY = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellGBPJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellGBPJPY = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellGBPJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellGBPJPY = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "CHFJPY")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationCHFJPY && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationCHFJPY = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationCHFJPY && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationCHFJPY = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationCHFJPY && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationCHFJPY = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyCHFJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyCHFJPY = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyCHFJPY && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyCHFJPY = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellCHFJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellCHFJPY = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellCHFJPY && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellCHFJPY = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "EURCHF")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationEURCHF && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationEURCHF = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationEURCHF && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationEURCHF = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationEURCHF && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationEURCHF = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyEURCHF && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyEURCHF = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyEURCHF && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyEURCHF = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellEURCHF && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellEURCHF = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellEURCHF && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellEURCHF = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "GBPCHF")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationGBPCHF && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationGBPCHF = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationGBPCHF && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationGBPCHF = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationGBPCHF && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationGBPCHF = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyGBPCHF && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyGBPCHF = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyGBPCHF && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyGBPCHF = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellGBPCHF && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellGBPCHF = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellGBPCHF && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellGBPCHF = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+            }
+            if (SymbolName.Name == "EURGBP")
+            {
+            //entry logic
+            //consolidation modification
+            if (!_consolidationEURGBP && (adxnukelimiter < ADXRangeLimiter))
+            {
+                _consolidationEURGBP = true;
+                Print(SymbolName.Name + " Nuke Limiter (Range) " + adxnukelimiter + " Initial Consolidation ");
+            }
+            //end of consolidation modification
+            //buy after consolidation hitting S/R
+            if (_consolidationEURGBP && (Positions.Find("Buy", SymbolName.Name, TradeType.Buy) == null) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Buy, SymbolName.Name, Volume, LimitRange, SymbolName.Ask, "Buy", null, nuketpdistance);
+                _consolidationEURGBP = false;
+                Print(SymbolName.Name + " Open at Support = " + stochspike);
+            }
+            //end of buy after hitting S/R
+            //sell after hitting S/R
+            if (_consolidationEURGBP && (Positions.Find("Sell", SymbolName.Name, TradeType.Sell) == null) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+            {
+                ExecuteMarketRangeOrder(TradeType.Sell, SymbolName.Name, Volume, LimitRange, SymbolName.Bid, "Sell", null, nuketpdistance);
+                _consolidationEURGBP = false;
+                Print(SymbolName.Name + " Open at Resistance = " + stochspike);
+            }
+            //end of sell after hitting S/R
+            //end of entry logic
+
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //consolidation modification
+                if (!_consolidationbuyEURGBP && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationbuyEURGBP = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Buy ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationbuyEURGBP && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * SymbolName.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationbuyEURGBP = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //consolidation modification 
+                if (!_consolidationsellEURGBP && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.Pips <= nukedistance * -1) && (position.SymbolName == SymbolName.Name) && (adxnukelimiter < ADXNukeLimiter))
+                {
+                    _consolidationsellEURGBP = true;
+                    Print(SymbolName.Name + " Volume " + position.VolumeInUnits + " Position " + position.TradeType + " Nuke Limiter " + adxnukelimiter + " Initial Consolidation Sell ");
+                }
+                //end of consolidation modification
+                //volume modification after consolidation hitting S/R
+                if (_consolidationsellEURGBP && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == SymbolName.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit) && (hour != 4) && (hour != 5) && (hour != 6) && (hour != 7))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * SymbolName.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    _consolidationsellEURGBP = false;
+                    Print(SymbolName.Name + " Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
                 }
                 //end of volume modification after consolidation hitting S/R
                 //end of sell nuke

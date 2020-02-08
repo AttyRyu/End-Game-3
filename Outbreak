@@ -1,0 +1,391 @@
+using System;
+using System.Linq;
+using cAlgo.API;
+using cAlgo.API.Indicators;
+using cAlgo.API.Internals;
+using cAlgo.Indicators;
+using System.Collections;
+using System.IO;
+
+namespace cAlgo.Robots
+{
+    [Robot(TimeZone = TimeZones.SingaporeStandardTime, AccessRights = AccessRights.FullAccess)]
+    public class VilmaStochastics : Robot
+    {
+        //expiration code
+        bool timeprotected = true;
+        // if true ;Expiry YEAR MM DD
+        DateTime expirytime = new DateTime(2020, 12, 30);
+        //end of expiration code
+
+        [Parameter("Limit Range", DefaultValue = 2, Group = "Anti-Slippage")]
+        public double LimitRange { get; set; }
+
+        //risk management, 0.01 lot for every 100 USD is the calculation. 400 net loss close assumes we are playing with 4 pairs on backtest
+        [Parameter("Volume", DefaultValue = 1000, Group = "Risk Management")]
+        public int Volume { get; set; }
+
+        [Parameter("Net Loss Close", DefaultValue = -1000, Group = "Risk Management")]
+        public double NetLossClose { get; set; }
+
+        [Parameter("Net Profit Close", DefaultValue = 1000, Group = "Risk Management")]
+        public double NetProfitClose { get; set; }
+
+        [Parameter("Add Nuke TP", DefaultValue = 0.5, Group = "Targets")]
+        public double NukeTP { get; set; }
+
+        [Parameter("Nuke TP Multiplier", DefaultValue = 0.1, Group = "Targets")]
+        public double NukeTPMultiplier { get; set; }
+        //end of risk management
+
+        //determining market condition
+        [Parameter("Spike Periods", DefaultValue = 8, Group = "Reversal")]
+        public int RSIPeriods { get; set; }
+
+        [Parameter("Spike TF", DefaultValue = "Minute", Group = "Reversal")]
+        public TimeFrame RSISpikeTF { get; set; }
+
+        [Parameter("Spike Upper Limit, set to 0 to disable", DefaultValue = 95, Group = "Reversal")]
+        public double RSIUpperLimit { get; set; }
+
+        [Parameter("Spike Lower Limit, set to 100 to disable", DefaultValue = 5, Group = "Reversal")]
+        public double RSILowerLimit { get; set; }
+
+        [Parameter("S/R TF", DefaultValue = "Minute5", Group = "Reversal")]
+        public TimeFrame StochTF { get; set; }
+
+        [Parameter("S/R Periods", DefaultValue = 2, Group = "Reversal")]
+        public int StochPeriods { get; set; }
+
+        [Parameter("S/R Periods 2", DefaultValue = 6, Group = "Reversal")]
+        public int StochPeriods2 { get; set; }
+
+        //[Parameter("S/R Periods 3", DefaultValue = 11, Group = "Reversal")]
+        //public int StochPeriods3 { get; set; }
+
+        //[Parameter("S/R Periods 4", DefaultValue = 16, Group = "Reversal")]
+        //public int StochPeriods4 { get; set; }
+
+        //[Parameter("S/R Periods 5", DefaultValue = 31, Group = "Reversal")]
+        //public int StochPeriods5 { get; set; }
+
+        [Parameter("Resistance", DefaultValue = 90, Group = "Reversal")]
+        public double StochUpperLimit { get; set; }
+
+        [Parameter("Support", DefaultValue = 10, Group = "Reversal")]
+        public double StochLowerLimit { get; set; }
+
+        [Parameter("Ranging Periods", DefaultValue = 12, Group = "Reversal")]
+        public int ADXSpikePeriods { get; set; }
+
+        [Parameter("Nuke Limiter TF", DefaultValue = "Minute15", Group = "Reversal")]
+        public TimeFrame ADXNukeLimiterTF { get; set; }
+
+        [Parameter("Nuke Limiter", DefaultValue = 100, Group = "Reversal")]
+        public double ADXNukeLimiter { get; set; }
+
+        [Parameter("Nuke Limiter (Range)", DefaultValue = 100, Group = "Reversal")]
+        public double ADXRangeLimiter { get; set; }
+        //end of determining market condition
+
+        //TP Targets and Nuke Distance
+        [Parameter("Nuke Distance ATR TF", DefaultValue = "Minute15", Group = "Take Profit Targets and Nuke Distance")]
+        public TimeFrame NukeDistanceATRTF { get; set; }
+
+        [Parameter("ATR NUKE DISTANCE PERIOD", DefaultValue = 96, Group = "Take Profit Targets and Nuke Distance")]
+        public int ATRNUKEDISTANCEPERIOD { get; set; }
+
+        [Parameter("Nuke Position ATR TF", DefaultValue = "Hour", Group = "Take Profit Targets and Nuke Distance")]
+        public TimeFrame NukePositionATRTF { get; set; }
+
+        [Parameter("ATR NUKE TP PERIOD", DefaultValue = 24, Group = "Take Profit Targets and Nuke Distance")]
+        public int ATRNUKETPPERIOD { get; set; }
+
+        [Parameter("Nuke TP %", DefaultValue = 1, Group = "Reversal")]
+        public double NukeTPPercentage { get; set; }
+        //end of TP Targets and Nuke Distance
+
+        //Market series declarations
+        private Bars m;
+        private Bars m5;
+        private Bars m15;
+        private Bars h1;
+        private Bars h4;
+        private Bars h12;
+        private Bars d1;
+        private Bars w1;
+        private Bars m1;
+        //end of Market series declarations
+
+        //ATR, SMA, STDEV, RSI and ADX Declarations
+        private MovingAverage smabias;
+        private StandardDeviation sdlimit;
+        private DirectionalMovementSystem dmstrend;
+        private DirectionalMovementSystem dmsexhaustion;
+        private DirectionalMovementSystem dmsrange;
+        private RelativeStrengthIndex rsispike;
+        private StochasticOscillator stochastics;
+        private StochasticOscillator stochastics2;
+        //private StochasticOscillator stochastics3;
+        //private StochasticOscillator stochastics4;
+        //private StochasticOscillator stochastics5;
+        private DirectionalMovementSystem dmsnukelimiter;
+        private AverageTrueRange ATRoriginaltp;
+        private AverageTrueRange ATRnukecorrectiondistance;
+        private AverageTrueRange ATRnukecorrectiontp;
+        private AverageTrueRange ATRnukedistance;
+        private AverageTrueRange ATRnuketp;
+        private AverageTrueRange ATRm15;
+        private AverageTrueRange ATRh1;
+        private AverageTrueRange ATRh4;
+        private AverageTrueRange ATRh12;
+        private AverageTrueRange ATRd1;
+        private AverageTrueRange ATRw1;
+        private AverageTrueRange ATRm1;
+        //end of ATR, SMA, STDEV, RSI and ADX Declarations
+
+        //flags
+        bool _initialvolumeconsolidationbuy;
+        bool _initialvolumeconsolidation;
+        bool _initialvolumeconsolidationsell;
+        //end of flags
+
+        protected override void OnStart()
+        {
+            //Timeframes
+            var smabiasseries = MarketData.GetBars(TimeFrame.Daily);
+            var stdevseries = MarketData.GetBars(TimeFrame.Daily);
+            var adxtrendseries = MarketData.GetBars(TimeFrame.Hour4);
+            var adxrangeseries = MarketData.GetSeries(TimeFrame.Hour4);
+            var adxexhaustionseries = MarketData.GetSeries(TimeFrame.Hour4);
+            var adxnukelimiterseries = MarketData.GetSeries(ADXNukeLimiterTF);
+            var rsispikeseries = MarketData.GetSeries(RSISpikeTF);
+            var stochasticsseries = MarketData.GetBars(StochTF);
+            var atroriginaltpseries = MarketData.GetSeries(TimeFrame.Hour);
+            var atrnukecorrectiondistanceseries = MarketData.GetSeries(TimeFrame.Hour4);
+            var atrnukecorrectiontpseries = MarketData.GetSeries(TimeFrame.Hour);
+            var atrnukedistanceseries = MarketData.GetSeries(NukeDistanceATRTF);
+            var atrnuketpseries = MarketData.GetSeries(NukePositionATRTF);
+            //m15 = Bars.GetSeries(TimeFrame.Minute15);
+
+            m = MarketData.GetBars(TimeFrame.Minute);
+            m5 = MarketData.GetBars(TimeFrame.Minute5);
+            m15 = MarketData.GetBars(TimeFrame.Minute15);
+            h1 = MarketData.GetBars(TimeFrame.Hour);
+            h4 = MarketData.GetBars(TimeFrame.Hour4);
+            h12 = MarketData.GetBars(TimeFrame.Hour12);
+            d1 = MarketData.GetBars(TimeFrame.Daily);
+            w1 = MarketData.GetBars(TimeFrame.Weekly);
+            m1 = MarketData.GetBars(TimeFrame.Monthly);
+            //end of Timeframes
+
+            //Trend
+            smabias = Indicators.SimpleMovingAverage(smabiasseries.ClosePrices, 10);
+            sdlimit = Indicators.StandardDeviation(stdevseries.ClosePrices, 10, MovingAverageType.Simple);
+            ///End of Trend
+
+            //ADX
+            dmstrend = Indicators.DirectionalMovementSystem(adxtrendseries, 14);
+            dmsrange = Indicators.DirectionalMovementSystem(adxrangeseries, 14);
+            dmsexhaustion = Indicators.DirectionalMovementSystem(adxexhaustionseries, 14);
+            dmsnukelimiter = Indicators.DirectionalMovementSystem(adxnukelimiterseries, ADXSpikePeriods);
+            //end of ADX
+
+            //RSI
+            rsispike = Indicators.RelativeStrengthIndex(rsispikeseries.Close, RSIPeriods);
+            //end of RSI 
+
+            //Stochastics
+            stochastics = Indicators.StochasticOscillator(stochasticsseries, StochPeriods, 1, 1, MovingAverageType.Simple);
+            stochastics2 = Indicators.StochasticOscillator(stochasticsseries, StochPeriods2, 1, 1, MovingAverageType.Simple);
+            //stochastics3 = Indicators.StochasticOscillator(stochasticsseries, StochPeriods3, 1, 1, MovingAverageType.Simple);
+            //stochastics4 = Indicators.StochasticOscillator(stochasticsseries, StochPeriods4, 1, 1, MovingAverageType.Simple);
+            //stochastics5 = Indicators.StochasticOscillator(stochasticsseries, StochPeriods5, 1, 1, MovingAverageType.Simple);
+            //End of Stochastics
+
+            //ATR
+            ATRoriginaltp = Indicators.AverageTrueRange(atroriginaltpseries, 12, MovingAverageType.Exponential);
+            ATRnukecorrectiondistance = Indicators.AverageTrueRange(atrnukecorrectiondistanceseries, 60, MovingAverageType.Simple);
+            ATRnukecorrectiontp = Indicators.AverageTrueRange(atrnukecorrectiontpseries, 60, MovingAverageType.Simple);
+            ATRnukedistance = Indicators.AverageTrueRange(atrnukedistanceseries, ATRNUKEDISTANCEPERIOD, MovingAverageType.Exponential);
+            ATRnuketp = Indicators.AverageTrueRange(atrnuketpseries, ATRNUKETPPERIOD, MovingAverageType.Exponential);
+            ATRm15 = Indicators.AverageTrueRange(m15, 60, MovingAverageType.Simple);
+            ATRh1 = Indicators.AverageTrueRange(h1, 60, MovingAverageType.Simple);
+            ATRh4 = Indicators.AverageTrueRange(h4, 60, MovingAverageType.Simple);
+            ATRh12 = Indicators.AverageTrueRange(h12, 60, MovingAverageType.Simple);
+            ATRd1 = Indicators.AverageTrueRange(d1, 30, MovingAverageType.Simple);
+            ATRw1 = Indicators.AverageTrueRange(w1, 12, MovingAverageType.Simple);
+            ATRm1 = Indicators.AverageTrueRange(m1, 3, MovingAverageType.Simple);
+            //end of ATR
+        }
+        protected override void OnBar()
+        {
+            //variables
+            var price = (Symbol.Bid + Symbol.Ask) / 2;
+            var spread = Symbol.Spread / Symbol.PipSize;
+            var hour = Server.Time.Hour;
+
+            var currentFastMa = smabias.Result.Last(0);
+            var previousFastMa = smabias.Result.Last(1);
+            var stdevlimit = sdlimit.Result.LastValue;
+
+            var adxtrendfilter = dmstrend.ADX.LastValue;
+            var dmsplus = dmstrend.DIPlus.LastValue;
+            var dmsminus = dmstrend.DIMinus.LastValue;
+            var adxexhaustion = dmsexhaustion.ADX.LastValue;
+            var adxrangelimit = dmsrange.ADX.LastValue;
+
+            var sldistance = ATRw1.Result.LastValue / Symbol.PipSize * 10;
+            var rawsldistance = ATRw1.Result.LastValue * 10;
+            var tpdistance = ATRoriginaltp.Result.LastValue / Symbol.PipSize;
+            var rawtpdistance = ATRoriginaltp.Result.LastValue;
+
+            var nukecorrectiondistance = ATRnukecorrectiondistance.Result.LastValue / Symbol.PipSize;
+            var nukecorrectiontp = ATRnukecorrectiontp.Result.LastValue / Symbol.PipSize;
+            var rawnukecorrectiontp = ATRnukecorrectiontp.Result.LastValue;
+            var nukedistance = ATRnukedistance.Result.LastValue / Symbol.PipSize;
+            var nuketpdistance = ATRnuketp.Result.LastValue / Symbol.PipSize;
+            var rawnuketpdistance = ATRnuketp.Result.LastValue;
+            var nukespike = rsispike.Result.LastValue;
+            var stochspike = stochastics.PercentK.LastValue;
+            var stochspike2 = stochastics2.PercentK.LastValue;
+            //var stochspike3 = stochastics3.PercentK.LastValue;
+            //var stochspike4 = stochastics4.PercentK.LastValue;
+            //var stochspike5 = stochastics5.PercentK.LastValue;
+            var adxnukelimiter = dmsnukelimiter.ADX.LastValue;
+            var nukerounderallowance = 0.5;
+            //end of variables
+
+            //expiration code
+            if (timeprotected == true && DateTime.Compare(Server.Time.Date, expirytime) >= 1)
+            {
+                Chart.DrawStaticText("", "Time expired, please contact attorneyryu@gmail.com", VerticalAlignment.Top, HorizontalAlignment.Center, Color.LightBlue);
+                Stop();
+            }
+            else
+            {
+                //entry logic
+                //buy after consolidation hitting S/R
+                if ((spread < LimitRange) && (stochspike <= StochLowerLimit) && (nukespike > RSILowerLimit))
+                {
+                    ExecuteMarketRangeOrder(TradeType.Buy, SymbolName, Volume, LimitRange, Symbol.Ask, "Buy", null, nuketpdistance * NukeTPPercentage);
+                    Print(" Open at Support = " + stochspike);
+                }
+                //end of buy after hitting S/R
+                //sell after hitting S/R
+                if ((spread < LimitRange) && (stochspike >= StochUpperLimit) && (nukespike < RSIUpperLimit))
+                {
+                    ExecuteMarketRangeOrder(TradeType.Sell, SymbolName, Volume, LimitRange, Symbol.Bid, "Sell", null, nuketpdistance * NukeTPPercentage);
+                    Print(" Open at Resistance = " + stochspike);
+                }
+                //end of sell after hitting S/R
+                //end of entry logic
+            }
+        }
+        protected override void OnTick()
+        {
+            //variables
+            var price = (Symbol.Bid + Symbol.Ask) / 2;
+            var spread = Symbol.Spread / Symbol.PipSize;
+            var hour = Server.Time.Hour;
+
+            var currentFastMa = smabias.Result.Last(0);
+            var previousFastMa = smabias.Result.Last(1);
+            var stdevlimit = sdlimit.Result.LastValue;
+
+            var adxtrendfilter = dmstrend.ADX.LastValue;
+            var dmsplus = dmstrend.DIPlus.LastValue;
+            var dmsminus = dmstrend.DIMinus.LastValue;
+            var adxexhaustion = dmsexhaustion.ADX.LastValue;
+            var adxrangelimit = dmsrange.ADX.LastValue;
+
+            var sldistance = ATRw1.Result.LastValue / Symbol.PipSize * 10;
+            var rawsldistance = ATRw1.Result.LastValue * 10;
+            var tpdistance = ATRoriginaltp.Result.LastValue / Symbol.PipSize;
+            var rawtpdistance = ATRoriginaltp.Result.LastValue;
+
+            var nukecorrectiondistance = ATRnukecorrectiondistance.Result.LastValue / Symbol.PipSize;
+            var nukecorrectiontp = ATRnukecorrectiontp.Result.LastValue / Symbol.PipSize;
+            var rawnukecorrectiontp = ATRnukecorrectiontp.Result.LastValue;
+            var nukedistance = ATRnukedistance.Result.LastValue / Symbol.PipSize;
+            var nuketpdistance = ATRnuketp.Result.LastValue / Symbol.PipSize;
+            var rawnuketpdistance = ATRnuketp.Result.LastValue;
+            var nukespike = rsispike.Result.LastValue;
+            var stochspike = stochastics.PercentK.LastValue;
+            var stochspike2 = stochastics2.PercentK.LastValue;
+            //var stochspike3 = stochastics3.PercentK.LastValue;
+            //var stochspike4 = stochastics4.PercentK.LastValue;
+            //var stochspike5 = stochastics5.PercentK.LastValue;
+            var adxnukelimiter = dmsnukelimiter.ADX.LastValue;
+            var nukerounderallowance = 0.5;
+            //end of variables
+
+            Chart.DrawStaticText("", "Stochastics " + stochspike, VerticalAlignment.Top, HorizontalAlignment.Right, Color.LightBlue);
+
+            //informational            
+            if (Account.IsLive)
+            {
+                Chart.DrawStaticText("", "This is a live account. Blue Meth license expires on Dec. 30, 2019. To inquire, please contact attorneyryu@gmail.com", VerticalAlignment.Bottom, HorizontalAlignment.Center, Color.LightBlue);
+            }
+            else
+            {
+                Chart.DrawStaticText("", "This is a demo account. Blue Meth license expires on Dec. 30, 2019. To inquire, please contact attorneyryu@gmail.com", VerticalAlignment.Bottom, HorizontalAlignment.Center, Color.LightBlue);
+            }
+            //informational
+            //nuking logic
+            foreach (var position in Positions)
+            {
+                //buy nuke 
+                //volume modification after consolidation hitting S/R
+                if ((position.Pips <= nukedistance * -1) && (position.Label == "Buy") && (position.TradeType == TradeType.Buy) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike > RSILowerLimit) && (stochspike <= StochLowerLimit))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice + NukeTP * Symbol.PipSize + rawnuketpdistance * NukeTPMultiplier);
+                    Print("Nuke Spike = " + nukespike + " Support = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of buy nuke
+
+                //sell nuke
+                //volume modification after consolidation hitting S/R
+                if ((position.Pips <= nukedistance * -1) && (position.Label == "Sell") && (position.TradeType == TradeType.Sell) && (position.SymbolName == Symbol.Name) && (spread < LimitRange) && (nukespike < RSIUpperLimit) && (stochspike >= StochUpperLimit))
+                {
+                    ModifyPosition(position, position.VolumeInUnits * Math.Round((position.Pips * -1) / nuketpdistance + nukerounderallowance));
+                    ModifyPosition(position, null, position.EntryPrice - NukeTP * Symbol.PipSize - rawnuketpdistance * NukeTPMultiplier);
+                    Print("Nuke Spike = " + nukespike + " Resistance = " + stochspike + " New Volume " + position.VolumeInUnits + " Position " + position.TradeType);
+                }
+                //end of volume modification after consolidation hitting S/R
+                //end of sell nuke
+            }
+            //end of nuking logic
+
+            //Risk Management
+            if (Account.UnrealizedNetProfit >= NetProfitClose)
+            {
+                Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                foreach (var position in Positions)
+                {
+                    if (position.SymbolName == Symbol.Name)
+                    {
+                        ClosePositionAsync(position);
+                        Print("Close All Positions due to Profit " + SymbolName);
+                    }
+                }
+            }
+            if (Account.UnrealizedNetProfit <= NetLossClose)
+            {
+                Print(SymbolName + " Net Profit = " + Account.UnrealizedNetProfit);
+                foreach (var position in Positions)
+                {
+                    if (position.SymbolName == Symbol.Name)
+                    {
+                        ClosePositionAsync(position);
+                        Print("Close All Positions due to Loss " + SymbolName);
+                    }
+                }
+            }
+            //end of Risk Management
+        }
+        //end of expiration code
+    }
+}
